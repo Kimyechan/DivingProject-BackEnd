@@ -35,5 +35,7 @@ public class AccountService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-
+    public Account saveAccount(Account account) {
+        return accountJpaRepo.save(account);
+    }
 }

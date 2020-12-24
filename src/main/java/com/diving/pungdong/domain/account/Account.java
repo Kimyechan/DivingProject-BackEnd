@@ -31,5 +31,5 @@ public class Account {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    Set<Role> roles = new HashSet<>();
+    Set<Role> roles;
 }
