@@ -1,7 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.4.1'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-    id 'org.asciidoctor.convert' version '1.5.8'
+    id 'org.asciidoctor.convert' version '1.5.9.2'
     id 'java'
 }
 
@@ -23,14 +23,21 @@ ext {
     set('snippetsDir', file("build/generated-snippets"))
 }
 
+bootJar {
+    dependsOn asciidoctor
+    from ("${asciidoctor.outputDir}/html5") {
+        into 'static/docs'
+    }
+}
+
 dependencies {
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
-//    implementation 'org.modelmapper:modelmapper:2.3.2'
-    compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.1'
+    implementation 'org.modelmapper:modelmapper:2.3.2'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'

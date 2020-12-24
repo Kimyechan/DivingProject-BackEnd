@@ -72,9 +72,6 @@ public class SignController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(accountDto));
         URI createUri = selfLinkBuilder.toUri();
 
-//        AccountResource accountResource = new AccountResource(account);
-//        accountResource.add(selfLinkBuilder.withSelfRel());
-
         return ResponseEntity.created(createUri).build();
     }
 
