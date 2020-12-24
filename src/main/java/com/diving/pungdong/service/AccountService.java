@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.CUserNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Role;
@@ -37,5 +38,9 @@ public class AccountService implements UserDetailsService {
 
     public Account saveAccount(Account account) {
         return accountJpaRepo.save(account);
+    }
+
+    public Account findAccountByEmail(String email) {
+        return accountJpaRepo.findByEmail(email).orElseThrow(CEmailSigninFailedException::new);
     }
 }
