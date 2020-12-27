@@ -1,6 +1,5 @@
 package com.diving.pungdong.controller.sign;
 
-import com.diving.pungdong.advice.ExceptionAdvice;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
@@ -12,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Set;
 
+import static com.diving.pungdong.controller.sign.SignController.AccountDto;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -31,9 +31,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static com.diving.pungdong.controller.sign.SignController.AccountDto;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -68,12 +66,13 @@ class SignControllerTest {
 
         mockMvc.perform(post("/sign/signup")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaTypes.HAL_JSON)
                     .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andDo(document("signUp",
                         requestHeaders(
-//                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
                         requestFields(
@@ -86,7 +85,6 @@ class SignControllerTest {
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("Location header")
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         )
                 ));
     }
@@ -108,6 +106,7 @@ class SignControllerTest {
         mockMvc.perform(post("/sign/signin")
                             .param("email", email)
                             .param("password", password))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("accessToken").exists())
                     .andExpect(jsonPath("_links.self").exists());

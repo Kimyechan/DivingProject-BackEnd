@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +31,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/sign")
+@RequestMapping(value = "/sign", produces = MediaTypes.HAL_JSON_VALUE)
 public class SignController {
 
     private final AccountService accountService;
