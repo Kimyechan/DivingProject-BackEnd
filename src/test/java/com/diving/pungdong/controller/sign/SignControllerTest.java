@@ -23,12 +23,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Set;
 
-import static com.diving.pungdong.controller.sign.SignController.AccountDto;
+import static com.diving.pungdong.controller.sign.SignController.SignUpReq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -55,7 +54,7 @@ class SignControllerTest {
     @Test
     @DisplayName("회원가입 성공")
     public void signupSuccess() throws Exception {
-        AccountDto accountDto = AccountDto.builder()
+        SignUpReq signUpReq = SignUpReq.builder()
                 .email("yechan@gmail.com")
                 .password("1234")
                 .userName("yechan")
@@ -67,24 +66,34 @@ class SignControllerTest {
         mockMvc.perform(post("/sign/signup")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaTypes.HAL_JSON)
-                    .content(objectMapper.writeValueAsString(accountDto)))
+                    .content(objectMapper.writeValueAsString(signUpReq)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("userName").exists())
                 .andDo(document("signUp",
                         requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
                         ),
                         requestFields(
-                                fieldWithPath("email").description("user id of account"),
-                                fieldWithPath("password").description("user password of account"),
-                                fieldWithPath("userName").description("user name of account"),
-                                fieldWithPath("age").description("user age of account"),
-                                fieldWithPath("gender").description("user gender of account"),
-                                fieldWithPath("roles").description("user authorities of account")
+                                fieldWithPath("email").description("유저 ID"),
+                                fieldWithPath("password").description("유저 PASSWORD"),
+                                fieldWithPath("userName").description("유저의 이름"),
+                                fieldWithPath("age").description("유저의 나이"),
+                                fieldWithPath("gender").description("유저의 성별"),
+                                fieldWithPath("roles").description("유저의 권한")
                         ),
                         responseHeaders(
-                                headerWithName(HttpHeaders.LOCATION).description("Location header")
+                                headerWithName(HttpHeaders.LOCATION).description("API 주소"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("email").description("유저 ID"),
+                                fieldWithPath("userName").description("유저의 이름"),
+                                fieldWithPath("_links.self.href").description("자신의 링크"),
+                                fieldWithPath("_links.profile.href").description("API 문서 링크"),
+                                fieldWithPath("_links.signin.href").description("로그인 링크")
                         )
                 ));
     }

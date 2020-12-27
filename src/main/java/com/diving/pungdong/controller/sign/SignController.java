@@ -5,8 +5,6 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.model.SingleResult;
-import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ResponseService;
 import lombok.AllArgsConstructor;
@@ -16,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +50,7 @@ public class SignController {
         String accessToken = jwtTokenProvider.createToken(String.valueOf(account.getId()), account.getRoles());
         SignInResponse signInResponse = new SignInResponse(accessToken);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(email, ""));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(email, password));
         EntityModel<SignInResponse> entityModel = EntityModel.of(signInResponse);
         entityModel.add(selfLinkBuilder.withSelfRel());
 
@@ -65,27 +64,43 @@ public class SignController {
     }
 
     @PostMapping(value = "/signup")
-    public ResponseEntity signin(@RequestBody AccountDto accountDto) {
-        accountDto.setPassword(passwordEncoder.encode(accountDto.getPassword()));
-        Account account = modelMapper.map(accountDto, Account.class);
+    public ResponseEntity signup(@RequestBody SignUpReq signUpReq) {
+        signUpReq.setPassword(passwordEncoder.encode(signUpReq.getPassword()));
+        Account account = modelMapper.map(signUpReq, Account.class);
         accountService.saveAccount(account);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(accountDto));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq));
         URI createUri = selfLinkBuilder.toUri();
 
-        return ResponseEntity.created(createUri).build();
+        SignUpRes signUpRes = SignUpRes.builder()
+                .email(account.getEmail())
+                .userName(account.getUserName())
+                .build();
+
+        EntityModel<SignUpRes> model = EntityModel.of(signUpRes);
+        model.add(selfLinkBuilder.withSelfRel());
+        model.add(Link.of("/docs/index.html#resource-account-create").withRel("profile"));
+        model.add(linkTo(methodOn(SignController.class).signin(account.getEmail(), account.getPassword())).withRel("signin"));
+
+        return ResponseEntity.created(createUri).body(model);
     }
 
     @Data
     @Builder
-    static class AccountDto {
+    static class SignUpReq {
         String email;
-        @JsonIgnore
         String password;
         String userName;
         Integer age;
         Gender gender;
         Set<Role> roles;
+    }
+
+    @Data
+    @Builder
+    static class SignUpRes {
+        String email;
+        String userName;
     }
 
     /**
