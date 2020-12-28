@@ -11,13 +11,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import net.minidev.json.annotate.JsonIgnore;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,12 +48,14 @@ public class SignController {
         if (!passwordEncoder.matches(password, account.getPassword())) {
             throw new CEmailSigninFailedException();
         }
+
         String accessToken = jwtTokenProvider.createToken(String.valueOf(account.getId()), account.getRoles());
         SignInResponse signInResponse = new SignInResponse(accessToken);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(email, password));
         EntityModel<SignInResponse> entityModel = EntityModel.of(signInResponse);
         entityModel.add(selfLinkBuilder.withSelfRel());
+        entityModel.add(Link.of("/docs/index.html#resource-account-login").withRel("profile"));
 
         return ResponseEntity.ok().body(entityModel);
     }

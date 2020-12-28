@@ -28,6 +28,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -64,9 +66,9 @@ class SignControllerTest {
                 .build();
 
         mockMvc.perform(post("/sign/signup")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaTypes.HAL_JSON)
-                    .content(objectMapper.writeValueAsString(signUpReq)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(signUpReq)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
@@ -74,7 +76,7 @@ class SignControllerTest {
                 .andExpect(jsonPath("userName").exists())
                 .andDo(document("signUp",
                         requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입")
                         ),
                         requestFields(
                                 fieldWithPath("email").description("유저 ID"),
@@ -91,7 +93,7 @@ class SignControllerTest {
                         responseFields(
                                 fieldWithPath("email").description("유저 ID"),
                                 fieldWithPath("userName").description("유저의 이름"),
-                                fieldWithPath("_links.self.href").description("자신의 링크"),
+                                fieldWithPath("_links.self.href").description("해당 API 링크"),
                                 fieldWithPath("_links.profile.href").description("API 문서 링크"),
                                 fieldWithPath("_links.signin.href").description("로그인 링크")
                         )
@@ -113,12 +115,30 @@ class SignControllerTest {
         given(accountService.findAccountByEmail(email)).willReturn(account);
 
         mockMvc.perform(post("/sign/signin")
-                            .param("email", email)
-                            .param("password", password))
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("accessToken").exists())
-                    .andExpect(jsonPath("_links.self").exists());
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("email", email)
+                .param("password", password))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("accessToken").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andDo(document("signIn",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입")
+                        ),
+                        requestParameters(
+                                parameterWithName("email").description("유저 ID"),
+                                parameterWithName("password").description("유저 PASSWORD")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("accessToken").description("JWT 인증 토큰 값"),
+                                fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                fieldWithPath("_links.profile.href").description("API 문서 링크")
+                        )
+                ));
     }
 
 
