@@ -1,6 +1,7 @@
 package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
+import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
@@ -20,8 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Set;
 
@@ -67,12 +71,16 @@ public class SignController {
     }
 
     @PostMapping(value = "/signup")
-    public ResponseEntity signup(@RequestBody SignUpReq signUpReq) {
+    public ResponseEntity signup(@Valid @RequestBody SignUpReq signUpReq, BindingResult result) {
+        if (result.hasErrors()) {
+            throw new SignInInputException();
+        }
+
         signUpReq.setPassword(passwordEncoder.encode(signUpReq.getPassword()));
         Account account = modelMapper.map(signUpReq, Account.class);
         accountService.saveAccount(account);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq, result));
         URI createUri = selfLinkBuilder.toUri();
 
         SignUpRes signUpRes = SignUpRes.builder()
@@ -91,12 +99,12 @@ public class SignController {
     @Data
     @Builder
     static class SignUpReq {
-        String email;
-        String password;
-        String userName;
-        Integer age;
-        Gender gender;
-        Set<Role> roles;
+        @NotNull String email;
+        @NotNull String password;
+        @NotNull String userName;
+        @NotNull Integer age;
+        @NotNull Gender gender;
+        @NotNull Set<Role> roles;
     }
 
     @Data

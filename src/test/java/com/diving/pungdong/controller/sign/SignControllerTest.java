@@ -1,10 +1,13 @@
 package com.diving.pungdong.controller.sign;
 
+import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
+import com.diving.pungdong.advice.exception.CUserNotFoundException;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.service.AccountService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -101,6 +104,21 @@ class SignControllerTest {
     }
 
     @Test
+    @DisplayName("회원 가입 실패 - 입력값이 잘못됨")
+    public void signupInputNull() throws Exception {
+        SignUpReq signUpReq = SignUpReq.builder().build();
+
+        mockMvc.perform(post("/sign/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(signUpReq)))
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("code").value(-1004))
+                .andExpect(jsonPath("success").value(false));
+    }
+
+    @Test
     @DisplayName("로그인 성공")
     public void signinSuccess() throws Exception {
         String email = "yechan@gmail.com";
@@ -141,5 +159,46 @@ class SignControllerTest {
                 ));
     }
 
+    @Test
+    @DisplayName("로그인 실패 - 이메일(ID)이 없는 경우")
+    public void signInNotFoundEmail() throws Exception {
+        String email = "yechan@gmail.com";
+        String password = "1234";
+
+        given(accountService.findAccountByEmail(email)).willThrow(CEmailSigninFailedException.class);
+
+        mockMvc.perform(post("/sign/signin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("email", email)
+                .param("password", password))
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("success").value(false))
+                .andExpect(jsonPath("code").value(-1001));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - PASSWORD가 틀린 경우")
+    public void signInNotMatchPassword() throws Exception {
+        String email = "yechan@gmail.com";
+        String password = "1234";
+        String encodedPassword = passwordEncoder.encode(password);
+
+        Account account = Account.builder()
+                .email(email)
+                .password(encodedPassword)
+                .build();
+
+        given(accountService.findAccountByEmail(email)).willReturn(account);
+
+        mockMvc.perform(post("/sign/signin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("email", email)
+                .param("password", "wrong"))
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("success").value(false))
+                .andExpect(jsonPath("code").value(-1001));
+    }
 
 }
