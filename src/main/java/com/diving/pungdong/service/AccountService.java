@@ -43,4 +43,8 @@ public class AccountService implements UserDetailsService {
     public Account findAccountByEmail(String email) {
         return accountJpaRepo.findByEmail(email).orElseThrow(CEmailSigninFailedException::new);
     }
+
+    public Account findAccountById(Long id) {
+        return accountJpaRepo.findById(id).orElseThrow(CUserNotFoundException::new);
+    }
 }

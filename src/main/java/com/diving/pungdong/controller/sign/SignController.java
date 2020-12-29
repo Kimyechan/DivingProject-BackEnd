@@ -18,15 +18,19 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.security.Principal;
 import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -42,7 +46,6 @@ public class SignController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
-    private final ResponseService responseService;
 
 
     @PostMapping(value = "/signin")
@@ -53,8 +56,10 @@ public class SignController {
             throw new CEmailSigninFailedException();
         }
 
-        String accessToken = jwtTokenProvider.createToken(String.valueOf(account.getId()), account.getRoles());
-        SignInResponse signInResponse = new SignInResponse(accessToken);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
+
+        SignInResponse signInResponse = new SignInResponse(accessToken, refreshToken);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(email, password));
         EntityModel<SignInResponse> entityModel = EntityModel.of(signInResponse);
@@ -68,6 +73,7 @@ public class SignController {
     @AllArgsConstructor
     static class SignInResponse {
         String accessToken;
+        String refreshToken;
     }
 
     @PostMapping(value = "/signup")
@@ -114,6 +120,27 @@ public class SignController {
         String userName;
     }
 
+    @GetMapping("/refresh")
+    public ResponseEntity refresh(HttpServletRequest request) {
+        String refreshToken = jwtTokenProvider.resolveToken(request);
+        Long id = Long.valueOf(jwtTokenProvider.getUserPk(refreshToken));
+
+        Account account = accountService.findAccountById(id);
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
+
+        RefreshRes refreshRes = new RefreshRes(newAccessToken, newRefreshToken);
+
+        return ResponseEntity.ok().body(refreshRes);
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class RefreshRes {
+        String accessToken;
+        String refreshToken;
+    }
     /**
      * TODO: 이메일 중복 검사
      */

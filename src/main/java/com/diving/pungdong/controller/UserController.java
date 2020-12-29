@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/user")
-    public SingleResult<Account> findUserById( @RequestParam String lang) {
+    public SingleResult<Account> findUserById() {
         // SecurityContext에서 인증받은 회원의 정보를 얻어온다.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();

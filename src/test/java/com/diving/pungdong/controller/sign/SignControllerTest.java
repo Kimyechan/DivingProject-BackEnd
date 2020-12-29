@@ -1,13 +1,12 @@
 package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
-import com.diving.pungdong.advice.exception.CUserNotFoundException;
 import com.diving.pungdong.config.RestDocsConfiguration;
+import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.service.AccountService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,10 +19,17 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.servlet.http.Cookie;
+import java.util.Collections;
 import java.util.Set;
 
 import static com.diving.pungdong.controller.sign.SignController.SignUpReq;
@@ -33,6 +39,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -52,6 +59,9 @@ class SignControllerTest {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
 
     @MockBean
     AccountService accountService;
@@ -201,4 +211,28 @@ class SignControllerTest {
                 .andExpect(jsonPath("code").value(-1001));
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("RefreshToken으로 재발급")
+    public void refresh() throws Exception {
+        Long id = 1L;
+        Account account = Account.builder()
+                            .id(id)
+                            .email("yechan@gmail.com")
+                            .roles(Set.of(Role.INSTRUCTOR))
+                            .build();
+
+        given(accountService.findAccountById(id)).willReturn(account);
+        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(id));
+        Cookie cookie = new Cookie("isRefreshToken", "true");
+
+        mockMvc.perform(get("/sign/refresh")
+                    .header("Authorization", refreshToken)
+                    .cookie(cookie))
+                    .andDo(print())
+                    .andExpect(jsonPath("accessToken").exists())
+                    .andExpect(jsonPath("refreshToken").exists());
+
+    }
+    
 }

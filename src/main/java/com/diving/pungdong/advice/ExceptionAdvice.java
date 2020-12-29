@@ -1,9 +1,6 @@
 package com.diving.pungdong.advice;
 
-import com.diving.pungdong.advice.exception.CAuthenticationEntryPointException;
-import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
-import com.diving.pungdong.advice.exception.CUserNotFoundException;
-import com.diving.pungdong.advice.exception.SignInInputException;
+import com.diving.pungdong.advice.exception.*;
 import com.diving.pungdong.model.CommonResult;
 import com.diving.pungdong.service.ResponseService;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +22,24 @@ public class ExceptionAdvice {
 
     private final MessageSource messageSource;
 
+    @ExceptionHandler(ExpiredAccessTokenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    protected CommonResult expiredAccessToken(ExpiredAccessTokenException e) {
+        return responseService.getFailResult(Integer.valueOf(getMessage("expiredAccessToken.code")), getMessage("expiredAccessToken.msg"));
+    }
+
+    @ExceptionHandler(ExpiredRefreshTokenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    protected CommonResult expiredRefreshToken(ExpiredRefreshTokenException e) {
+        return responseService.getFailResult(Integer.valueOf(getMessage("expiredRefreshToken.code")), getMessage("expiredRefreshToken.msg"));
+    }
+
     @ExceptionHandler(SignInInputException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResult signInInputException(SignInInputException e){
         return responseService.getFailResult(Integer.valueOf(getMessage("signInInputException.code")), getMessage("signInInputException.msg"));
     }
+
     @ExceptionHandler(CUserNotFoundException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResult userNotFound(HttpServletRequest request, CUserNotFoundException e) {

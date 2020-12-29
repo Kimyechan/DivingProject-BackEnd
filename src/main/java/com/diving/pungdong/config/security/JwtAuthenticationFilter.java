@@ -1,5 +1,8 @@
 package com.diving.pungdong.config.security;
 
+import com.diving.pungdong.advice.exception.ExpiredAccessTokenException;
+import com.diving.pungdong.advice.exception.ExpiredRefreshTokenException;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -10,6 +13,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -25,10 +29,21 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) servletRequest);
-        if (token != null && jwtTokenProvider.validateToken(token)) {
+        Boolean isRefreshToken = jwtTokenProvider.isRefreshToken((HttpServletRequest) servletRequest);
+
+        if (!isRefreshToken && !jwtTokenProvider.validateToken(token)) {
+            throw new ExpiredAccessTokenException();
+        }
+
+        if (isRefreshToken && !jwtTokenProvider.validateToken(token)) {
+            throw new ExpiredRefreshTokenException();
+        }
+
+        if (!isRefreshToken && token != null && jwtTokenProvider.validateToken(token)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
         filterChain.doFilter(servletRequest, servletResponse);
     }
 }

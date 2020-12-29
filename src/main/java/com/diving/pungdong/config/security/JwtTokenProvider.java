@@ -14,10 +14,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String userPk, Set<Role> roles) {
+    public String createAccessToken(String userPk, Set<Role> roles) {
         Claims claims = Jwts.claims().setSubject(userPk);
         claims.put("roles", roles);
         Date date = new Date();
@@ -44,6 +44,17 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(date)
                 .setExpiration(new Date(date.getTime() + tokenValidMilisecond))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String createRefreshToken(String userPk) {
+        Claims claims = Jwts.claims().setSubject(userPk);
+        Date date = new Date();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(date)
+                .setExpiration(new Date(date.getTime() + tokenValidMilisecond * 30))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
@@ -58,7 +69,25 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
+        return request.getHeader("Authorization");
+    }
+
+    public boolean isRefreshToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return false;
+        }
+
+        for (Cookie cookie: cookies) {
+            if (cookie.getName().equals("isRefreshToken")){
+                if (cookie.getValue().equals("true")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean validateToken(String jwtToken) {
