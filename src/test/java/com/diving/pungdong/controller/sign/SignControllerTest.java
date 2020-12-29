@@ -163,6 +163,7 @@ class SignControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("accessToken").description("JWT 인증 토큰 값"),
+                                fieldWithPath("refreshToken").description("JWT Refresh Token 값"),
                                 fieldWithPath("_links.self.href").description("해당 API 링크"),
                                 fieldWithPath("_links.profile.href").description("API 문서 링크")
                         )
@@ -212,7 +213,6 @@ class SignControllerTest {
     }
 
     @Test
-    @WithMockUser
     @DisplayName("RefreshToken으로 재발급")
     public void refresh() throws Exception {
         Long id = 1L;
@@ -232,7 +232,6 @@ class SignControllerTest {
                     .andDo(print())
                     .andExpect(jsonPath("accessToken").exists())
                     .andExpect(jsonPath("refreshToken").exists());
-
     }
     
 }

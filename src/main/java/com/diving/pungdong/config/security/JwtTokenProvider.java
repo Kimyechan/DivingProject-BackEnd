@@ -72,10 +72,10 @@ public class JwtTokenProvider {
         return request.getHeader("Authorization");
     }
 
-    public boolean isRefreshToken(HttpServletRequest request) {
+    public Boolean isRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
-            return false;
+            return null;
         }
 
         for (Cookie cookie: cookies) {

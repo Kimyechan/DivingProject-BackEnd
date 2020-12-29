@@ -30,18 +30,19 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) servletRequest);
         Boolean isRefreshToken = jwtTokenProvider.isRefreshToken((HttpServletRequest) servletRequest);
+        if (isRefreshToken != null) {
+            if (!isRefreshToken && !jwtTokenProvider.validateToken(token)) {
+                throw new ExpiredAccessTokenException();
+            }
 
-        if (!isRefreshToken && !jwtTokenProvider.validateToken(token)) {
-            throw new ExpiredAccessTokenException();
-        }
+            if (isRefreshToken && !jwtTokenProvider.validateToken(token)) {
+                throw new ExpiredRefreshTokenException();
+            }
 
-        if (isRefreshToken && !jwtTokenProvider.validateToken(token)) {
-            throw new ExpiredRefreshTokenException();
-        }
-
-        if (!isRefreshToken && token != null && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (!isRefreshToken && token != null && jwtTokenProvider.validateToken(token)) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
