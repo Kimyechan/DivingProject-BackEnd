@@ -31,11 +31,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) servletRequest);
         Boolean isRefreshToken = jwtTokenProvider.isRefreshToken((HttpServletRequest) servletRequest);
         if (isRefreshToken != null) {
-            if (!isRefreshToken && !jwtTokenProvider.validateToken(token)) {
+            if (!isRefreshToken && token != null && !jwtTokenProvider.validateToken(token)) {
                 throw new ExpiredAccessTokenException();
             }
 
-            if (isRefreshToken && !jwtTokenProvider.validateToken(token)) {
+            if (isRefreshToken && token != null && !jwtTokenProvider.validateToken(token)) {
                 throw new ExpiredRefreshTokenException();
             }
 

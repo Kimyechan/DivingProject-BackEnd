@@ -73,21 +73,11 @@ public class JwtTokenProvider {
     }
 
     public Boolean isRefreshToken(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
+        String result = request.getHeader("IsRefreshToken");
+        if (result == null) {
             return null;
         }
-
-        for (Cookie cookie: cookies) {
-            if (cookie.getName().equals("isRefreshToken")){
-                if (cookie.getValue().equals("true")){
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        return false;
+        return Boolean.valueOf(result);
     }
 
     public boolean validateToken(String jwtToken) {

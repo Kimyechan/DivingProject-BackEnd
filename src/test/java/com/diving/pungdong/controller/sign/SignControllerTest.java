@@ -224,14 +224,26 @@ class SignControllerTest {
 
         given(accountService.findAccountById(id)).willReturn(account);
         String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(id));
-        Cookie cookie = new Cookie("isRefreshToken", "true");
 
         mockMvc.perform(get("/sign/refresh")
                     .header("Authorization", refreshToken)
-                    .cookie(cookie))
+                    .header("IsRefreshToken", "true"))
                     .andDo(print())
                     .andExpect(jsonPath("accessToken").exists())
-                    .andExpect(jsonPath("refreshToken").exists());
+                    .andExpect(jsonPath("refreshToken").exists())
+                    .andDo(document("getRefreshToken",
+                            requestHeaders(
+                                    headerWithName("Authorization").description("refresh token 값"),
+                                    headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                            ),
+                            responseFields(
+                                    fieldWithPath("accessToken").description("재발급된 access token"),
+                                    fieldWithPath("refreshToken").description("재발급된 refresh token")
+                            ),
+                            responseHeaders(
+                                    headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                            )
+                    ));
     }
     
 }
