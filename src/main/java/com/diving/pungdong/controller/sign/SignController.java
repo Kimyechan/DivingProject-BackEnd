@@ -3,16 +3,18 @@ package com.diving.pungdong.controller.sign;
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.config.security.JwtTokenProvider;
+import com.diving.pungdong.domain.Token;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.repo.TokenRedisRepo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ResponseService;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
@@ -26,12 +28,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.Lob;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -46,6 +51,7 @@ public class SignController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     @PostMapping(value = "/signin")
@@ -129,10 +135,14 @@ public class SignController {
 
         String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
-
         RefreshRes refreshRes = new RefreshRes(newAccessToken, newRefreshToken);
 
-        return ResponseEntity.ok().body(refreshRes);
+        EntityModel<RefreshRes> entity = EntityModel.of(refreshRes);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).refresh(request));
+        entity.add(selfLinkBuilder.withSelfRel());
+        entity.add(Link.of("/docs/index.html#resource-account-tokenRefresh").withRel("profile"));
+
+        return ResponseEntity.ok().body(entity);
     }
 
     @Data
@@ -140,6 +150,27 @@ public class SignController {
     static class RefreshRes {
         String accessToken;
         String refreshToken;
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
+        redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60*60*1000, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60*60*1000*30, TimeUnit.MILLISECONDS);
+
+        EntityModel<LogoutRes> entity = EntityModel.of(new LogoutRes());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    static class LogoutReq {
+        String accessToken;
+        String refreshToken;
+    }
+
+    static class LogoutRes {
     }
     /**
      * TODO: 이메일 중복 검사

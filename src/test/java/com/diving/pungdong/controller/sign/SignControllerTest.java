@@ -6,6 +6,7 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -19,21 +20,24 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithSecurityContext;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.servlet.http.Cookie;
+import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.diving.pungdong.controller.sign.SignController.SignUpReq;
+import static com.diving.pungdong.controller.sign.SignController.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -231,19 +235,58 @@ class SignControllerTest {
                     .andDo(print())
                     .andExpect(jsonPath("accessToken").exists())
                     .andExpect(jsonPath("refreshToken").exists())
-                    .andDo(document("getRefreshToken",
+                    .andDo(document("refresh",
                             requestHeaders(
                                     headerWithName("Authorization").description("refresh token 값"),
                                     headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
                             ),
-                            responseFields(
-                                    fieldWithPath("accessToken").description("재발급된 access token"),
-                                    fieldWithPath("refreshToken").description("재발급된 refresh token")
-                            ),
                             responseHeaders(
                                     headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                            ),
+                            responseFields(
+                                    fieldWithPath("accessToken").description("재발급된 access token"),
+                                    fieldWithPath("refreshToken").description("재발급된 refresh token"),
+                                    fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                    fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
                             )
                     ));
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    public void logout() throws Exception {
+        Account account = Account.builder()
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password("1234")
+                .roles(Set.of(Role.INSTRUCTOR))
+                .build();
+
+        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
+                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
+
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
+
+        LogoutReq logoutReq = LogoutReq.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        mockMvc.perform(get("/sign/logout")
+                            .header("Authorization", accessToken)
+                            .header("IsRefreshToken", "false")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(logoutReq)))
+                        .andDo(print())
+                        .andExpect(status().isOk());
+
+    }
+
+    private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
+        return roles.stream()
+                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
+                .collect(Collectors.toList());
     }
     
 }

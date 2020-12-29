@@ -105,3 +105,7 @@ operation::signUp[]
 [[resource-account-login]]
 === 유저 로그인
 operation::signIn[]
+
+[[resource-accout-tokenRefresh]]
+=== 토큰 재발급
+operation::refresh[]

@@ -13,7 +13,6 @@ import java.util.Set;
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @Builder @NoArgsConstructor @AllArgsConstructor
 public class Account {
-
     @Id @GeneratedValue
     Long id;
 

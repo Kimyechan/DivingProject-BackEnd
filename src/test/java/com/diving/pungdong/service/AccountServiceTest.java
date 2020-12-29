@@ -9,8 +9,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,5 +64,18 @@ class AccountServiceTest {
         assertThat(savedAccount).isNotNull();
     }
 
+    @Test
+    public void userDetailService() {
+        Account account = Account.builder()
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password("1234")
+                .roles(Set.of(Role.INSTRUCTOR))
+                .build();
 
+        given(accountJpaRepo.findById(account.getId())).willReturn(java.util.Optional.of(account));
+
+        UserDetails userDetails = accountService.loadUserByUsername(String.valueOf(account.getId()));
+        assertThat(userDetails.getUsername()).isEqualTo("yechan@gmail.com");
+    }
 }

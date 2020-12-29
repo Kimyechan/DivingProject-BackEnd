@@ -22,6 +22,12 @@ public class ExceptionAdvice {
 
     private final MessageSource messageSource;
 
+    @ExceptionHandler(ForbiddenTokenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    protected CommonResult invalidToken(ForbiddenTokenException e) {
+        return responseService.getFailResult(Integer.valueOf(getMessage("forbiddenToken.code")), getMessage("forbiddenToken.msg"));
+    }
+
     @ExceptionHandler(ExpiredAccessTokenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     protected CommonResult expiredAccessToken(ExpiredAccessTokenException e) {
