@@ -70,12 +70,12 @@ public class ExceptionAdvice {
         return responseService.getFailResult(Integer.valueOf(getMessage("accessDenied.code")), getMessage("accessDenied.msg"));
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult defaultException(HttpServletRequest request, Exception e) {
-        // 예외 처리의 메시지를 MessageSource에서 가져오도록 수정
-        return responseService.getFailResult(Integer.valueOf(getMessage("unKnown.code")), getMessage("unKnown.msg"));
-    }
+//    @ExceptionHandler(Exception.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    protected CommonResult defaultException(HttpServletRequest request, Exception e) {
+//        // 예외 처리의 메시지를 MessageSource에서 가져오도록 수정
+//        return responseService.getFailResult(Integer.valueOf(getMessage("unKnown.code")), getMessage("unKnown.msg"));
+//    }
 
     // code정보에 해당하는 메시지를 조회합니다.
     private String getMessage(String code) {

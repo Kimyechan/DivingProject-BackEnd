@@ -106,6 +106,10 @@ operation::signUp[]
 === 유저 로그인
 operation::signIn[]
 
-[[resource-accout-tokenRefresh]]
+[[resource-account-tokenRefresh]]
 === 토큰 재발급
 operation::refresh[]
+
+[[resource-account-logout]]
+=== 유저 로그아웃
+operation::logout[]

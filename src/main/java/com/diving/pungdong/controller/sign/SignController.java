@@ -3,38 +3,30 @@ package com.diving.pungdong.controller.sign;
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.domain.Token;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.repo.TokenRedisRepo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ResponseService;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.Lob;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
-import java.security.Principal;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +40,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class SignController {
 
     private final AccountService accountService;
+    private final ResponseService responseService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
@@ -155,11 +148,13 @@ public class SignController {
     @GetMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
         redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60*60*1000, TimeUnit.MILLISECONDS);
-        redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60*60*1000*30, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60*60*1000*14, TimeUnit.MILLISECONDS);
 
         EntityModel<LogoutRes> entity = EntityModel.of(new LogoutRes());
+        entity.add(linkTo(methodOn(SignController.class).logout(logoutReq)).withSelfRel());
+        entity.add(Link.of("/docs/index.html#resource-account-logout").withRel("profile"));
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(entity);
     }
 
     @Data
@@ -170,7 +165,9 @@ public class SignController {
         String refreshToken;
     }
 
+    @Data
     static class LogoutRes {
+        String message = "로그아웃이 완료됐습니다";
     }
     /**
      * TODO: 이메일 중복 검사

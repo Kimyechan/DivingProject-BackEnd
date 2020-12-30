@@ -279,8 +279,21 @@ class SignControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(logoutReq)))
                         .andDo(print())
-                        .andExpect(status().isOk());
-
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("message").exists())
+                        .andDo(document("logout",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
+                                        headerWithName("IsRefreshToken").description("refresh token 인지 아닌지에 대한 값")),
+                                requestFields(
+                                        fieldWithPath("accessToken").description("access token 값"),
+                                        fieldWithPath("refreshToken").description("refresh token 값")),
+                                responseFields(
+                                        fieldWithPath("message").description("성공 메세지"),
+                                        fieldWithPath("_links.self.href").description("해당 API 주소"),
+                                        fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
+                                )
+                        ));
     }
 
     private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
@@ -288,5 +301,4 @@ class SignControllerTest {
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
                 .collect(Collectors.toList());
     }
-    
 }
