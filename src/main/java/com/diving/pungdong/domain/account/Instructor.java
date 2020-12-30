@@ -7,10 +7,7 @@ import java.util.List;
 
 @Entity
 public class Instructor extends Account{
-    /**
-     * 강사 수강생 매핑
-     */
-
     @OneToMany(mappedBy = "instructor")
-    List<InstructorStudent> students = new ArrayList<>();
+    private List<InstructorStudent> students = new ArrayList<>();
+    private Long income;
 }

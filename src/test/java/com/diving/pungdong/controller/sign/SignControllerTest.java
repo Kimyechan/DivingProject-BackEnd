@@ -53,6 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
+@Transactional
 class SignControllerTest {
 
     @Autowired
@@ -71,8 +72,8 @@ class SignControllerTest {
     AccountService accountService;
 
     @Test
-    @DisplayName("회원가입 성공")
-    public void signupSuccess() throws Exception {
+    @DisplayName("회원가입 성공 - 강사")
+    public void signupInstructorSuccess() throws Exception {
         SignUpReq signUpReq = SignUpReq.builder()
                 .email("yechan@gmail.com")
                 .password("1234")
@@ -115,6 +116,29 @@ class SignControllerTest {
                                 fieldWithPath("_links.signin.href").description("로그인 링크")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("회원가입 성공 - 수강생")
+    public void signupStudentSuccess() throws Exception {
+        SignUpReq signUpReq = SignUpReq.builder()
+                .email("yechan@gmail.com")
+                .password("1234")
+                .userName("yechan")
+                .age(24)
+                .gender(Gender.MALE)
+                .roles(Set.of(Role.STUDENT))
+                .build();
+
+        mockMvc.perform(post("/sign/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(signUpReq)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("userName").exists());
     }
 
     @Test

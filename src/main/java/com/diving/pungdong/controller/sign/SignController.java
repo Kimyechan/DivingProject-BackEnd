@@ -3,15 +3,12 @@ package com.diving.pungdong.controller.sign;
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.Gender;
-import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.account.*;
 import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.InstructorService;
 import com.diving.pungdong.service.ResponseService;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import com.diving.pungdong.service.StudentService;
+import lombok.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.EntityModel;
@@ -40,11 +37,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class SignController {
 
     private final AccountService accountService;
-    private final ResponseService responseService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final InstructorService instructorService;
+    private final StudentService studentService;
 
 
     @PostMapping(value = "/signin")
@@ -82,26 +80,34 @@ public class SignController {
         }
 
         signUpReq.setPassword(passwordEncoder.encode(signUpReq.getPassword()));
-        Account account = modelMapper.map(signUpReq, Account.class);
-        accountService.saveAccount(account);
+
+        if (signUpReq.getRoles().contains(Role.INSTRUCTOR)) {
+            Instructor instructor = modelMapper.map(signUpReq, Instructor.class);
+            instructorService.saveInstructor(instructor);
+        } else if (signUpReq.getRoles().contains(Role.STUDENT)){
+            Student student = modelMapper.map(signUpReq, Student.class);
+            studentService.saveStudent(student);
+        }
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq, result));
         URI createUri = selfLinkBuilder.toUri();
 
         SignUpRes signUpRes = SignUpRes.builder()
-                .email(account.getEmail())
-                .userName(account.getUserName())
+                .email(signUpReq.getEmail())
+                .userName(signUpReq.getUserName())
                 .build();
 
         EntityModel<SignUpRes> model = EntityModel.of(signUpRes);
         model.add(selfLinkBuilder.withSelfRel());
         model.add(Link.of("/docs/index.html#resource-account-create").withRel("profile"));
-        model.add(linkTo(methodOn(SignController.class).signin(account.getEmail(), account.getPassword())).withRel("signin"));
+        model.add(linkTo(methodOn(SignController.class).signin(signUpReq.getEmail(), signUpReq.getPassword())).withRel("signin"));
 
         return ResponseEntity.created(createUri).body(model);
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Builder
     static class SignUpReq {
         @NotNull String email;
@@ -139,6 +145,7 @@ public class SignController {
     }
 
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     static class RefreshRes {
         String accessToken;
@@ -159,6 +166,7 @@ public class SignController {
 
     @Data
     @Builder
+    @NoArgsConstructor
     @AllArgsConstructor
     static class LogoutReq {
         String accessToken;
