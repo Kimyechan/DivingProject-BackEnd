@@ -40,7 +40,7 @@ public class SignController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final InstructorService instructorService;
     private final StudentService studentService;
 
@@ -157,6 +157,7 @@ public class SignController {
         redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60*60*1000, TimeUnit.MILLISECONDS);
         redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60*60*1000*14, TimeUnit.MILLISECONDS);
 
+        String test = (String) redisTemplate.opsForValue().get(logoutReq.getAccessToken());
         EntityModel<LogoutRes> entity = EntityModel.of(new LogoutRes());
         entity.add(linkTo(methodOn(SignController.class).logout(logoutReq)).withSelfRel());
         entity.add(Link.of("/docs/index.html#resource-account-logout").withRel("profile"));

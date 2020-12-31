@@ -3,24 +3,29 @@ package com.diving.pungdong.config.security;
 import com.diving.pungdong.advice.exception.ExpiredAccessTokenException;
 import com.diving.pungdong.advice.exception.ExpiredRefreshTokenException;
 import com.diving.pungdong.advice.exception.ForbiddenTokenException;
+import com.diving.pungdong.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final StringRedisTemplate redisTemplate;
+    private final AccountService accountService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -29,22 +34,30 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
         if (isRefreshToken != null) {
             if (!isRefreshToken && token != null && !jwtTokenProvider.validateToken(token)) {
-                throw new ExpiredAccessTokenException();
+                handlerExceptionResolver
+                        .resolveException((HttpServletRequest)servletRequest, (HttpServletResponse)servletResponse, null, new ExpiredAccessTokenException());
             }
 
             if (isRefreshToken && token != null && !jwtTokenProvider.validateToken(token)) {
-                throw new ExpiredRefreshTokenException();
+                handlerExceptionResolver
+                        .resolveException((HttpServletRequest)servletRequest, (HttpServletResponse)servletResponse, null, new ExpiredRefreshTokenException());
             }
 
+            if (isRefreshToken && token != null && jwtTokenProvider.validateToken(token)) {
+                filterChain.doFilter(servletRequest, servletResponse);
+            }
             if (!isRefreshToken && token != null && jwtTokenProvider.validateToken(token)) {
-                if (redisTemplate.opsForValue().get(token) != null) {
-                    throw new ForbiddenTokenException();
+                if (accountService.checkValidToken(token) != null) {
+                    handlerExceptionResolver
+                            .resolveException((HttpServletRequest)servletRequest, (HttpServletResponse)servletResponse, null, new ForbiddenTokenException());
+                } else {
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    filterChain.doFilter(servletRequest, servletResponse);
                 }
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } else {
+            filterChain.doFilter(servletRequest, servletResponse);
         }
-
-        filterChain.doFilter(servletRequest, servletResponse);
     }
 }

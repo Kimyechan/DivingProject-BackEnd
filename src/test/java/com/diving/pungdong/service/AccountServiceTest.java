@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -30,10 +32,16 @@ class AccountServiceTest {
     @Mock
     private AccountJpaRepo accountJpaRepo;
 
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Mock
+    private  RedisTemplate<String, String> redisTemplate;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        accountService = new AccountService(accountJpaRepo);
+        accountService = new AccountService(accountJpaRepo, redisTemplate);
     }
 
     @Test
@@ -77,5 +85,15 @@ class AccountServiceTest {
 
         UserDetails userDetails = accountService.loadUserByUsername(String.valueOf(account.getId()));
         assertThat(userDetails.getUsername()).isEqualTo("yechan@gmail.com");
+    }
+
+    @Test
+    public void checkValidToken() {
+        String token = "aaaaa";
+        given(redisTemplate.opsForValue().get(token)).willReturn("false");
+
+        Object isTokenValid = accountService.checkValidToken(token);
+
+        assertThat(isTokenValid).isNotNull();
     }
 }

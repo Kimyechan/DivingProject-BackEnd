@@ -15,15 +15,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final StringRedisTemplate redisTemplate;
     private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Bean
     @Override
@@ -48,14 +49,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/*/signin", "/*/signup", "/sign/refresh").permitAll()
                         .antMatchers(HttpMethod.GET, "/exception/**", "helloworld/**").permitAll()
                         .antMatchers("/*/users").hasRole("ADMIN")
-                        .anyRequest().hasRole("INSTRUCTOR")
+                        .anyRequest().authenticated()
                 .and()
                     .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
                 .and()
                     .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
-                    .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
-
+                    .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, accountService, handlerExceptionResolver)
+                            , UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override

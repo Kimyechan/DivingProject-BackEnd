@@ -1,6 +1,7 @@
 package com.diving.pungdong.controller;
 
 import com.diving.pungdong.advice.exception.CAuthenticationEntryPointException;
+import com.diving.pungdong.advice.exception.ForbiddenTokenException;
 import com.diving.pungdong.model.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,5 +23,10 @@ public class ExceptionController {
     @GetMapping(value = "/accessDenied")
     public CommonResult accessDeniedException() {
         throw new AccessDeniedException("");
+    }
+
+    @GetMapping(value = "/forbiddenToken")
+    public void forbiddenTokenException() {
+        throw new ForbiddenTokenException();
     }
 }

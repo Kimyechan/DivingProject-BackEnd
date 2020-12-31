@@ -6,6 +6,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountService implements UserDetailsService {
     private final AccountJpaRepo accountJpaRepo;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
@@ -46,5 +48,9 @@ public class AccountService implements UserDetailsService {
 
     public Account findAccountById(Long id) {
         return accountJpaRepo.findById(id).orElseThrow(CUserNotFoundException::new);
+    }
+
+    public String checkValidToken(String token) {
+        return redisTemplate.opsForValue().get(token);
     }
 }

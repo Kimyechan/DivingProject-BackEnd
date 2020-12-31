@@ -1,22 +1,24 @@
 package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
+import com.diving.pungdong.advice.exception.ForbiddenTokenException;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,20 +26,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.diving.pungdong.controller.sign.SignController.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -320,9 +320,43 @@ class SignControllerTest {
                         ));
     }
 
+    @Test
+    @DisplayName("금지된 토큰으로 접근시 실패 테스트")
+    public void forbidden() throws Exception {
+        Account account = Account.builder()
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password("1234")
+                .roles(Set.of(Role.INSTRUCTOR))
+                .build();
+
+        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
+                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
+
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
+
+        given(accountService.checkValidToken(accessToken)).willReturn("false");
+
+        LogoutReq logoutReq = LogoutReq.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        mockMvc.perform(get("/sign/logout")
+                .header("Authorization", accessToken)
+                .header("IsRefreshToken", "false")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(logoutReq)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value(-1007));
+    }
+
     private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
         return roles.stream()
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
                 .collect(Collectors.toList());
     }
+
 }
