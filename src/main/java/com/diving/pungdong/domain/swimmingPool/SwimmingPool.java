@@ -1,12 +1,23 @@
 package com.diving.pungdong.domain.swimmingPool;
 
+import lombok.*;
+
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SwimmingPool {
 
     @Id @GeneratedValue
-    Long id;
+    private Long id;
+
+    @Embedded
+    private Location location;
 }

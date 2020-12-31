@@ -16,5 +16,4 @@ public class InstructorStudent {
 
     @ManyToOne
     private Student student;
-
 }
