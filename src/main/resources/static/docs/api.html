@@ -922,7 +922,7 @@ Content-Length: 309
 <h4 id="resource-account-login_curl_request"><a class="link" href="#resource-account-login_curl_request">Example request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/signin?email=t1%40test.com&password=1234' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/signin' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "email" : "yechan@gmail.com",
@@ -935,7 +935,7 @@ Content-Length: 309
 <h4 id="resource-account-login_http_request"><a class="link" href="#resource-account-login_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /sign/signin?email=t1%40test.com&password=1234 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /sign/signin HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 57
 Host: localhost:8080
@@ -962,8 +962,8 @@ X-Frame-Options: DENY
 Content-Length: 479
 
 {
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk1ODU1LCJleHAiOjE2MDk1OTk0NTV9.C0famXh-q-GvFifbYVnt9HKTGv08h05RgOYHGy3YOLQ",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk1ODU1LCJleHAiOjE2MDk3MDM4NTV9.VJ3vW1byWHQxT5jZ-ko1PhY4MaApkA6Fu9T22HLlz6o",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk1OTk5Nzh9.7SbTcxJDDsHirEQQXJFeuDOAdzxAxYxj_lUWtUzj-Dc",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk3MDQzNzh9.IbBjtw350l_-DKHs4DXxKDHldV6iVkpCH3qLTDzA_k8",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/signin"
@@ -1058,8 +1058,8 @@ Content-Length: 479
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code>{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk1ODU1LCJleHAiOjE2MDk1OTk0NTV9.C0famXh-q-GvFifbYVnt9HKTGv08h05RgOYHGy3YOLQ",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk1ODU1LCJleHAiOjE2MDk3MDM4NTV9.VJ3vW1byWHQxT5jZ-ko1PhY4MaApkA6Fu9T22HLlz6o",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk1OTk5Nzh9.7SbTcxJDDsHirEQQXJFeuDOAdzxAxYxj_lUWtUzj-Dc",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk3MDQzNzh9.IbBjtw350l_-DKHs4DXxKDHldV6iVkpCH3qLTDzA_k8",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/signin"
@@ -1140,7 +1140,7 @@ Content-Length: 479
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/refresh' -i -X GET \
-    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODYwLCJleHAiOjE2MDk3MDM4NjB9.dA2uItEo8hUnTdgsJKmZzcH-CimZGkbKuaAs2Zd2qD8' \
+    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc5LCJleHAiOjE2MDk3MDQzNzl9.yCYOIOYK5Y0pstaNKsSR8tr5YAiLbboV2caCZsnWq9s' \
     -H 'IsRefreshToken: true'</code></pre>
 </div>
 </div>
@@ -1150,7 +1150,7 @@ Content-Length: 479
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /sign/refresh HTTP/1.1
-Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODYwLCJleHAiOjE2MDk3MDM4NjB9.dA2uItEo8hUnTdgsJKmZzcH-CimZGkbKuaAs2Zd2qD8
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc5LCJleHAiOjE2MDk3MDQzNzl9.yCYOIOYK5Y0pstaNKsSR8tr5YAiLbboV2caCZsnWq9s
 IsRefreshToken: true
 Host: localhost:8080</code></pre>
 </div>
@@ -1171,8 +1171,8 @@ X-Frame-Options: DENY
 Content-Length: 510
 
 {
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NjAsImV4cCI6MTYwOTU5OTQ2MH0.lghdg7Nxpg419lMViJx3vtEmOHYzIqJueHeLmLRXxkU",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODYwLCJleHAiOjE2MDk3MDM4NjB9.dA2uItEo8hUnTdgsJKmZzcH-CimZGkbKuaAs2Zd2qD8",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzksImV4cCI6MTYwOTU5OTk3OX0.KKYIjce1FO3Wjdf_KctvhAJbEBOmst-0DYd4r8fkKR8",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc5LCJleHAiOjE2MDk3MDQzNzl9.yCYOIOYK5Y0pstaNKsSR8tr5YAiLbboV2caCZsnWq9s",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/refresh"
@@ -1190,7 +1190,7 @@ Content-Length: 510
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ http GET 'http://localhost:8080/sign/refresh' \
-    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODYwLCJleHAiOjE2MDk3MDM4NjB9.dA2uItEo8hUnTdgsJKmZzcH-CimZGkbKuaAs2Zd2qD8' \
+    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc5LCJleHAiOjE2MDk3MDQzNzl9.yCYOIOYK5Y0pstaNKsSR8tr5YAiLbboV2caCZsnWq9s' \
     'IsRefreshToken:true'</code></pre>
 </div>
 </div>
@@ -1233,8 +1233,8 @@ Content-Length: 510
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code>{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NjAsImV4cCI6MTYwOTU5OTQ2MH0.lghdg7Nxpg419lMViJx3vtEmOHYzIqJueHeLmLRXxkU",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODYwLCJleHAiOjE2MDk3MDM4NjB9.dA2uItEo8hUnTdgsJKmZzcH-CimZGkbKuaAs2Zd2qD8",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzksImV4cCI6MTYwOTU5OTk3OX0.KKYIjce1FO3Wjdf_KctvhAJbEBOmst-0DYd4r8fkKR8",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc5LCJleHAiOjE2MDk3MDQzNzl9.yCYOIOYK5Y0pstaNKsSR8tr5YAiLbboV2caCZsnWq9s",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/refresh"
@@ -1316,11 +1316,11 @@ Content-Length: 510
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/logout' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
-    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NTcsImV4cCI6MTYwOTU5OTQ1N30.xR1UgIFLqas4Hh1TrPfKnRfDQT8JZygfCxdbArt7m2Y' \
+    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzgsImV4cCI6MTYwOTU5OTk3OH0.cBknjcVR1rT0xhcUSgCXxqSj0C5aqBwbrRlZNPqF5Yg' \
     -H 'IsRefreshToken: false' \
     -d '{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NTcsImV4cCI6MTYwOTU5OTQ1N30.xR1UgIFLqas4Hh1TrPfKnRfDQT8JZygfCxdbArt7m2Y",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODU3LCJleHAiOjE2MDk3MDM4NTd9.0Pw_gWNjLSwWNqaojAhjC-6cwSBCzYdYB1pW6OXwG7I"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzgsImV4cCI6MTYwOTU5OTk3OH0.cBknjcVR1rT0xhcUSgCXxqSj0C5aqBwbrRlZNPqF5Yg",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk3MDQzNzh9.4RnQk-pRQEzPJkE6yvN5R0s00RDV0ZEks472lcT45xc"
 }'</code></pre>
 </div>
 </div>
@@ -1331,14 +1331,14 @@ Content-Length: 510
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /sign/logout HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NTcsImV4cCI6MTYwOTU5OTQ1N30.xR1UgIFLqas4Hh1TrPfKnRfDQT8JZygfCxdbArt7m2Y
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzgsImV4cCI6MTYwOTU5OTk3OH0.cBknjcVR1rT0xhcUSgCXxqSj0C5aqBwbrRlZNPqF5Yg
 IsRefreshToken: false
 Content-Length: 328
 Host: localhost:8080
 
 {
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NTcsImV4cCI6MTYwOTU5OTQ1N30.xR1UgIFLqas4Hh1TrPfKnRfDQT8JZygfCxdbArt7m2Y",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODU3LCJleHAiOjE2MDk3MDM4NTd9.0Pw_gWNjLSwWNqaojAhjC-6cwSBCzYdYB1pW6OXwG7I"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzgsImV4cCI6MTYwOTU5OTk3OH0.cBknjcVR1rT0xhcUSgCXxqSj0C5aqBwbrRlZNPqF5Yg",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk3MDQzNzh9.4RnQk-pRQEzPJkE6yvN5R0s00RDV0ZEks472lcT45xc"
 }</code></pre>
 </div>
 </div>
@@ -1376,11 +1376,11 @@ Content-Length: 229
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ echo '{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NTcsImV4cCI6MTYwOTU5OTQ1N30.xR1UgIFLqas4Hh1TrPfKnRfDQT8JZygfCxdbArt7m2Y",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODU3LCJleHAiOjE2MDk3MDM4NTd9.0Pw_gWNjLSwWNqaojAhjC-6cwSBCzYdYB1pW6OXwG7I"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzgsImV4cCI6MTYwOTU5OTk3OH0.cBknjcVR1rT0xhcUSgCXxqSj0C5aqBwbrRlZNPqF5Yg",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk3MDQzNzh9.4RnQk-pRQEzPJkE6yvN5R0s00RDV0ZEks472lcT45xc"
 }' | http POST 'http://localhost:8080/sign/logout' \
     'Content-Type:application/json;charset=UTF-8' \
-    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NTcsImV4cCI6MTYwOTU5OTQ1N30.xR1UgIFLqas4Hh1TrPfKnRfDQT8JZygfCxdbArt7m2Y' \
+    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzgsImV4cCI6MTYwOTU5OTk3OH0.cBknjcVR1rT0xhcUSgCXxqSj0C5aqBwbrRlZNPqF5Yg' \
     'IsRefreshToken:false'</code></pre>
 </div>
 </div>
@@ -1390,8 +1390,8 @@ Content-Length: 229
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code>{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTU4NTcsImV4cCI6MTYwOTU5OTQ1N30.xR1UgIFLqas4Hh1TrPfKnRfDQT8JZygfCxdbArt7m2Y",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk1ODU3LCJleHAiOjE2MDk3MDM4NTd9.0Pw_gWNjLSwWNqaojAhjC-6cwSBCzYdYB1pW6OXwG7I"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk1OTYzNzgsImV4cCI6MTYwOTU5OTk3OH0.cBknjcVR1rT0xhcUSgCXxqSj0C5aqBwbrRlZNPqF5Yg",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NTk2Mzc4LCJleHAiOjE2MDk3MDQzNzh9.4RnQk-pRQEzPJkE6yvN5R0s00RDV0ZEks472lcT45xc"
 }</code></pre>
 </div>
 </div>
