@@ -87,13 +87,13 @@ class AccountServiceTest {
         assertThat(userDetails.getUsername()).isEqualTo("yechan@gmail.com");
     }
 
-    @Test
-    public void checkValidToken() {
-        String token = "aaaaa";
-        given(redisTemplate.opsForValue().get(token)).willReturn("false");
-
-        Object isTokenValid = accountService.checkValidToken(token);
-
-        assertThat(isTokenValid).isNotNull();
-    }
+//    @Test
+//    public void checkValidToken() {
+//        String token = "aaaaa";
+//        given(redisTemplate.opsForValue().get(token)).willReturn("false");
+//
+//        Object isTokenValid = accountService.checkValidToken(token);
+//
+//        assertThat(isTokenValid).isNotNull();
+//    }
 }
