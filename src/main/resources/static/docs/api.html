@@ -922,7 +922,7 @@ Content-Length: 309
 <h4 id="resource-account-login_curl_request"><a class="link" href="#resource-account-login_curl_request">Example request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/signin' -i -X POST \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/signin?email=t1%40test.com&password=1234' -i -X GET \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "email" : "yechan@gmail.com",
@@ -935,7 +935,7 @@ Content-Length: 309
 <h4 id="resource-account-login_http_request"><a class="link" href="#resource-account-login_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /sign/signin HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /sign/signin?email=t1%40test.com&password=1234 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 57
 Host: localhost:8080
