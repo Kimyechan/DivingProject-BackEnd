@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Set;
@@ -45,11 +47,11 @@ public class SignController {
     private final StudentService studentService;
 
 
-    @GetMapping("/signin")
-    public ResponseEntity signin(@RequestParam String email,
-                                       @RequestParam String password) {
-        Account account = accountService.findAccountByEmail(email);
-        if (!passwordEncoder.matches(password, account.getPassword())) {
+
+    @PostMapping("/signin")
+    public ResponseEntity signin(@RequestBody SignInReq signInReq) {
+        Account account = accountService.findAccountByEmail(signInReq.getEmail());
+        if (!passwordEncoder.matches(signInReq.getPassword(), account.getPassword())) {
             throw new CEmailSigninFailedException();
         }
 
@@ -58,12 +60,24 @@ public class SignController {
 
         SignInResponse signInResponse = new SignInResponse(accessToken, refreshToken);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(email, password));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(signInReq));
         EntityModel<SignInResponse> entityModel = EntityModel.of(signInResponse);
         entityModel.add(selfLinkBuilder.withSelfRel());
         entityModel.add(Link.of("/docs/index.html#resource-account-login").withRel("profile"));
 
         return ResponseEntity.ok().body(entityModel);
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class SignInReq {
+        @Email
+        @NotEmpty
+        String email;
+
+        @NotEmpty
+        String password;
     }
 
     @Data
@@ -100,7 +114,7 @@ public class SignController {
         EntityModel<SignUpRes> model = EntityModel.of(signUpRes);
         model.add(selfLinkBuilder.withSelfRel());
         model.add(Link.of("/docs/index.html#resource-account-create").withRel("profile"));
-        model.add(linkTo(methodOn(SignController.class).signin(signUpReq.getEmail(), signUpReq.getPassword())).withRel("signin"));
+        model.add(linkTo(methodOn(SignController.class).signin(new SignInReq(signUpReq.getEmail(), signUpReq.getPassword()))).withRel("signin"));
 
         return ResponseEntity.created(createUri).body(model);
     }
@@ -157,7 +171,6 @@ public class SignController {
         redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60*60*1000, TimeUnit.MILLISECONDS);
         redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60*60*1000*14, TimeUnit.MILLISECONDS);
 
-        String test = (String) redisTemplate.opsForValue().get(logoutReq.getAccessToken());
         EntityModel<LogoutRes> entity = EntityModel.of(new LogoutRes());
         entity.add(linkTo(methodOn(SignController.class).logout(logoutReq)).withSelfRel());
         entity.add(Link.of("/docs/index.html#resource-account-logout").withRel("profile"));

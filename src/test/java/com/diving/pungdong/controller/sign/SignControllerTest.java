@@ -1,7 +1,6 @@
 package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
-import com.diving.pungdong.advice.exception.ForbiddenTokenException;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
@@ -11,14 +10,12 @@ import com.diving.pungdong.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,7 +25,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
@@ -36,13 +32,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.diving.pungdong.controller.sign.SignController.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -163,17 +156,18 @@ class SignControllerTest {
         String password = "1234";
         String encodedPassword = passwordEncoder.encode(password);
 
+        SignInReq signInReq = new SignInReq(email, password);
+
         Account account = Account.builder()
                 .email(email)
                 .password(encodedPassword)
                 .build();
 
-        given(accountService.findAccountByEmail(email)).willReturn(account);
+        given(accountService.findAccountByEmail(signInReq.getEmail())).willReturn(account);
 
         mockMvc.perform(post("/sign/signin")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("email", email)
-                .param("password", password))
+                .content(objectMapper.writeValueAsString(signInReq)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("accessToken").exists())
@@ -182,9 +176,9 @@ class SignControllerTest {
                         requestHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입")
                         ),
-                        requestParameters(
-                                parameterWithName("email").description("유저 ID"),
-                                parameterWithName("password").description("유저 PASSWORD")
+                        requestFields(
+                                fieldWithPath("email").description("유저 ID"),
+                                fieldWithPath("password").description("유저 PASSWORD")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
@@ -208,8 +202,7 @@ class SignControllerTest {
 
         mockMvc.perform(post("/sign/signin")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("email", email)
-                .param("password", password))
+                .content(objectMapper.writeValueAsString(new SignInReq(email, password))))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("success").value(false))
@@ -232,8 +225,7 @@ class SignControllerTest {
 
         mockMvc.perform(post("/sign/signin")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("email", email)
-                .param("password", "wrong"))
+                .content(objectMapper.writeValueAsString(new SignInReq(email, "wrongPassword"))))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("success").value(false))
@@ -297,7 +289,7 @@ class SignControllerTest {
                 .refreshToken(refreshToken)
                 .build();
 
-        mockMvc.perform(get("/sign/logout")
+        mockMvc.perform(post("/sign/logout")
                             .header("Authorization", accessToken)
                             .header("IsRefreshToken", "false")
                             .contentType(MediaType.APPLICATION_JSON)

@@ -14,4 +14,8 @@ public class InstructorService {
     public Instructor saveInstructor(Instructor instructor) {
         return instructorJpaRepo.save(instructor);
     }
+
+    public Instructor getInstructorByEmail(String email) {
+        return instructorJpaRepo.findByEmail(email).orElse(new Instructor());
+    }
 }
