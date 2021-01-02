@@ -45,7 +45,7 @@ public class SignController {
     private final StudentService studentService;
 
 
-    @PostMapping(value = "/signin")
+    @GetMapping("/signin")
     public ResponseEntity signin(@RequestParam String email,
                                        @RequestParam String password) {
         Account account = accountService.findAccountByEmail(email);
@@ -152,7 +152,7 @@ public class SignController {
         String refreshToken;
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
         redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60*60*1000, TimeUnit.MILLISECONDS);
         redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60*60*1000*14, TimeUnit.MILLISECONDS);
