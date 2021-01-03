@@ -42,6 +42,7 @@ public class LectureController {
         LectureImage lectureImage = LectureImage.builder()
                 .fileName(createLectureReq.getFileName())
                 .build();
+
         lectureImageService.saveLectureImage(lectureImage);
 
         Lecture lecture = Lecture.builder()
@@ -55,7 +56,7 @@ public class LectureController {
                 .swimmingPool(swimmingPool)
                 .build();
 
-        Lecture savedLecture = lectureService.saveLecture(lecture);
+        lectureService.saveLecture(lecture);
 
         CreateLectureRes createLectureRes
                 = new CreateLectureRes(lecture.getTitle(), lecture.getInstructor().getUserName());

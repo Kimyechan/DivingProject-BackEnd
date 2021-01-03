@@ -2,15 +2,12 @@ package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.controller.lecture.LectureController.*;
+import com.diving.pungdong.controller.lecture.LectureController.CreateLectureReq;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
-import com.diving.pungdong.service.AccountService;
-import com.diving.pungdong.service.InstructorService;
-import com.diving.pungdong.service.LectureService;
-import com.diving.pungdong.service.SwimmingPoolService;
+import com.diving.pungdong.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,13 +25,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,7 +53,8 @@ class LectureControllerTest {
     @MockBean InstructorService instructorService;
     @MockBean SwimmingPoolService swimmingPoolService;
     @MockBean AccountService accountService;
-    @MockBean private LectureService lectureService;
+    @MockBean LectureService lectureService;
+    @MockBean private LectureImageService lectureImageService;
 
     @Test
     @DisplayName("강의 개설")
@@ -73,9 +73,10 @@ class LectureControllerTest {
 
         Instructor instructor = modelMapper.map(account, Instructor.class);
         String accessToken = jwtTokenProvider.createAccessToken("1", Set.of(Role.INSTRUCTOR));
+        SwimmingPool swimmingPool = new SwimmingPool();
 
         given(instructorService.getInstructorByEmail(account.getEmail())).willReturn(instructor);
-        given(swimmingPoolService.getSwimmingPool(1L)).willReturn(new SwimmingPool());
+        given(swimmingPoolService.getSwimmingPool(1L)).willReturn(swimmingPool);
 
         mockMvc.perform(post("/lecture/create")
                             .header(HttpHeaders.AUTHORIZATION, accessToken)
@@ -84,6 +85,9 @@ class LectureControllerTest {
                             .content(objectMapper.writeValueAsString(createLectureReq)))
                     .andDo(print())
                     .andExpect(status().isCreated());
+
+        verify(lectureService).saveLecture(any());
+        verify(lectureImageService).saveLectureImage(any());
     }
 
     public Account createAccount() {

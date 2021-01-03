@@ -1,6 +1,7 @@
 package com.diving.pungdong.domain.account;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -11,7 +12,7 @@ import java.util.Set;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn
 @Getter @Setter @EqualsAndHashCode(of = "id")
-@Builder @NoArgsConstructor @AllArgsConstructor
+@SuperBuilder @NoArgsConstructor @AllArgsConstructor
 public class Account {
     @Id @GeneratedValue
     Long id;

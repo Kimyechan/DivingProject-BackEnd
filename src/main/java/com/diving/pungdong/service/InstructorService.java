@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.repo.InstructorJpaRepo;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,6 @@ public class InstructorService {
     }
 
     public Instructor getInstructorByEmail(String email) {
-        return instructorJpaRepo.findByEmail(email).orElse(new Instructor());
+        return instructorJpaRepo.findByEmail(email).orElseThrow(CEmailSigninFailedException::new);
     }
 }

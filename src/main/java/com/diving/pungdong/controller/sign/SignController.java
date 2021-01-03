@@ -6,7 +6,6 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.*;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.InstructorService;
-import com.diving.pungdong.service.ResponseService;
 import com.diving.pungdong.service.StudentService;
 import lombok.*;
 import org.modelmapper.ModelMapper;
