@@ -1,5 +1,6 @@
 package com.diving.pungdong.controller.lecture;
 
+import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
@@ -15,12 +16,12 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
+
+import java.io.IOException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -34,6 +35,7 @@ public class LectureController {
     private final LectureImageService lectureImageService;
     private final SwimmingPoolService swimmingPoolService;
     private final InstructorService instructorService;
+    private final S3Uploader s3Uploader;
 
     @PostMapping("/create")
     public ResponseEntity createLecture(Authentication authentication, @RequestBody CreateLectureReq createLectureReq) {
@@ -91,5 +93,10 @@ public class LectureController {
     static class CreateLectureRes {
         private String title;
         private String instructorName;
+    }
+
+    @PostMapping("/upload")
+    public String upload(@RequestParam("data") MultipartFile multipartFile) throws IOException {
+        return s3Uploader.upload(multipartFile, "/lecture");
     }
 }
