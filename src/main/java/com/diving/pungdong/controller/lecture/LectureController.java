@@ -97,6 +97,6 @@ public class LectureController {
 
     @PostMapping("/upload")
     public String upload(@RequestParam("data") MultipartFile multipartFile) throws IOException {
-        return s3Uploader.upload(multipartFile, "/lecture");
+        return s3Uploader.upload(multipartFile, "lecture");
     }
 }
