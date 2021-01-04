@@ -4,6 +4,7 @@ import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.controller.lecture.LectureController.CreateLectureReq;
 import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
@@ -95,6 +96,9 @@ class LectureControllerTest {
                 .id(1L)
                 .email("yechan@gmail.com")
                 .password("1234")
+                .userName("yechan")
+                .age(27)
+                .gender(Gender.MALE)
                 .roles(Set.of(Role.INSTRUCTOR))
                 .build();
 

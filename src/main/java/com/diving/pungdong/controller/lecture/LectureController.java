@@ -39,12 +39,6 @@ public class LectureController {
         Instructor instructor = instructorService.getInstructorByEmail(authentication.getName());
         SwimmingPool swimmingPool = swimmingPoolService.getSwimmingPool(createLectureReq.getSwimmingPoolId());
 
-        LectureImage lectureImage = LectureImage.builder()
-                .fileName(createLectureReq.getFileName())
-                .build();
-
-        lectureImageService.saveLectureImage(lectureImage);
-
         Lecture lecture = Lecture.builder()
                 .title(createLectureReq.getTitle())
                 .description(createLectureReq.getDescription())
@@ -56,7 +50,14 @@ public class LectureController {
                 .swimmingPool(swimmingPool)
                 .build();
 
-        lectureService.saveLecture(lecture);
+        Lecture savedLecture = lectureService.saveLecture(lecture);
+
+        LectureImage lectureImage = LectureImage.builder()
+                .fileName(createLectureReq.getFileName())
+                .lecture(savedLecture)
+                .build();
+
+        lectureImageService.saveLectureImage(lectureImage);
 
         CreateLectureRes createLectureRes
                 = new CreateLectureRes(lecture.getTitle(), lecture.getInstructor().getUserName());
