@@ -10,6 +10,7 @@ import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.SwimmingPoolService;
 import lombok.*;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,7 @@ public class LectureController {
         EntityModel<CreateLectureRes> model = EntityModel.of(createLectureRes);
         WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(authentication, createLectureReq));
         model.add(selfLink.withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
         return ResponseEntity.created(selfLink.toUri()).body(model);
     }

@@ -62,7 +62,7 @@ public class SignController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(signInReq));
         EntityModel<SignInResponse> entityModel = EntityModel.of(signInResponse);
         entityModel.add(selfLinkBuilder.withSelfRel());
-        entityModel.add(Link.of("/docs/index.html#resource-account-login").withRel("profile"));
+        entityModel.add(Link.of("/docs/api.html#resource-account-login").withRel("profile"));
 
         return ResponseEntity.ok().body(entityModel);
     }
@@ -112,7 +112,7 @@ public class SignController {
 
         EntityModel<SignUpRes> model = EntityModel.of(signUpRes);
         model.add(selfLinkBuilder.withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-account-create").withRel("profile"));
+        model.add(Link.of("/docs/api.html#resource-account-create").withRel("profile"));
         model.add(linkTo(methodOn(SignController.class).signin(new SignInReq(signUpReq.getEmail(), signUpReq.getPassword()))).withRel("signin"));
 
         return ResponseEntity.created(createUri).body(model);
@@ -152,7 +152,7 @@ public class SignController {
         EntityModel<RefreshRes> entity = EntityModel.of(refreshRes);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).refresh(request));
         entity.add(selfLinkBuilder.withSelfRel());
-        entity.add(Link.of("/docs/index.html#resource-account-tokenRefresh").withRel("profile"));
+        entity.add(Link.of("/docs/api.html#resource-account-tokenRefresh").withRel("profile"));
 
         return ResponseEntity.ok().body(entity);
     }
@@ -172,7 +172,7 @@ public class SignController {
 
         EntityModel<LogoutRes> entity = EntityModel.of(new LogoutRes());
         entity.add(linkTo(methodOn(SignController.class).logout(logoutReq)).withSelfRel());
-        entity.add(Link.of("/docs/index.html#resource-account-logout").withRel("profile"));
+        entity.add(Link.of("/docs/api.html#resource-account-logout").withRel("profile"));
 
         return ResponseEntity.ok().body(entity);
     }

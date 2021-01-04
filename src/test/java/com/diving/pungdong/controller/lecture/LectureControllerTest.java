@@ -35,6 +35,9 @@ import java.util.stream.Collectors;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -85,8 +88,33 @@ class LectureControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(createLectureReq)))
                     .andDo(print())
-                    .andExpect(status().isCreated());
-
+                    .andExpect(status().isCreated())
+                    .andDo(document("create-lecture",
+                            requestHeaders(
+                                    headerWithName("Authorization").description("access token 값"),
+                                    headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                            ),
+                            requestFields(
+                                    fieldWithPath("title").description("강의 제목"),
+                                    fieldWithPath("description").description("강의 내용"),
+                                    fieldWithPath("kind").description("강의 종류"),
+                                    fieldWithPath("price").description("강의 비용"),
+                                    fieldWithPath("period").description("강의 기간"),
+                                    fieldWithPath("studentCount").description("수강 인원 제한"),
+                                    fieldWithPath("fileName").description("강의 사진 파일 이름"),
+                                    fieldWithPath("swimmingPoolId").description("수영장 식별자 ID")
+                            ),
+                            responseHeaders(
+                                    headerWithName(HttpHeaders.LOCATION).description("해당 API URI"),
+                                    headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                            ),
+                            responseFields(
+                                    fieldWithPath("title").description("강의 제목"),
+                                    fieldWithPath("instructorName").description("강사 이름"),
+                                    fieldWithPath("_links.self.href").description("해당 API URI"),
+                                    fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
+                            )
+                    ));
         verify(lectureService).saveLecture(any());
         verify(lectureImageService).saveLectureImage(any());
     }
