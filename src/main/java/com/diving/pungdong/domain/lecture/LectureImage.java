@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class LectureImage {
     @Id @GeneratedValue
     private Long id;
-    private String fileName;
+    private String fileURI;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;

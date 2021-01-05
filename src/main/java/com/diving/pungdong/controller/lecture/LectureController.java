@@ -14,6 +14,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -37,8 +38,10 @@ public class LectureController {
     private final InstructorService instructorService;
     private final S3Uploader s3Uploader;
 
-    @PostMapping("/create")
-    public ResponseEntity createLecture(Authentication authentication, @RequestBody CreateLectureReq createLectureReq) {
+    @PostMapping(value = "/create", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity createLecture(Authentication authentication,
+                                        @RequestPart("request") CreateLectureReq createLectureReq,
+                                        @RequestPart("file") MultipartFile file) throws IOException {
         Instructor instructor = instructorService.getInstructorByEmail(authentication.getName());
         SwimmingPool swimmingPool = swimmingPoolService.getSwimmingPool(createLectureReq.getSwimmingPoolId());
 
@@ -55,18 +58,19 @@ public class LectureController {
 
         Lecture savedLecture = lectureService.saveLecture(lecture);
 
+        String fileURI = s3Uploader.upload(file, "lecture");
         LectureImage lectureImage = LectureImage.builder()
-                .fileName(createLectureReq.getFileName())
+                .fileURI(fileURI)
                 .lecture(savedLecture)
                 .build();
 
         lectureImageService.saveLectureImage(lectureImage);
 
         CreateLectureRes createLectureRes
-                = new CreateLectureRes(lecture.getTitle(), lecture.getInstructor().getUserName());
+                = new CreateLectureRes(lecture.getTitle(), lecture.getInstructor().getUserName(), fileURI);
 
         EntityModel<CreateLectureRes> model = EntityModel.of(createLectureRes);
-        WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(authentication, createLectureReq));
+        WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(authentication, createLectureReq, file));
         model.add(selfLink.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
@@ -84,7 +88,6 @@ public class LectureController {
         @NotEmpty private Integer price;
         @NotEmpty private Integer period;
         @NotEmpty private Integer studentCount;
-        @NotEmpty private String fileName;
         @NotEmpty private Long swimmingPoolId;
     }
 
@@ -93,10 +96,11 @@ public class LectureController {
     static class CreateLectureRes {
         private String title;
         private String instructorName;
+        private String fileURI;
     }
 
     @PostMapping("/upload")
-    public String upload(@RequestParam("data") MultipartFile multipartFile) throws IOException {
-        return s3Uploader.upload(multipartFile, "lecture");
+    public String upload(@RequestParam("file") MultipartFile file) throws IOException {
+        return s3Uploader.upload(file, "lecture");
     }
 }

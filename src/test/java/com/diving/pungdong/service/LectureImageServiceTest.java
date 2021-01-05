@@ -34,13 +34,13 @@ class LectureImageServiceTest {
     @DisplayName("강의 사진 저장")
     public void saveLectureImage() {
         LectureImage lectureImage = LectureImage.builder()
-                .fileName("abc.png")
+                .fileURI("/lecture/test.png")
                 .lecture(any())
                 .build();
 
         given(lectureImageService.saveLectureImage(lectureImage)).willReturn(lectureImage);
         LectureImage savedLectureImage = lectureImageService.saveLectureImage(lectureImage);
 
-        assertThat(savedLectureImage.getFileName()).isEqualTo(lectureImage.getFileName());
+        assertThat(savedLectureImage.getFileURI()).isEqualTo(lectureImage.getFileURI());
     }
 }

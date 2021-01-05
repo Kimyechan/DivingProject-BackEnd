@@ -481,7 +481,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#resource-account-login_request_body">Request body</a></li>
 <li><a href="#resource-account-login_request_fields">Request fields</a></li>
 <li><a href="#resource-account-login_request_headers">Request headers</a></li>
-<li><a href="#resource-account-login_request_parameters">Request parameters</a></li>
 <li><a href="#resource-account-login_response_body">Response body</a></li>
 <li><a href="#resource-account-login_response_fields">Response fields</a></li>
 <li><a href="#resource-account-login_response_headers">Response headers</a></li>
@@ -524,8 +523,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#resource-lecture-create_http_response">Example response</a></li>
 <li><a href="#resource-lecture-create_httpie_request">HTTPie request</a></li>
 <li><a href="#resource-lecture-create_request_body">Request body</a></li>
-<li><a href="#resource-lecture-create_request_fields">Request fields</a></li>
 <li><a href="#resource-lecture-create_request_headers">Request headers</a></li>
+<li><a href="#resource-lecture-create_request_part-file-body">Request part-file-body</a></li>
+<li><a href="#resource-lecture-create_request_part-request-body">Request part-request-body</a></li>
+<li><a href="#resource-lecture-create_request_part-request-fields">Request part-request-fields</a></li>
+<li><a href="#resource-lecture-create_request_parts">Request parts</a></li>
 <li><a href="#resource-lecture-create_response_body">Response body</a></li>
 <li><a href="#resource-lecture-create_response_fields">Response fields</a></li>
 <li><a href="#resource-lecture-create_response_headers">Response headers</a></li>
@@ -980,8 +982,8 @@ X-Frame-Options: DENY
 Content-Length: 477
 
 {
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk3NTA0OTh9.DzNUhflgS1OO1b6NOKs44HytbCr0L0c4gfOduY-vfyU",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk4NTQ4OTh9.aG8ECCxhR_3wlZ6MlCoSJgmEGhAh-8POpM2UKIXd9PM",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5ODczMTg1LCJleHAiOjE2MDk4NzY3ODV9.8XuZnodP4cMwBNIccelVDcCcMnw_ESE_gJvD3uMF3jE",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5ODczMTg1LCJleHAiOjE2MDk5ODExODV9.FROcmNKLAkv9UEwqqQ9XM-nd8ql1_wOhJTlFysWC7BM",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/signin"
@@ -1068,16 +1070,12 @@ Content-Length: 477
 </table>
 </div>
 <div class="sect3">
-<h4 id="resource-account-login_request_parameters"><a class="link" href="#resource-account-login_request_parameters">Request parameters</a></h4>
-
-</div>
-<div class="sect3">
 <h4 id="resource-account-login_response_body"><a class="link" href="#resource-account-login_response_body">Response body</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code>{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk3NTA0OTh9.DzNUhflgS1OO1b6NOKs44HytbCr0L0c4gfOduY-vfyU",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk4NTQ4OTh9.aG8ECCxhR_3wlZ6MlCoSJgmEGhAh-8POpM2UKIXd9PM",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5ODczMTg1LCJleHAiOjE2MDk4NzY3ODV9.8XuZnodP4cMwBNIccelVDcCcMnw_ESE_gJvD3uMF3jE",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudWxsIiwiaWF0IjoxNjA5ODczMTg1LCJleHAiOjE2MDk5ODExODV9.FROcmNKLAkv9UEwqqQ9XM-nd8ql1_wOhJTlFysWC7BM",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/signin"
@@ -1158,7 +1156,7 @@ Content-Length: 477
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/refresh' -i -X GET \
-    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2OTAwLCJleHAiOjE2MDk4NTQ5MDB9.GgQGV1ciF8XaGmukxDH_yp753a3-OTF9BFkWRZUpzkM' \
+    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg3LCJleHAiOjE2MDk5ODExODd9.jy3GxPe4ujG6B1ieF6D-i7PVZRJ1UAfzhJWTPcbWgzc' \
     -H 'IsRefreshToken: true'</code></pre>
 </div>
 </div>
@@ -1168,7 +1166,7 @@ Content-Length: 477
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /sign/refresh HTTP/1.1
-Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2OTAwLCJleHAiOjE2MDk4NTQ5MDB9.GgQGV1ciF8XaGmukxDH_yp753a3-OTF9BFkWRZUpzkM
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg3LCJleHAiOjE2MDk5ODExODd9.jy3GxPe4ujG6B1ieF6D-i7PVZRJ1UAfzhJWTPcbWgzc
 IsRefreshToken: true
 Host: localhost:8080</code></pre>
 </div>
@@ -1189,8 +1187,8 @@ X-Frame-Options: DENY
 Content-Length: 508
 
 {
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY5MDAsImV4cCI6MTYwOTc1MDUwMH0.szb4_tRbk_qlOfLmK32P2LQEs9SwNGYlGrTEeYPRte0",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2OTAwLCJleHAiOjE2MDk4NTQ5MDB9.GgQGV1ciF8XaGmukxDH_yp753a3-OTF9BFkWRZUpzkM",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODcsImV4cCI6MTYwOTg3Njc4N30.nLpaKvQapWPb4S-fbQ19HA8OSAVxnv87ti-YDDuOg7Q",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg3LCJleHAiOjE2MDk5ODExODd9.jy3GxPe4ujG6B1ieF6D-i7PVZRJ1UAfzhJWTPcbWgzc",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/refresh"
@@ -1208,7 +1206,7 @@ Content-Length: 508
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ http GET 'http://localhost:8080/sign/refresh' \
-    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2OTAwLCJleHAiOjE2MDk4NTQ5MDB9.GgQGV1ciF8XaGmukxDH_yp753a3-OTF9BFkWRZUpzkM' \
+    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg3LCJleHAiOjE2MDk5ODExODd9.jy3GxPe4ujG6B1ieF6D-i7PVZRJ1UAfzhJWTPcbWgzc' \
     'IsRefreshToken:true'</code></pre>
 </div>
 </div>
@@ -1251,8 +1249,8 @@ Content-Length: 508
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code>{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY5MDAsImV4cCI6MTYwOTc1MDUwMH0.szb4_tRbk_qlOfLmK32P2LQEs9SwNGYlGrTEeYPRte0",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2OTAwLCJleHAiOjE2MDk4NTQ5MDB9.GgQGV1ciF8XaGmukxDH_yp753a3-OTF9BFkWRZUpzkM",
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODcsImV4cCI6MTYwOTg3Njc4N30.nLpaKvQapWPb4S-fbQ19HA8OSAVxnv87ti-YDDuOg7Q",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg3LCJleHAiOjE2MDk5ODExODd9.jy3GxPe4ujG6B1ieF6D-i7PVZRJ1UAfzhJWTPcbWgzc",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/sign/refresh"
@@ -1334,11 +1332,11 @@ Content-Length: 508
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/sign/logout' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
-    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTgsImV4cCI6MTYwOTc1MDQ5OH0.G1SQ38RMa_M5eHXz6vRPD-2_qC91FukcjU8-8nXUa84' \
+    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODYsImV4cCI6MTYwOTg3Njc4Nn0.clXKnGbdDREk4qqcWb8OHZIcw-7CsSlDtElO771Q43k' \
     -H 'IsRefreshToken: false' \
     -d '{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTgsImV4cCI6MTYwOTc1MDQ5OH0.G1SQ38RMa_M5eHXz6vRPD-2_qC91FukcjU8-8nXUa84",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk4NTQ4OTh9.prXgNppEy4CABxFdHpq-7CtFAqIREVXrK_EP7waUvl4"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODYsImV4cCI6MTYwOTg3Njc4Nn0.clXKnGbdDREk4qqcWb8OHZIcw-7CsSlDtElO771Q43k",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg2LCJleHAiOjE2MDk5ODExODZ9.eMhZJ9xXwHqMsDwt6JJjh-b4p_pjhJVwfb-H2ZCtqxI"
 }'</code></pre>
 </div>
 </div>
@@ -1349,14 +1347,14 @@ Content-Length: 508
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /sign/logout HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTgsImV4cCI6MTYwOTc1MDQ5OH0.G1SQ38RMa_M5eHXz6vRPD-2_qC91FukcjU8-8nXUa84
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODYsImV4cCI6MTYwOTg3Njc4Nn0.clXKnGbdDREk4qqcWb8OHZIcw-7CsSlDtElO771Q43k
 IsRefreshToken: false
 Content-Length: 328
 Host: localhost:8080
 
 {
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTgsImV4cCI6MTYwOTc1MDQ5OH0.G1SQ38RMa_M5eHXz6vRPD-2_qC91FukcjU8-8nXUa84",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk4NTQ4OTh9.prXgNppEy4CABxFdHpq-7CtFAqIREVXrK_EP7waUvl4"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODYsImV4cCI6MTYwOTg3Njc4Nn0.clXKnGbdDREk4qqcWb8OHZIcw-7CsSlDtElO771Q43k",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg2LCJleHAiOjE2MDk5ODExODZ9.eMhZJ9xXwHqMsDwt6JJjh-b4p_pjhJVwfb-H2ZCtqxI"
 }</code></pre>
 </div>
 </div>
@@ -1394,11 +1392,11 @@ Content-Length: 227
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ echo '{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTgsImV4cCI6MTYwOTc1MDQ5OH0.G1SQ38RMa_M5eHXz6vRPD-2_qC91FukcjU8-8nXUa84",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk4NTQ4OTh9.prXgNppEy4CABxFdHpq-7CtFAqIREVXrK_EP7waUvl4"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODYsImV4cCI6MTYwOTg3Njc4Nn0.clXKnGbdDREk4qqcWb8OHZIcw-7CsSlDtElO771Q43k",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg2LCJleHAiOjE2MDk5ODExODZ9.eMhZJ9xXwHqMsDwt6JJjh-b4p_pjhJVwfb-H2ZCtqxI"
 }' | http POST 'http://localhost:8080/sign/logout' \
     'Content-Type:application/json;charset=UTF-8' \
-    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTgsImV4cCI6MTYwOTc1MDQ5OH0.G1SQ38RMa_M5eHXz6vRPD-2_qC91FukcjU8-8nXUa84' \
+    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODYsImV4cCI6MTYwOTg3Njc4Nn0.clXKnGbdDREk4qqcWb8OHZIcw-7CsSlDtElO771Q43k' \
     'IsRefreshToken:false'</code></pre>
 </div>
 </div>
@@ -1408,8 +1406,8 @@ Content-Length: 227
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code>{
-  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTgsImV4cCI6MTYwOTc1MDQ5OH0.G1SQ38RMa_M5eHXz6vRPD-2_qC91FukcjU8-8nXUa84",
-  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5NzQ2ODk4LCJleHAiOjE2MDk4NTQ4OTh9.prXgNppEy4CABxFdHpq-7CtFAqIREVXrK_EP7waUvl4"
+  "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODYsImV4cCI6MTYwOTg3Njc4Nn0.clXKnGbdDREk4qqcWb8OHZIcw-7CsSlDtElO771Q43k",
+  "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjA5ODczMTg2LCJleHAiOjE2MDk5ODExODZ9.eMhZJ9xXwHqMsDwt6JJjh-b4p_pjhJVwfb-H2ZCtqxI"
 }</code></pre>
 </div>
 </div>
@@ -1536,19 +1534,11 @@ Content-Length: 227
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/lecture/create' -i -X POST \
-    -H 'Content-Type: application/json;charset=UTF-8' \
-    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTMsImV4cCI6MTYwOTc1MDQ5M30.EwS0YHCLYyeFZTBv9NnLfL0uHyoFrQF8_7lH33hQRbs' \
+    -H 'Content-Type: multipart/form-data;charset=UTF-8' \
+    -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODEsImV4cCI6MTYwOTg3Njc4MX0.kMSxiyLTu04uHUMtrnsFyjmXn1RLf2qlDApEeysGQxs' \
     -H 'IsRefreshToken: false' \
-    -d '{
-  "title" : "강의1",
-  "kind" : "Level1",
-  "description" : "내용1",
-  "price" : 100000,
-  "period" : 4,
-  "studentCount" : 5,
-  "fileName" : "abc.png",
-  "swimmingPoolId" : 1
-}'</code></pre>
+    -F 'file=@test.txt;type=image/*' \
+    -F 'request=@request;type=application/json'</code></pre>
 </div>
 </div>
 </div>
@@ -1557,22 +1547,22 @@ Content-Length: 227
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /lecture/create HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTMsImV4cCI6MTYwOTc1MDQ5M30.EwS0YHCLYyeFZTBv9NnLfL0uHyoFrQF8_7lH33hQRbs
+Content-Type: multipart/form-data;charset=UTF-8; boundary=6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODEsImV4cCI6MTYwOTg3Njc4MX0.kMSxiyLTu04uHUMtrnsFyjmXn1RLf2qlDApEeysGQxs
 IsRefreshToken: false
-Content-Length: 183
 Host: localhost:8080
 
-{
-  "title" : "강의1",
-  "kind" : "Level1",
-  "description" : "내용1",
-  "price" : 100000,
-  "period" : 4,
-  "studentCount" : 5,
-  "fileName" : "abc.png",
-  "swimmingPoolId" : 1
-}</code></pre>
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Content-Disposition: form-data; name=file; filename=test.txt
+Content-Type: image/*
+
+test data
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Content-Disposition: form-data; name=request; filename=request
+Content-Type: application/json
+
+{"title":"강의1","kind":"Level1","description":"내용1","price":100000,"period":4,"studentCount":5,"swimmingPoolId":1}
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm--</code></pre>
 </div>
 </div>
 </div>
@@ -1589,11 +1579,12 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 232
+Content-Length: 252
 
 {
   "title" : "강의1",
   "instructorName" : "yechan",
+  "fileURI" : null,
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/lecture/create"
@@ -1610,18 +1601,10 @@ Content-Length: 232
 <h4 id="resource-lecture-create_httpie_request"><a class="link" href="#resource-lecture-create_httpie_request">HTTPie request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ echo '{
-  "title" : "강의1",
-  "kind" : "Level1",
-  "description" : "내용1",
-  "price" : 100000,
-  "period" : 4,
-  "studentCount" : 5,
-  "fileName" : "abc.png",
-  "swimmingPoolId" : 1
-}' | http POST 'http://localhost:8080/lecture/create' \
-    'Content-Type:application/json;charset=UTF-8' \
-    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk3NDY4OTMsImV4cCI6MTYwOTc1MDQ5M30.EwS0YHCLYyeFZTBv9NnLfL0uHyoFrQF8_7lH33hQRbs' \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ http --form POST 'http://localhost:8080/lecture/create' \
+    'file'@'test.txt' \
+    'request'@'request' \
+    'Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiSU5TVFJVQ1RPUiJdLCJpYXQiOjE2MDk4NzMxODEsImV4cCI6MTYwOTg3Njc4MX0.kMSxiyLTu04uHUMtrnsFyjmXn1RLf2qlDApEeysGQxs' \
     'IsRefreshToken:false'</code></pre>
 </div>
 </div>
@@ -1630,21 +1613,57 @@ Content-Length: 232
 <h4 id="resource-lecture-create_request_body"><a class="link" href="#resource-lecture-create_request_body">Request body</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code>{
-  "title" : "강의1",
-  "kind" : "Level1",
-  "description" : "내용1",
-  "price" : 100000,
-  "period" : 4,
-  "studentCount" : 5,
-  "fileName" : "abc.png",
-  "swimmingPoolId" : 1
-}</code></pre>
+<pre class="highlightjs highlight nowrap"><code></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="resource-lecture-create_request_fields"><a class="link" href="#resource-lecture-create_request_fields">Request fields</a></h4>
+<h4 id="resource-lecture-create_request_headers"><a class="link" href="#resource-lecture-create_request_headers">Request headers</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Content-Type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">multipart form data 타입</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">access token 값</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IsRefreshToken</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">token이 refresh token인지 확인</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="resource-lecture-create_request_part-file-body"><a class="link" href="#resource-lecture-create_request_part-file-body">Request part-file-body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code>test data</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="resource-lecture-create_request_part-request-body"><a class="link" href="#resource-lecture-create_request_part-request-body">Request part-request-body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code>{"title":"강의1","kind":"Level1","description":"내용1","price":100000,"period":4,"studentCount":5,"swimmingPoolId":1}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="resource-lecture-create_request_part-request-fields"><a class="link" href="#resource-lecture-create_request_part-request-fields">Request part-request-fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1690,11 +1709,6 @@ Content-Length: 232
 <td class="tableblock halign-left valign-top"><p class="tableblock">수강 인원 제한</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fileName</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">강의 사진 파일 이름</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>swimmingPoolId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">수영장 식별자 ID</p></td>
@@ -1703,7 +1717,7 @@ Content-Length: 232
 </table>
 </div>
 <div class="sect3">
-<h4 id="resource-lecture-create_request_headers"><a class="link" href="#resource-lecture-create_request_headers">Request headers</a></h4>
+<h4 id="resource-lecture-create_request_parts"><a class="link" href="#resource-lecture-create_request_parts">Request parts</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1711,18 +1725,18 @@ Content-Length: 232
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Part</th>
 <th class="tableblock halign-left valign-top">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">access token 값</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이미지 파일 데이터</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IsRefreshToken</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">token이 refresh token인지 확인</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>request</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">강의 생성 정보 JSON 데이터</p></td>
 </tr>
 </tbody>
 </table>
@@ -1734,6 +1748,7 @@ Content-Length: 232
 <pre class="highlightjs highlight nowrap"><code>{
   "title" : "강의1",
   "instructorName" : "yechan",
+  "fileURI" : null,
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/lecture/create"
@@ -1771,6 +1786,11 @@ Content-Length: 232
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>instructorName</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">강사 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fileURI</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이미지 파일 URI</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_links.self.href</code></p></td>
@@ -1816,7 +1836,7 @@ Content-Length: 232
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-01-04 16:53:14 +0900
+Last updated 2021-01-04 16:59:01 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">
