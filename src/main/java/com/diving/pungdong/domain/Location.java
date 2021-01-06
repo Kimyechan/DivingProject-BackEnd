@@ -1,4 +1,4 @@
-package com.diving.pungdong.domain.swimmingPool;
+package com.diving.pungdong.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

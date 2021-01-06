@@ -1,7 +1,6 @@
 package com.diving.pungdong.controller.swimmingpool;
 
-import com.diving.pungdong.controller.lecture.LectureController;
-import com.diving.pungdong.domain.swimmingPool.Location;
+import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.service.SwimmingPoolService;
 import lombok.AllArgsConstructor;
@@ -12,8 +11,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;

@@ -38,7 +38,7 @@ public class LectureController {
     private final InstructorService instructorService;
     private final S3Uploader s3Uploader;
 
-    @PostMapping(value = "/create", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity createLecture(Authentication authentication,
                                         @RequestPart("request") CreateLectureReq createLectureReq,
                                         @RequestPart("file") MultipartFile file) throws IOException {
@@ -52,13 +52,14 @@ public class LectureController {
                 .period(createLectureReq.getPeriod())
                 .price(createLectureReq.getPrice())
                 .studentCount(createLectureReq.getStudentCount())
+                .region(createLectureReq.getRegion())
                 .instructor(instructor)
                 .swimmingPool(swimmingPool)
                 .build();
 
         Lecture savedLecture = lectureService.saveLecture(lecture);
 
-        String fileURI = s3Uploader.upload(file, "lecture");
+        String fileURI = s3Uploader.upload(file, "lecture", authentication.getName());
         LectureImage lectureImage = LectureImage.builder()
                 .fileURI(fileURI)
                 .lecture(savedLecture)
@@ -88,6 +89,7 @@ public class LectureController {
         @NotEmpty private Integer price;
         @NotEmpty private Integer period;
         @NotEmpty private Integer studentCount;
+        @NotEmpty private String region;
         @NotEmpty private Long swimmingPoolId;
     }
 
@@ -100,7 +102,12 @@ public class LectureController {
     }
 
     @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile file) throws IOException {
-        return s3Uploader.upload(file, "lecture");
+    public String upload(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {
+        return s3Uploader.upload(file, "lecture", authentication.getName());
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity getLectureList() {
+        return ResponseEntity.ok().build();
     }
 }

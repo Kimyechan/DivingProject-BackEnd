@@ -29,6 +29,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.MultiValueMapAdapter;
@@ -45,6 +46,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -80,6 +82,7 @@ class LectureControllerTest {
                 .price(100000)
                 .period(4)
                 .studentCount(5)
+                .region("서울")
                 .swimmingPoolId(1L)
                 .build();
 
@@ -95,7 +98,7 @@ class LectureControllerTest {
 
         given(instructorService.getInstructorByEmail(account.getEmail())).willReturn(instructor);
         given(swimmingPoolService.getSwimmingPool(1L)).willReturn(swimmingPool);
-        given(s3Uploader.upload(file, "lecture")).willReturn("image file aws s3 url");
+        given(s3Uploader.upload(file, "lecture", account.getEmail())).willReturn("image file aws s3 url");
 
         mockMvc.perform(multipart("/lecture/create")
                             .file(file)
@@ -125,6 +128,7 @@ class LectureControllerTest {
                                     fieldWithPath("price").description("강의 비용"),
                                     fieldWithPath("period").description("강의 기간"),
                                     fieldWithPath("studentCount").description("수강 인원 제한"),
+                                    fieldWithPath("region").description("강의 지역"),
                                     fieldWithPath("swimmingPoolId").description("수영장 식별자 ID")
                             ),
                             responseHeaders(
@@ -169,11 +173,21 @@ class LectureControllerTest {
     @Test
     @DisplayName("이미지 파일 업로드")
     public void upload() throws Exception {
+        Account account = createAccount();
         MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test data".getBytes());
-        given(s3Uploader.upload(file, "lecture")).willReturn("image file aws s3 url");
+        given(s3Uploader.upload(file, "lecture", account.getEmail())).willReturn("image file aws s3 url");
+
         mockMvc.perform(multipart("/lecture/upload")
                                 .file(file))
                                 .andDo(print())
                                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("강의 목록")
+    public void getLectureList() throws Exception {
+        mockMvc.perform(get("/lecture/list"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
     }
 }

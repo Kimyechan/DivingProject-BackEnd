@@ -1,6 +1,6 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.domain.swimmingPool.Location;
+import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.repo.SwimmingPoolJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 
 @ActiveProfiles("test")

@@ -32,6 +32,8 @@ public class Lecture {
 
     private Integer studentCount;
 
+    private String region;
+
     @Builder.Default
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<LectureImage> lectureImage = new ArrayList<>();

@@ -1,5 +1,6 @@
 package com.diving.pungdong.domain.swimmingPool;
 
+import com.diving.pungdong.domain.Location;
 import lombok.*;
 
 import javax.persistence.Embedded;
