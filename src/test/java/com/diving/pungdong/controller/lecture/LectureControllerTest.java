@@ -8,6 +8,8 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,21 +22,23 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.restdocs.operation.Parameters;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.MultiValueMapAdapter;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,11 +48,9 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -184,10 +186,45 @@ class LectureControllerTest {
     }
 
     @Test
-    @DisplayName("강의 목록")
-    public void getLectureList() throws Exception {
-        mockMvc.perform(get("/lecture/list"))
+    @DisplayName("지역별 강의 목록")
+    public void getLectureListByRegion() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        String region = "서울";
+        Pageable pageable = PageRequest.of(1, 5);
+        given(lectureService.getListByRegion(region, pageable)).willReturn(createLectureList(pageable));
+
+        mockMvc.perform(get("/lecture/list/region")
+                    .param("region", region)
+                    .param("page", String.valueOf(pageable.getPageNumber()))
+                    .param("size", String.valueOf(pageable.getPageSize()))
+                    .header(HttpHeaders.AUTHORIZATION, accessToken)
+                    .header("IsRefreshToken", "false"))
                     .andDo(print())
                     .andExpect(status().isOk());
+    }
+
+    private Page<Lecture> createLectureList(Pageable pageable) {
+        List<Lecture> lectureList = new ArrayList<>();
+        for (long i = 0; i < 15; i++) {
+            LectureImage lectureImage = LectureImage.builder()
+                    .fileURI("Image URL 주소")
+                    .build();
+
+            Lecture lecture = Lecture.builder()
+                    .id(i)
+                    .title("강의")
+                    .description("내용")
+                    .kind("Level1")
+                    .price(100000)
+                    .period(4)
+                    .studentCount(5)
+                    .region("서울")
+                    .lectureImage(List.of(lectureImage))
+                    .build();
+            lectureList.add(lecture);
+        }
+
+        return new PageImpl<>(lectureList, pageable, lectureList.size());
     }
 }

@@ -10,9 +10,14 @@ import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.SwimmingPoolService;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotEmpty;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -106,8 +113,52 @@ public class LectureController {
         return s3Uploader.upload(file, "lecture", authentication.getName());
     }
 
-    @GetMapping("/list")
-    public ResponseEntity getLectureList() {
-        return ResponseEntity.ok().build();
+    @GetMapping("/list/region")
+    public ResponseEntity<PagedModel<EntityModel<LectureByRegionRes>>> getListByRegion(LectureByRegionReq lectureByRegionReq,
+                                                                                       Pageable pageable,
+                                                                                       PagedResourcesAssembler<LectureByRegionRes> assembler
+                                                                            ) {
+        Page<Lecture> lectures = lectureService.getListByRegion(lectureByRegionReq.getRegion(), pageable);
+        List<LectureByRegionRes> lectureByRegionRes = new ArrayList<>();
+        for (Lecture lecture : lectures) {
+            List<String> imageURLs = new ArrayList<>();
+            for (LectureImage image : lecture.getLectureImage()) {
+                imageURLs.add(image.getFileURI());
+            }
+            LectureByRegionRes res = LectureByRegionRes.builder()
+                    .id(lecture.getId())
+                    .title(lecture.getTitle())
+                    .kind(lecture.getKind())
+                    .price(lecture.getPrice())
+                    .region(lecture.getRegion())
+                    .imageURL(imageURLs)
+                    .build();
+            lectureByRegionRes.add(res);
+        }
+
+        Page<LectureByRegionRes> result = new PageImpl<>(lectureByRegionRes, pageable, lectureByRegionRes.size());
+        PagedModel<EntityModel<LectureByRegionRes>> model = assembler.toModel(result);
+        return ResponseEntity.ok().body(model);
     }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    static class LectureByRegionReq {
+        @NotEmpty private String region;
+    }
+    
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    static class LectureByRegionRes {
+        private Long id;
+        private String title;
+        private String kind;
+        private Integer price;
+        private String region;
+        private List<String> imageURL = new ArrayList<>();
+    }
+
 }

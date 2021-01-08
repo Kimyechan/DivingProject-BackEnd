@@ -2,7 +2,10 @@ package com.diving.pungdong.domain.lecture;
 
 import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.ArrayList;
