@@ -176,11 +176,14 @@ class LectureControllerTest {
     @DisplayName("이미지 파일 업로드")
     public void upload() throws Exception {
         Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
         MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test data".getBytes());
         given(s3Uploader.upload(file, "lecture", account.getEmail())).willReturn("image file aws s3 url");
 
         mockMvc.perform(multipart("/lecture/upload")
-                                .file(file))
+                                .file(file)
+                                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                                .header("IsRefreshToken", "false"))
                                 .andDo(print())
                                 .andExpect(status().isOk());
     }
@@ -201,7 +204,38 @@ class LectureControllerTest {
                     .header(HttpHeaders.AUTHORIZATION, accessToken)
                     .header("IsRefreshToken", "false"))
                     .andDo(print())
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk())
+                    .andDo(document("get-lecture-by-region",
+                            requestHeaders(
+                                    headerWithName(HttpHeaders.AUTHORIZATION).description("accessToken 값"),
+                                    headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                            ),
+                            requestParameters(
+                                    parameterWithName("region").description("강의 지역"),
+                                    parameterWithName("page").description("몇 번째 페이지"),
+                                    parameterWithName("size").description("한 페이지당 크기")
+                            ),
+                            responseHeaders(
+                                    headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                            ),
+                            responseFields(
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].id").description("강의 식별자 ID"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].title").description("강의 제목"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].kind").description("강의 유형"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].price").description("강의 비용"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].region").description("강의 지역"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].imageURL").description("강의 이미지들"),
+                                    fieldWithPath("_links.first.href").description("첫 번째 페이지 URL"),
+                                    fieldWithPath("_links.prev.href").description("이전 번째 페이지 URL"),
+                                    fieldWithPath("_links.self.href").description("현재 페이지 URL"),
+                                    fieldWithPath("_links.next.href").description("다음 페이지 URL"),
+                                    fieldWithPath("_links.last.href").description("마지막 페이지 URL"),
+                                    fieldWithPath("page.size").description("한 페이지당 크기"),
+                                    fieldWithPath("page.totalElements").description("해당 지역 전체 강의 수"),
+                                    fieldWithPath("page.totalPages").description("전체 페이지 수"),
+                                    fieldWithPath("page.number").description("현재 페이지 번호")
+                            )
+                    ));
     }
 
     private Page<Lecture> createLectureList(Pageable pageable) {
