@@ -55,7 +55,9 @@ public class LectureController {
         Lecture lecture = Lecture.builder()
                 .title(createLectureReq.getTitle())
                 .description(createLectureReq.getDescription())
-                .kind(createLectureReq.getKind())
+                .classKind(createLectureReq.getClassKind())
+                .groupName(createLectureReq.getGroupName())
+                .certificateKind(createLectureReq.getCertificateKind())
                 .period(createLectureReq.getPeriod())
                 .price(createLectureReq.getPrice())
                 .studentCount(createLectureReq.getStudentCount())
@@ -91,7 +93,9 @@ public class LectureController {
     @AllArgsConstructor
     static class CreateLectureReq {
         @NotEmpty private String title;
-        @NotEmpty private String kind;
+        @NotEmpty private String classKind;
+        @NotEmpty private String groupName;
+        @NotEmpty private String certificateKind;
         @NotEmpty private String description;
         @NotEmpty private Integer price;
         @NotEmpty private Integer period;
@@ -128,7 +132,9 @@ public class LectureController {
             LectureByRegionRes res = LectureByRegionRes.builder()
                     .id(lecture.getId())
                     .title(lecture.getTitle())
-                    .kind(lecture.getKind())
+                    .classKind(lecture.getClassKind())
+                    .groupName(lecture.getGroupName())
+                    .certificateKind(lecture.getCertificateKind())
                     .price(lecture.getPrice())
                     .region(lecture.getRegion())
                     .imageURL(imageURLs)
@@ -155,7 +161,9 @@ public class LectureController {
     static class LectureByRegionRes {
         private Long id;
         private String title;
-        private String kind;
+        private String classKind;
+        private String groupName;
+        private String certificateKind;
         private Integer price;
         private String region;
         private List<String> imageURL = new ArrayList<>();

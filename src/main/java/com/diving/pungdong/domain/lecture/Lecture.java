@@ -22,7 +22,11 @@ public class Lecture {
 
     private String title;
 
-    private String kind;
+    private String classKind;
+
+    private String groupName;
+
+    private String certificateKind;
 
     private String description;
 

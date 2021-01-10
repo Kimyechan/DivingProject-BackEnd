@@ -80,7 +80,9 @@ class LectureControllerTest {
         CreateLectureReq createLectureReq = CreateLectureReq.builder()
                 .title("강의1")
                 .description("내용1")
-                .kind("Level1")
+                .classKind("스쿠버 다이빙")
+                .groupName("AIDA")
+                .certificateKind("Level1")
                 .price(100000)
                 .period(4)
                 .studentCount(5)
@@ -126,7 +128,9 @@ class LectureControllerTest {
                             requestPartFields("request",
                                     fieldWithPath("title").description("강의 제목"),
                                     fieldWithPath("description").description("강의 내용"),
-                                    fieldWithPath("kind").description("강의 종류"),
+                                    fieldWithPath("classKind").description("강의 종류"),
+                                    fieldWithPath("groupName").description("단체명"),
+                                    fieldWithPath("certificateKind").description("자격증 종류"),
                                     fieldWithPath("price").description("강의 비용"),
                                     fieldWithPath("period").description("강의 기간"),
                                     fieldWithPath("studentCount").description("수강 인원 제한"),
@@ -221,7 +225,9 @@ class LectureControllerTest {
                             responseFields(
                                     fieldWithPath("_embedded.lectureByRegionResList[0].id").description("강의 식별자 ID"),
                                     fieldWithPath("_embedded.lectureByRegionResList[0].title").description("강의 제목"),
-                                    fieldWithPath("_embedded.lectureByRegionResList[0].kind").description("강의 유형"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].classKind").description("강의 유형"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].groupName").description("강의 유형"),
+                                    fieldWithPath("_embedded.lectureByRegionResList[0].certificateKind").description("자격증 종류"),
                                     fieldWithPath("_embedded.lectureByRegionResList[0].price").description("강의 비용"),
                                     fieldWithPath("_embedded.lectureByRegionResList[0].region").description("강의 지역"),
                                     fieldWithPath("_embedded.lectureByRegionResList[0].imageURL").description("강의 이미지들"),
@@ -249,7 +255,9 @@ class LectureControllerTest {
                     .id(i)
                     .title("강의")
                     .description("내용")
-                    .kind("Level1")
+                    .classKind("스쿠버 다이빙")
+                    .groupName("AIDA")
+                    .certificateKind("Level1")
                     .price(100000)
                     .period(4)
                     .studentCount(5)
