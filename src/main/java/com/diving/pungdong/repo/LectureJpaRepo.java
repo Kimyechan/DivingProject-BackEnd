@@ -9,5 +9,4 @@ import java.util.List;
 
 public interface LectureJpaRepo extends JpaRepository<Lecture, Long> {
     Page<Lecture> findByRegion(String region, Pageable pageable);
-
 }
