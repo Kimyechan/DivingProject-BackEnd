@@ -5,6 +5,7 @@ import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
+import com.diving.pungdong.repo.LectureImageJpaRepo;
 import com.diving.pungdong.service.InstructorService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -48,7 +49,7 @@ public class LectureController {
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity createLecture(Authentication authentication,
                                         @RequestPart("request") CreateLectureReq createLectureReq,
-                                        @RequestPart("file") MultipartFile file) throws IOException {
+                                        @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {
         Instructor instructor = instructorService.getInstructorByEmail(authentication.getName());
         SwimmingPool swimmingPool = swimmingPoolService.getSwimmingPool(createLectureReq.getSwimmingPoolId());
 
@@ -66,21 +67,14 @@ public class LectureController {
                 .swimmingPool(swimmingPool)
                 .build();
 
-        Lecture savedLecture = lectureService.saveLecture(lecture);
-
-        String fileURI = s3Uploader.upload(file, "lecture", authentication.getName());
-        LectureImage lectureImage = LectureImage.builder()
-                .fileURI(fileURI)
-                .lecture(savedLecture)
-                .build();
-
-        lectureImageService.saveLectureImage(lectureImage);
+        String email = authentication.getName();
+        Lecture savedLecture = lectureService.saveLectureAndImage(email, fileList, lecture);
 
         CreateLectureRes createLectureRes
-                = new CreateLectureRes(lecture.getTitle(), lecture.getInstructor().getUserName(), fileURI);
+                = new CreateLectureRes(savedLecture.getTitle(), savedLecture.getInstructor().getUserName());
 
         EntityModel<CreateLectureRes> model = EntityModel.of(createLectureRes);
-        WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(authentication, createLectureReq, file));
+        WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(authentication, createLectureReq, fileList));
         model.add(selfLink.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
@@ -109,7 +103,6 @@ public class LectureController {
     static class CreateLectureRes {
         private String title;
         private String instructorName;
-        private String fileURI;
     }
 
     @PostMapping("/upload")

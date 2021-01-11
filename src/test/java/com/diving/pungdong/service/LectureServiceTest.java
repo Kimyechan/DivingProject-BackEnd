@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
@@ -23,10 +24,15 @@ class LectureServiceTest {
     @Mock
     private LectureJpaRepo lectureJpaRepo;
 
+    @Mock
+    private LectureImageService lectureImageService;
+    @Mock
+    private S3Uploader s3Uploader;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        lectureService = new LectureService(lectureJpaRepo);
+        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader);
     }
 
     @Test

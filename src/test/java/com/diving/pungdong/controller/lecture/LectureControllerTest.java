@@ -42,9 +42,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -90,7 +89,9 @@ class LectureControllerTest {
                 .swimmingPoolId(1L)
                 .build();
 
-        MockMultipartFile file = new MockMultipartFile("file", "test.txt", "image/*", "test data".getBytes());
+        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("fileList", "test2.txt", "image/*", "test data".getBytes());
+
         MockMultipartFile request =
                 new MockMultipartFile("request",
                         "request",
@@ -100,12 +101,18 @@ class LectureControllerTest {
         String accessToken = jwtTokenProvider.createAccessToken("1", Set.of(Role.INSTRUCTOR));
         SwimmingPool swimmingPool = new SwimmingPool();
 
+        Lecture lecture = Lecture.builder()
+                .title(createLectureReq.getTitle())
+                .instructor(instructor)
+                .build();
+
         given(instructorService.getInstructorByEmail(account.getEmail())).willReturn(instructor);
         given(swimmingPoolService.getSwimmingPool(1L)).willReturn(swimmingPool);
-        given(s3Uploader.upload(file, "lecture", account.getEmail())).willReturn("image file aws s3 url");
+        given(lectureService.saveLectureAndImage(eq(account.getEmail()), anyList(), any(Lecture.class))).willReturn(lecture);
 
         mockMvc.perform(multipart("/lecture/create")
-                            .file(file)
+                            .file(file1)
+                            .file(file2)
                             .file(request)
                             .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                             .header(HttpHeaders.AUTHORIZATION, accessToken)
@@ -120,10 +127,10 @@ class LectureControllerTest {
                                     headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
                             ),
                             requestParts(
-                                    partWithName("file").description("이미지 파일 데이터"),
+                                    partWithName("fileList").description("이미지 파일 리스트"),
                                     partWithName("request").description("강의 생성 정보 JSON 데이터")
                             ),
-                            requestPartBody("file"),
+                            requestPartBody("fileList"),
                             requestPartBody("request"),
                             requestPartFields("request",
                                     fieldWithPath("title").description("강의 제목"),
@@ -144,13 +151,10 @@ class LectureControllerTest {
                             responseFields(
                                     fieldWithPath("title").description("강의 제목"),
                                     fieldWithPath("instructorName").description("강사 이름"),
-                                    fieldWithPath("fileURI").description("이미지 파일 URI"),
                                     fieldWithPath("_links.self.href").description("해당 API URI"),
                                     fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
                             )
                     ));
-        verify(lectureService).saveLecture(any());
-        verify(lectureImageService).saveLectureImage(any());
     }
 
     public Account createAccount() {
