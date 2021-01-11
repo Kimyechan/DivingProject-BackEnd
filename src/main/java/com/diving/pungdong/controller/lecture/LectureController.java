@@ -5,7 +5,6 @@ import com.diving.pungdong.domain.account.Instructor;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
-import com.diving.pungdong.repo.LectureImageJpaRepo;
 import com.diving.pungdong.service.InstructorService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

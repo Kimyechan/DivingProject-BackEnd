@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LectureService {
     private final LectureJpaRepo lectureJpaRepo;
     private final LectureImageService lectureImageService;
@@ -39,6 +41,7 @@ public class LectureService {
                     .lecture(savedLecture)
                     .build();
             lectureImageService.saveLectureImage(lectureImage);
+            savedLecture.getLectureImage().add(lectureImage);
         }
         return savedLecture;
     }

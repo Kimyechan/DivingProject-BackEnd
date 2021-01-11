@@ -20,4 +20,5 @@ public class LectureImage {
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;
 
+
 }
