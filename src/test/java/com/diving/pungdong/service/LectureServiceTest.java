@@ -99,7 +99,7 @@ class LectureServiceTest {
         Lecture savedLecture = lectureService.saveLectureAndImage(email, fileList, lecture);
 
         assertThat(savedLecture).isEqualTo(lecture);
-        assertThat(savedLecture.getLectureImage()).isNotEmpty();
+        assertThat(savedLecture.getLectureImages()).isNotEmpty();
 
         verify(lectureImageService, times(fileList.size())).saveLectureImage(any());
     }

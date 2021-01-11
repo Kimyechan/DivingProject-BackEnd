@@ -266,7 +266,7 @@ class LectureControllerTest {
                     .period(4)
                     .studentCount(5)
                     .region("서울")
-                    .lectureImage(List.of(lectureImage))
+                    .lectureImages(List.of(lectureImage))
                     .build();
             lectureList.add(lecture);
         }

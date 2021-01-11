@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"instructor", "swimmingPool"})
+@ToString(exclude = {"instructor", "swimmingPool", "lectureImages"})
 public class Lecture {
 
     @Id @GeneratedValue
@@ -40,7 +40,7 @@ public class Lecture {
 
     @Builder.Default
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<LectureImage> lectureImage = new ArrayList<>();
+    private List<LectureImage> lectureImages = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Instructor instructor;

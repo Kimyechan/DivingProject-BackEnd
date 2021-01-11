@@ -117,7 +117,7 @@ public class LectureController {
         List<LectureByRegionRes> lectureByRegionRes = new ArrayList<>();
         for (Lecture lecture : lectures) {
             List<String> imageURLs = new ArrayList<>();
-            for (LectureImage image : lecture.getLectureImage()) {
+            for (LectureImage image : lecture.getLectureImages()) {
                 imageURLs.add(image.getFileURI());
             }
             LectureByRegionRes res = LectureByRegionRes.builder()

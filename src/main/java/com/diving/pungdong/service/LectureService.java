@@ -41,7 +41,7 @@ public class LectureService {
                     .lecture(savedLecture)
                     .build();
             lectureImageService.saveLectureImage(lectureImage);
-            savedLecture.getLectureImage().add(lectureImage);
+            savedLecture.getLectureImages().add(lectureImage);
         }
         return savedLecture;
     }
