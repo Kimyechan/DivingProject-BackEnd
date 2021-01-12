@@ -1,7 +1,7 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.domain.account.instructor.Instructor;
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.repo.LectureJpaRepo;
@@ -57,7 +57,7 @@ class LectureServiceTest {
                 .price(100000)
                 .period(4)
                 .studentCount(5)
-                .instructor(new Instructor())
+                .instructor(new Account())
                 .swimmingPool(new SwimmingPool())
                 .build();
 
@@ -81,7 +81,7 @@ class LectureServiceTest {
                 .price(100000)
                 .period(4)
                 .studentCount(5)
-                .instructor(new Instructor())
+                .instructor(new Account())
                 .swimmingPool(new SwimmingPool())
                 .build();
 

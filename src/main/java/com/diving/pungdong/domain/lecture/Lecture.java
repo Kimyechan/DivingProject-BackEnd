@@ -1,6 +1,6 @@
 package com.diving.pungdong.domain.lecture;
 
-import com.diving.pungdong.domain.account.instructor.Instructor;
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import lombok.*;
 
@@ -43,7 +43,7 @@ public class Lecture {
     private List<LectureImage> lectureImages = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Instructor instructor;
+    private Account instructor;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private SwimmingPool swimmingPool;

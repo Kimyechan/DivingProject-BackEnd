@@ -1,4 +1,4 @@
-package com.diving.pungdong.domain.account.instructor;
+package com.diving.pungdong.domain.account;
 
 public enum InstructorImgCategory {
     PROFILE, CERTIFICATE

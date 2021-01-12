@@ -1,6 +1,6 @@
 package com.diving.pungdong.repo;
 
-import com.diving.pungdong.domain.account.instructor.Instructor;
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
@@ -37,7 +37,7 @@ class LectureJpaRepoTest {
                 .price(100000)
                 .period(4)
                 .studentCount(5)
-                .instructor(new Instructor())
+                .instructor(new Account())
                 .swimmingPool(new SwimmingPool())
                 .lectureImages(List.of(new LectureImage()))
                 .build();

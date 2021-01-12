@@ -6,7 +6,6 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.controller.lecture.LectureController.CreateLectureReq;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
-import com.diving.pungdong.domain.account.instructor.Instructor;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
@@ -66,7 +65,6 @@ class LectureControllerTest {
     @Autowired ObjectMapper objectMapper;
     @Autowired JwtTokenProvider jwtTokenProvider;
     @Autowired ModelMapper modelMapper;
-    @MockBean InstructorService instructorService;
     @MockBean SwimmingPoolService swimmingPoolService;
     @MockBean AccountService accountService;
     @MockBean LectureService lectureService;
@@ -98,16 +96,15 @@ class LectureControllerTest {
                         "request",
                         MediaType.APPLICATION_JSON_VALUE,
                         objectMapper.writeValueAsString(createLectureReq).getBytes());
-        Instructor instructor = modelMapper.map(account, Instructor.class);
         String accessToken = jwtTokenProvider.createAccessToken("1", Set.of(Role.INSTRUCTOR));
         SwimmingPool swimmingPool = new SwimmingPool();
 
         Lecture lecture = Lecture.builder()
                 .title(createLectureReq.getTitle())
-                .instructor(instructor)
+                .instructor(account)
                 .build();
 
-        given(instructorService.getInstructorByEmail(account.getEmail())).willReturn(instructor);
+        given(accountService.findAccountByEmail(account.getEmail())).willReturn(account);
         given(swimmingPoolService.getSwimmingPool(1L)).willReturn(swimmingPool);
         given(lectureService.saveLectureAndImage(eq(account.getEmail()), anyList(), any(Lecture.class))).willReturn(lecture);
 

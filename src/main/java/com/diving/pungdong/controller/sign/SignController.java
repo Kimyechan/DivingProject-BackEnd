@@ -3,13 +3,10 @@ package com.diving.pungdong.controller.sign;
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.domain.account.*;
-import com.diving.pungdong.domain.account.instructor.Instructor;
-import com.diving.pungdong.domain.account.instructor.InstructorImage;
-import com.diving.pungdong.domain.account.student.Student;
+import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.account.Gender;
+import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.service.AccountService;
-import com.diving.pungdong.service.InstructorService;
-import com.diving.pungdong.service.StudentService;
 import lombok.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,15 +21,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.Column;
-import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -51,8 +45,6 @@ public class SignController {
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
     private final RedisTemplate<String, String> redisTemplate;
-    private final InstructorService instructorService;
-    private final StudentService studentService;
 
 
     @PostMapping("/signin")
@@ -102,9 +94,9 @@ public class SignController {
 
         signUpReq.setPassword(passwordEncoder.encode(signUpReq.getPassword()));
 
-        Student student = modelMapper.map(signUpReq, Student.class);
+        Account student = modelMapper.map(signUpReq, Account.class);
         student.setRoles(Set.of(Role.STUDENT));
-        studentService.saveStudent(student);
+        accountService.saveAccount(student);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq, result));
         URI createUri = selfLinkBuilder.toUri();

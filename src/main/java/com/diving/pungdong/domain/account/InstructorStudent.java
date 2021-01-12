@@ -1,8 +1,5 @@
 package com.diving.pungdong.domain.account;
 
-import com.diving.pungdong.domain.account.instructor.Instructor;
-import com.diving.pungdong.domain.account.student.Student;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -15,8 +12,8 @@ public class InstructorStudent {
     private Long id;
 
     @ManyToOne
-    private Instructor instructor;
+    private Account instructor;
 
     @ManyToOne
-    private Student student;
+    private Account student;
 }

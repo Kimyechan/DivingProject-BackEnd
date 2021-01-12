@@ -1,12 +1,11 @@
 package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.domain.account.instructor.Instructor;
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
-import com.diving.pungdong.service.InstructorService;
-import com.diving.pungdong.service.LectureImageService;
+import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.SwimmingPoolService;
 import lombok.*;
@@ -39,16 +38,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class LectureController {
 
     private final LectureService lectureService;
-    private final LectureImageService lectureImageService;
     private final SwimmingPoolService swimmingPoolService;
-    private final InstructorService instructorService;
+    private final AccountService accountService;
     private final S3Uploader s3Uploader;
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity createLecture(Authentication authentication,
                                         @RequestPart("request") CreateLectureReq createLectureReq,
                                         @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {
-        Instructor instructor = instructorService.getInstructorByEmail(authentication.getName());
+        Account instructor = accountService.findAccountByEmail(authentication.getName());
         SwimmingPool swimmingPool = swimmingPoolService.getSwimmingPool(createLectureReq.getSwimmingPoolId());
 
         Lecture lecture = Lecture.builder()

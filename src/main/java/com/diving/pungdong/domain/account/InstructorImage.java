@@ -1,4 +1,4 @@
-package com.diving.pungdong.domain.account.instructor;
+package com.diving.pungdong.domain.account;
 
 import lombok.*;
 
@@ -20,5 +20,5 @@ public class InstructorImage {
     private InstructorImgCategory category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Instructor instructor;
+    private Account instructor;
 }
