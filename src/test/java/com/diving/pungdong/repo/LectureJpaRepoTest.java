@@ -1,6 +1,6 @@
 package com.diving.pungdong.repo;
 
-import com.diving.pungdong.domain.account.Instructor;
+import com.diving.pungdong.domain.account.instructor.Instructor;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
@@ -13,11 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class LectureJpaRepoTest {

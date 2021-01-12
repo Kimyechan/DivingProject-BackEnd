@@ -122,3 +122,7 @@ operation::logout[]
 [[resource-lecture-create]]
 === 강의 생성
 operation::create-lecture[]
+
+[[resource-lecture-get-by-region]]
+=== 지역별 강의 조회
+operation::get-lecture-by-region[]

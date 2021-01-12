@@ -1,6 +1,6 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.domain.account.Student;
+import com.diving.pungdong.domain.account.student.Student;
 import com.diving.pungdong.repo.StudentJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -6,7 +6,7 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.controller.lecture.LectureController.CreateLectureReq;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
-import com.diving.pungdong.domain.account.Instructor;
+import com.diving.pungdong.domain.account.instructor.Instructor;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -270,7 +271,8 @@ class LectureControllerTest {
                     .build();
             lectureList.add(lecture);
         }
-
-        return new PageImpl<>(lectureList, pageable, lectureList.size());
+        long endIndex = (pageable.getOffset() + pageable.getPageSize()) > lectureList.size() ?
+                lectureList.size() : pageable.getOffset() + pageable.getPageSize();
+        return new PageImpl<>(lectureList.subList((int)pageable.getOffset(), (int)endIndex), pageable, lectureList.size());
     }
 }

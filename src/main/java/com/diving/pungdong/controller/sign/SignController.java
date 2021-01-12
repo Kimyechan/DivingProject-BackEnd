@@ -4,6 +4,9 @@ import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.*;
+import com.diving.pungdong.domain.account.instructor.Instructor;
+import com.diving.pungdong.domain.account.instructor.InstructorImage;
+import com.diving.pungdong.domain.account.student.Student;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.InstructorService;
 import com.diving.pungdong.service.StudentService;
@@ -15,16 +18,22 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.Column;
+import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +53,6 @@ public class SignController {
     private final RedisTemplate<String, String> redisTemplate;
     private final InstructorService instructorService;
     private final StudentService studentService;
-
 
 
     @PostMapping("/signin")
@@ -94,13 +102,9 @@ public class SignController {
 
         signUpReq.setPassword(passwordEncoder.encode(signUpReq.getPassword()));
 
-        if (signUpReq.getRoles().contains(Role.INSTRUCTOR)) {
-            Instructor instructor = modelMapper.map(signUpReq, Instructor.class);
-            instructorService.saveInstructor(instructor);
-        } else if (signUpReq.getRoles().contains(Role.STUDENT)){
-            Student student = modelMapper.map(signUpReq, Student.class);
-            studentService.saveStudent(student);
-        }
+        Student student = modelMapper.map(signUpReq, Student.class);
+        student.setRoles(Set.of(Role.STUDENT));
+        studentService.saveStudent(student);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq, result));
         URI createUri = selfLinkBuilder.toUri();
@@ -128,7 +132,6 @@ public class SignController {
         @NotNull String userName;
         @NotNull Integer age;
         @NotNull Gender gender;
-        @NotNull Set<Role> roles;
     }
 
     @Data
@@ -136,6 +139,33 @@ public class SignController {
     static class SignUpRes {
         String email;
         String userName;
+    }
+
+    @PostMapping("/changeToInstructor")
+    public ResponseEntity changeToInstructor(Authentication authentication,
+                                             @RequestPart("request") ChangeInstructorReq changeInstructorReq,
+                                             @RequestPart("profile") List<MultipartFile> profiles,
+                                             @RequestPart("certificate") List<MultipartFile> certificates) {
+        Account account = accountService.findAccountByEmail(authentication.getName());
+//        Instructor instructor = new Instructor();
+//        modelMapper.map(account, instructor);
+//        modelMapper.map(changeInstructorReq, instructor);
+//        instructor.setRoles(Set.of(Role.INSTRUCTOR));
+//        instructor.
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    static class ChangeInstructorReq {
+        @NotEmpty
+        private String phoneNumber;
+        @NotEmpty
+        private String groupName;
+        @NotEmpty
+        private String description;
     }
 
     @GetMapping("/refresh")
@@ -167,8 +197,8 @@ public class SignController {
 
     @PostMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
-        redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60*60*1000, TimeUnit.MILLISECONDS);
-        redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60*60*1000*14, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60 * 60 * 1000, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(logoutReq.getRefreshToken(), "false", 60 * 60 * 1000 * 14, TimeUnit.MILLISECONDS);
 
         EntityModel<LogoutRes> entity = EntityModel.of(new LogoutRes());
         entity.add(linkTo(methodOn(SignController.class).logout(logoutReq)).withSelfRel());

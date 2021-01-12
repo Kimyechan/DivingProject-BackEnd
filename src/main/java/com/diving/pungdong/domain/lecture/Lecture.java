@@ -1,6 +1,6 @@
 package com.diving.pungdong.domain.lecture;
 
-import com.diving.pungdong.domain.account.Instructor;
+import com.diving.pungdong.domain.account.instructor.Instructor;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import lombok.*;
 

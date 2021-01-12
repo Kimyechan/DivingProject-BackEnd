@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,7 @@ public class Account {
     @Id @GeneratedValue
     Long id;
 
+    @Email
     @Column(nullable = false, unique = true)
     String email;
 

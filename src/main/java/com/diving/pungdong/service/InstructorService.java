@@ -1,7 +1,7 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
-import com.diving.pungdong.domain.account.Instructor;
+import com.diving.pungdong.domain.account.instructor.Instructor;
 import com.diving.pungdong.repo.InstructorJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

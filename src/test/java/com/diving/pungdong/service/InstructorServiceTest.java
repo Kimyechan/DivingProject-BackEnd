@@ -1,9 +1,8 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
-import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
-import com.diving.pungdong.domain.account.Instructor;
+import com.diving.pungdong.domain.account.instructor.Instructor;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.repo.InstructorJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -36,8 +37,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -64,8 +64,25 @@ class SignControllerTest {
     @MockBean
     AccountService accountService;
 
+    public Account createAccount(Role role) {
+        Account account = Account.builder()
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password("1234")
+                .userName("yechan")
+                .age(27)
+                .gender(Gender.MALE)
+                .roles(Set.of(role))
+                .build();
+
+        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
+                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
+
+        return account;
+    }
+
     @Test
-    @DisplayName("회원가입 성공 - 강사")
+    @DisplayName("회원가입 성공 - 수강생 권한으로만 가입됨")
     public void signupInstructorSuccess() throws Exception {
         SignUpReq signUpReq = SignUpReq.builder()
                 .email("yechan@gmail.com")
@@ -73,7 +90,6 @@ class SignControllerTest {
                 .userName("yechan")
                 .age(24)
                 .gender(Gender.MALE)
-                .roles(Set.of(Role.INSTRUCTOR))
                 .build();
 
         mockMvc.perform(post("/sign/signup")
@@ -94,8 +110,7 @@ class SignControllerTest {
                                 fieldWithPath("password").description("유저 PASSWORD"),
                                 fieldWithPath("userName").description("유저의 이름"),
                                 fieldWithPath("age").description("유저의 나이"),
-                                fieldWithPath("gender").description("유저의 성별"),
-                                fieldWithPath("roles").description("유저의 권한")
+                                fieldWithPath("gender").description("유저의 성별")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("API 주소"),
@@ -112,26 +127,37 @@ class SignControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입 성공 - 수강생")
-    public void signupStudentSuccess() throws Exception {
-        SignUpReq signUpReq = SignUpReq.builder()
-                .email("yechan@gmail.com")
-                .password("1234")
-                .userName("yechan")
-                .age(24)
-                .gender(Gender.MALE)
-                .roles(Set.of(Role.STUDENT))
+    @DisplayName("강사 정보 입력 및 강사 권한으로 변경")
+    public void changeToInstructor() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        ChangeInstructorReq changeInstructorReq = ChangeInstructorReq.builder()
+                .phoneNumber("01011112222")
+                .groupName("AIDA")
+                .description("강사 소개")
                 .build();
 
-        mockMvc.perform(post("/sign/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(signUpReq)))
+        MockMultipartFile profile1 = new MockMultipartFile("profile", "profile1.png", "image/*", "test data".getBytes());
+        MockMultipartFile profile2 = new MockMultipartFile("profile", "profile2.jpg", "image/*", "test data".getBytes());
+        MockMultipartFile certificate1 = new MockMultipartFile("certificate", "certificate1.jpg", "image/*", "test data".getBytes());
+        MockMultipartFile certificate2 = new MockMultipartFile("certificate", "certificate2.jpg", "image/*", "test data".getBytes());
+        MockMultipartFile request =
+                new MockMultipartFile("request",
+                        "request",
+                        MediaType.APPLICATION_JSON_VALUE,
+                        objectMapper.writeValueAsString(changeInstructorReq).getBytes());
+
+        mockMvc.perform(multipart("/sign/changeToInstructor")
+                .file(profile1)
+                .file(profile2)
+                .file(certificate1)
+                .file(certificate2)
+                .file(request)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false"))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(jsonPath("email").exists())
-                .andExpect(jsonPath("userName").exists());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -237,35 +263,35 @@ class SignControllerTest {
     public void refresh() throws Exception {
         Long id = 1L;
         Account account = Account.builder()
-                            .id(id)
-                            .email("yechan@gmail.com")
-                            .roles(Set.of(Role.INSTRUCTOR))
-                            .build();
+                .id(id)
+                .email("yechan@gmail.com")
+                .roles(Set.of(Role.INSTRUCTOR))
+                .build();
 
         given(accountService.findAccountById(id)).willReturn(account);
         String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(id));
 
         mockMvc.perform(get("/sign/refresh")
-                    .header("Authorization", refreshToken)
-                    .header("IsRefreshToken", "true"))
-                    .andDo(print())
-                    .andExpect(jsonPath("accessToken").exists())
-                    .andExpect(jsonPath("refreshToken").exists())
-                    .andDo(document("refresh",
-                            requestHeaders(
-                                    headerWithName("Authorization").description("refresh token 값"),
-                                    headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-                            ),
-                            responseHeaders(
-                                    headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
-                            ),
-                            responseFields(
-                                    fieldWithPath("accessToken").description("재발급된 access token"),
-                                    fieldWithPath("refreshToken").description("재발급된 refresh token"),
-                                    fieldWithPath("_links.self.href").description("해당 API 링크"),
-                                    fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
-                            )
-                    ));
+                .header("Authorization", refreshToken)
+                .header("IsRefreshToken", "true"))
+                .andDo(print())
+                .andExpect(jsonPath("accessToken").exists())
+                .andExpect(jsonPath("refreshToken").exists())
+                .andDo(document("refresh",
+                        requestHeaders(
+                                headerWithName("Authorization").description("refresh token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("accessToken").description("재발급된 access token"),
+                                fieldWithPath("refreshToken").description("재발급된 refresh token"),
+                                fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
+                        )
+                ));
     }
 
     @Test
@@ -290,26 +316,26 @@ class SignControllerTest {
                 .build();
 
         mockMvc.perform(post("/sign/logout")
-                            .header("Authorization", accessToken)
-                            .header("IsRefreshToken", "false")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(logoutReq)))
-                        .andDo(print())
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("message").exists())
-                        .andDo(document("logout",
-                                requestHeaders(
-                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
-                                        headerWithName("IsRefreshToken").description("refresh token 인지 아닌지에 대한 값")),
-                                requestFields(
-                                        fieldWithPath("accessToken").description("access token 값"),
-                                        fieldWithPath("refreshToken").description("refresh token 값")),
-                                responseFields(
-                                        fieldWithPath("message").description("성공 메세지"),
-                                        fieldWithPath("_links.self.href").description("해당 API 주소"),
-                                        fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
-                                )
-                        ));
+                .header("Authorization", accessToken)
+                .header("IsRefreshToken", "false")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(logoutReq)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").exists())
+                .andDo(document("logout",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
+                                headerWithName("IsRefreshToken").description("refresh token 인지 아닌지에 대한 값")),
+                        requestFields(
+                                fieldWithPath("accessToken").description("access token 값"),
+                                fieldWithPath("refreshToken").description("refresh token 값")),
+                        responseFields(
+                                fieldWithPath("message").description("성공 메세지"),
+                                fieldWithPath("_links.self.href").description("해당 API 주소"),
+                                fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
+                        )
+                ));
     }
 
     @Test

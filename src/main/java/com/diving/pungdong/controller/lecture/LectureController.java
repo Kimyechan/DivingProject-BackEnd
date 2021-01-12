@@ -1,7 +1,7 @@
 package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.domain.account.Instructor;
+import com.diving.pungdong.domain.account.instructor.Instructor;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
@@ -115,7 +115,7 @@ public class LectureController {
                                                                             ) {
         Page<Lecture> lectures = lectureService.getListByRegion(lectureByRegionReq.getRegion(), pageable);
         List<LectureByRegionRes> lectureByRegionRes = new ArrayList<>();
-        for (Lecture lecture : lectures) {
+        for (Lecture lecture : lectures.getContent()) {
             List<String> imageURLs = new ArrayList<>();
             for (LectureImage image : lecture.getLectureImages()) {
                 imageURLs.add(image.getFileURI());
@@ -133,7 +133,7 @@ public class LectureController {
             lectureByRegionRes.add(res);
         }
 
-        Page<LectureByRegionRes> result = new PageImpl<>(lectureByRegionRes, pageable, lectureByRegionRes.size());
+        Page<LectureByRegionRes> result = new PageImpl<>(lectureByRegionRes, pageable, lectures.getTotalElements());
         PagedModel<EntityModel<LectureByRegionRes>> model = assembler.toModel(result);
         return ResponseEntity.ok().body(model);
     }
