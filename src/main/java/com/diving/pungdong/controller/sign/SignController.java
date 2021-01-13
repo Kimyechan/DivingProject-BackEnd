@@ -2,11 +2,11 @@ package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
+import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.Gender;
-import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.account.*;
 import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.InstructorImageService;
 import lombok.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,6 +26,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,8 @@ public class SignController {
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
     private final RedisTemplate<String, String> redisTemplate;
+    private final S3Uploader s3Uploader;
+    private final InstructorImageService instructorImageService;
 
 
     @PostMapping("/signin")
@@ -133,31 +136,44 @@ public class SignController {
         String userName;
     }
 
-    @PostMapping("/changeToInstructor")
-    public ResponseEntity changeToInstructor(Authentication authentication,
-                                             @RequestPart("request") ChangeInstructorReq changeInstructorReq,
+    @PostMapping("/addInstructorRole")
+    public ResponseEntity<EntityModel<AddInstructorRoleRes>> changeToInstructor(Authentication authentication,
+                                             @RequestPart("request") AddInstructorRoleReq request,
                                              @RequestPart("profile") List<MultipartFile> profiles,
-                                             @RequestPart("certificate") List<MultipartFile> certificates) {
-        Account account = accountService.findAccountByEmail(authentication.getName());
-//        Instructor instructor = new Instructor();
-//        modelMapper.map(account, instructor);
-//        modelMapper.map(changeInstructorReq, instructor);
-//        instructor.setRoles(Set.of(Role.INSTRUCTOR));
-//        instructor.
-        return ResponseEntity.ok().build();
+                                             @RequestPart("certificate") List<MultipartFile> certificates) throws IOException {
+        Account updatedAccount = accountService.updateAccountToInstructor(authentication.getName(), request, profiles, certificates);
+
+        AddInstructorRoleRes addInstructorRoleRes = AddInstructorRoleRes.builder()
+                .email(updatedAccount.getEmail())
+                .userName(updatedAccount.getUserName())
+                .roles(updatedAccount.getRoles())
+                .build();
+
+        EntityModel<AddInstructorRoleRes> model = EntityModel.of(addInstructorRoleRes);
+        model.add(linkTo(methodOn(SignController.class).changeToInstructor(authentication, request, profiles, certificates)).withSelfRel());
+        return ResponseEntity.ok().body(model);
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    static class ChangeInstructorReq {
+    public static class AddInstructorRoleReq {
         @NotEmpty
         private String phoneNumber;
         @NotEmpty
         private String groupName;
         @NotEmpty
         private String description;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @Builder
+    static class AddInstructorRoleRes {
+        private String email;
+        private String userName;
+        private Set<Role> roles;
     }
 
     @GetMapping("/refresh")

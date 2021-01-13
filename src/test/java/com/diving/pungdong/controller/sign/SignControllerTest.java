@@ -29,10 +29,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.diving.pungdong.controller.sign.SignController.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -127,12 +130,12 @@ class SignControllerTest {
     }
 
     @Test
-    @DisplayName("강사 정보 입력 및 강사 권한으로 변경")
+    @DisplayName("강사 정보 입력 및 강사 권한 추가")
     public void changeToInstructor() throws Exception {
         Account account = createAccount(Role.STUDENT);
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
-        ChangeInstructorReq changeInstructorReq = ChangeInstructorReq.builder()
+        AddInstructorRoleReq addInstructorRoleReq = AddInstructorRoleReq.builder()
                 .phoneNumber("01011112222")
                 .groupName("AIDA")
                 .description("강사 소개")
@@ -146,9 +149,16 @@ class SignControllerTest {
                 new MockMultipartFile("request",
                         "request",
                         MediaType.APPLICATION_JSON_VALUE,
-                        objectMapper.writeValueAsString(changeInstructorReq).getBytes());
+                        objectMapper.writeValueAsString(addInstructorRoleReq).getBytes());
+        account.setPhoneNumber(addInstructorRoleReq.getPhoneNumber());
+        account.setGroupName(addInstructorRoleReq.getGroupName());
+        account.setDescription(addInstructorRoleReq.getDescription());
+        account.setRoles(Set.of(Role.STUDENT, Role.INSTRUCTOR));
 
-        mockMvc.perform(multipart("/sign/changeToInstructor")
+        given(accountService.updateAccountToInstructor(eq(account.getEmail()), eq(addInstructorRoleReq), anyList(), anyList()))
+                .willReturn(account);
+
+        mockMvc.perform(multipart("/sign/addInstructorRole")
                 .file(profile1)
                 .file(profile2)
                 .file(certificate1)

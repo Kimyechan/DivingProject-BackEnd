@@ -19,6 +19,8 @@ public class InstructorImage {
     @Enumerated(EnumType.STRING)
     private InstructorImgCategory category;
 
+    private String fileURL;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Account instructor;
 }

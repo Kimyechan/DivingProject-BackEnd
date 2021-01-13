@@ -35,10 +35,13 @@ class AccountServiceTest {
     @Mock
     private  RedisTemplate<String, String> redisTemplate;
 
+    @Mock
+    private InstructorImageService instructorImageService;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        accountService = new AccountService(accountJpaRepo, redisTemplate);
+        accountService = new AccountService(accountJpaRepo, redisTemplate, instructorImageService);
     }
 
     @Test
