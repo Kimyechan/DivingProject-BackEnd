@@ -39,6 +39,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -163,10 +165,40 @@ class SignControllerTest {
                 .file(certificate1)
                 .file(certificate2)
                 .file(request)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("sign-addInstructorRole",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh toekn인지 확인")
+                        ),
+                        requestParts(
+                                partWithName("request").description("강사 추가 정보"),
+                                partWithName("profile").description("강사 프로필 이미지들"),
+                                partWithName("certificate").description("강사 자격증 이미지들")
+                        ),
+                        requestPartBody("profile"),
+                        requestPartBody("certificate"),
+                        requestPartBody("request"),
+                        requestPartFields("request",
+                                    fieldWithPath("phoneNumber").description("강사 전화번호"),
+                                    fieldWithPath("groupName").description("강사 소속 그룹"),
+                                    fieldWithPath("description").description("강사 소개글")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("email").description("강사 아이디"),
+                                fieldWithPath("userName").description("강사 유저 이름"),
+                                fieldWithPath("roles").description("해당 아이디의 권한"),
+                                fieldWithPath("_links.self.href").description("해당 API 링크")
+                        )
+                ));
     }
 
     @Test

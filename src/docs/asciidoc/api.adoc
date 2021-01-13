@@ -106,6 +106,10 @@ operation::signUp[]
 === 유저 로그인
 operation::signIn[]
 
+[[resource-add-instructor-role]]
+=== 강사 권한 추가
+operation::sign-addInstructorRole[]
+
 [[resource-account-tokenRefresh]]
 === 토큰 재발급
 operation::refresh[]
