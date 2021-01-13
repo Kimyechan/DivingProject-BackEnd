@@ -69,13 +69,13 @@ public class AccountService implements UserDetailsService {
                                              AddInstructorRoleReq request,
                                              List<MultipartFile> profiles,
                                              List<MultipartFile> certificates) throws IOException {
-        Account account = findAccountByEmail(email);
+        Account account = accountJpaRepo.findByEmail(email).orElseThrow(CEmailSigninFailedException::new);
         account.setPhoneNumber(request.getPhoneNumber());
         account.setGroupName(request.getGroupName());
         account.setDescription(request.getDescription());
         account.getRoles().add(Role.INSTRUCTOR);
 
-        Account updateAccount = saveAccount(account);
+        Account updateAccount = accountJpaRepo.save(account);
 
         instructorImageService.uploadInstructorImages(email, profiles, updateAccount, "profile", InstructorImgCategory.PROFILE);
         instructorImageService.uploadInstructorImages(email, certificates, updateAccount, "certificate", InstructorImgCategory.CERTIFICATE);

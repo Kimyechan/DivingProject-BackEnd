@@ -2,9 +2,12 @@ package com.diving.pungdong.domain.account;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.collection.internal.PersistentSet;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +33,7 @@ public class Account {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    Set<Role> roles;
+    Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "student")
     private List<InstructorStudent> instructorList;
@@ -45,8 +48,8 @@ public class Account {
     private Long income;
 
     @OneToMany(mappedBy = "instructor")
-    private List<InstructorImage> instructorImages;
+    private List<InstructorImage> instructorImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "instructor")
-    private List<InstructorStudent> studentList;
+    private List<InstructorStudent> studentList = new ArrayList<>();
 }
