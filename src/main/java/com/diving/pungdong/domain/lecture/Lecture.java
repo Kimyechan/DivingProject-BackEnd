@@ -1,6 +1,7 @@
 package com.diving.pungdong.domain.lecture;
 
 import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import lombok.*;
 
@@ -41,6 +42,9 @@ public class Lecture {
     @Builder.Default
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<LectureImage> lectureImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Equipment> equipmentList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account instructor;

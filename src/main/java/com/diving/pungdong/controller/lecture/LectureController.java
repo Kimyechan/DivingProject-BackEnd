@@ -2,6 +2,7 @@ package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
@@ -64,7 +65,17 @@ public class LectureController {
                 .build();
 
         String email = authentication.getName();
-        Lecture savedLecture = lectureService.saveLectureAndImage(email, fileList, lecture);
+
+        List<Equipment> equipmentList = new ArrayList<>();
+        for (EquipmentReq equipmentReq : createLectureReq.getEquipmentList()) {
+            Equipment equipment = Equipment.builder()
+                    .name(equipmentReq.getName())
+                    .price(equipmentReq.getPrice())
+                    .build();
+            equipmentList.add(equipment);
+        }
+
+        Lecture savedLecture = lectureService.createLecture(email, fileList, lecture, equipmentList);
 
         CreateLectureRes createLectureRes
                 = new CreateLectureRes(savedLecture.getTitle(), savedLecture.getInstructor().getUserName());
@@ -92,6 +103,16 @@ public class LectureController {
         @NotEmpty private Integer studentCount;
         @NotEmpty private String region;
         @NotEmpty private Long swimmingPoolId;
+        private List<EquipmentReq> equipmentList = new ArrayList<>();
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EquipmentReq {
+        private String name;
+        private Integer price;
     }
 
     @Data

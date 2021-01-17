@@ -4,9 +4,11 @@ import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.controller.lecture.LectureController.CreateLectureReq;
+import com.diving.pungdong.controller.lecture.LectureController.EquipmentReq;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
@@ -16,7 +18,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +42,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -75,6 +77,21 @@ class LectureControllerTest {
     @DisplayName("강의 개설")
     public void createLecture() throws Exception {
         Account account = createAccount();
+
+        List<EquipmentReq> equipmentList = new ArrayList<>();
+        EquipmentReq equipment1 = EquipmentReq.builder()
+                .name("물안경")
+                .price(3000)
+                .build();
+
+        EquipmentReq equipment2 = EquipmentReq.builder()
+                .name("수영모")
+                .price(3000)
+                .build();
+
+        equipmentList.add(equipment1);
+        equipmentList.add(equipment2);
+
         CreateLectureReq createLectureReq = CreateLectureReq.builder()
                 .title("강의1")
                 .description("내용1")
@@ -86,6 +103,7 @@ class LectureControllerTest {
                 .studentCount(5)
                 .region("서울")
                 .swimmingPoolId(1L)
+                .equipmentList(equipmentList)
                 .build();
 
         MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
@@ -106,7 +124,7 @@ class LectureControllerTest {
 
         given(accountService.findAccountByEmail(account.getEmail())).willReturn(account);
         given(swimmingPoolService.getSwimmingPool(1L)).willReturn(swimmingPool);
-        given(lectureService.saveLectureAndImage(eq(account.getEmail()), anyList(), any(Lecture.class))).willReturn(lecture);
+        given(lectureService.createLecture(eq(account.getEmail()), anyList(), any(Lecture.class), anyList())).willReturn(lecture);
 
         mockMvc.perform(multipart("/lecture/create")
                             .file(file1)
@@ -140,7 +158,9 @@ class LectureControllerTest {
                                     fieldWithPath("period").description("강의 기간"),
                                     fieldWithPath("studentCount").description("수강 인원 제한"),
                                     fieldWithPath("region").description("강의 지역"),
-                                    fieldWithPath("swimmingPoolId").description("수영장 식별자 ID")
+                                    fieldWithPath("swimmingPoolId").description("수영장 식별자 ID"),
+                                    fieldWithPath("equipmentList[0].name").description("대여 장비1 이름"),
+                                    fieldWithPath("equipmentList[0].price").description("대여 장비1 가격")
                             ),
                             responseHeaders(
                                     headerWithName(HttpHeaders.LOCATION).description("해당 API URI"),
