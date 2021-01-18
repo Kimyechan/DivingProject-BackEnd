@@ -256,7 +256,38 @@ class LectureControllerTest {
                 .header("IsRefreshToken", "false")
                 .param("id", "1"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("get-lecture-detail",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestParameters(
+                                parameterWithName("id").description("lecture 식별자 값")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("title").description("강의 제목"),
+                                fieldWithPath("classKind").description("강의 분야"),
+                                fieldWithPath("groupName").description("강사 소속 그룹"),
+                                fieldWithPath("certificateKind").description("해당 강의 후 취득 자격증"),
+                                fieldWithPath("description").description("강의 설명"),
+                                fieldWithPath("price").description("강의 비용"),
+                                fieldWithPath("period").description("강의 기간"),
+                                fieldWithPath("studentCount").description("최대 제한 인원수"),
+                                fieldWithPath("region").description("강의 지역"),
+                                fieldWithPath("instructorId").description("강사 식별자 ID"),
+                                fieldWithPath("lectureUrlList[0]").description("강의 이미지 URL"),
+                                fieldWithPath("equipmentList[0].name").description("대여 장비 이름"),
+                                fieldWithPath("equipmentList[0].price").description("대여 장비 가격"),
+                                fieldWithPath("swimmingPoolLocation.latitude").description("수영장 위치 위도"),
+                                fieldWithPath("swimmingPoolLocation.longitude").description("수영장 위치 경도"),
+                                fieldWithPath("_links.self.href").description("해당 API URL")
+                        )
+                ));
     }
 
     @Test
