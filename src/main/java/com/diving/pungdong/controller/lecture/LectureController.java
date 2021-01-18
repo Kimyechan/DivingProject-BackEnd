@@ -1,6 +1,7 @@
 package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.config.S3Uploader;
+import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -67,10 +68,10 @@ public class LectureController {
         String email = authentication.getName();
 
         List<Equipment> equipmentList = new ArrayList<>();
-        for (EquipmentReq equipmentReq : createLectureReq.getEquipmentList()) {
+        for (EquipmentDto equipmentDto : createLectureReq.getEquipmentList()) {
             Equipment equipment = Equipment.builder()
-                    .name(equipmentReq.getName())
-                    .price(equipmentReq.getPrice())
+                    .name(equipmentDto.getName())
+                    .price(equipmentDto.getPrice())
                     .build();
             equipmentList.add(equipment);
         }
@@ -103,14 +104,14 @@ public class LectureController {
         @NotEmpty private Integer studentCount;
         @NotEmpty private String region;
         @NotEmpty private Long swimmingPoolId;
-        private List<EquipmentReq> equipmentList = new ArrayList<>();
+        private List<EquipmentDto> equipmentList = new ArrayList<>();
     }
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class EquipmentReq {
+    public static class EquipmentDto {
         private String name;
         private Integer price;
     }
@@ -125,6 +126,64 @@ public class LectureController {
     @PostMapping("/upload")
     public String upload(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {
         return s3Uploader.upload(file, "lecture", authentication.getName());
+    }
+
+    @GetMapping("/detail")
+    public ResponseEntity<EntityModel<LectureDetail>> getLectureDetail(@RequestParam Long id) {
+        Lecture lecture = lectureService.getLectureById(id);
+
+        LectureDetail lectureDetail = LectureDetail.builder()
+                .title(lecture.getTitle())
+                .classKind(lecture.getClassKind())
+                .groupName(lecture.getGroupName())
+                .certificateKind(lecture.getCertificateKind())
+                .description(lecture.getDescription())
+                .price(lecture.getPrice())
+                .period(lecture.getPeriod())
+                .studentCount(lecture.getStudentCount())
+                .region(lecture.getRegion())
+                .instructorId(lecture.getInstructor().getId())
+                .swimmingPoolLocation(lecture.getSwimmingPool().getLocation())
+                .lectureUrlList(new ArrayList<>())
+                .equipmentList(new ArrayList<>())
+                .build();
+
+        for (LectureImage lectureImage : lecture.getLectureImages()) {
+            lectureDetail.getLectureUrlList().add(lectureImage.getFileURI());
+        }
+
+        for (Equipment equipment : lecture.getEquipmentList()) {
+            EquipmentDto equipmentDto = EquipmentDto.builder()
+                    .name(equipment.getName())
+                    .price(equipment.getPrice())
+                    .build();
+
+            lectureDetail.getEquipmentList().add(equipmentDto);
+        }
+
+        EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
+        model.add(linkTo(methodOn(LectureController.class).getLectureDetail(id)).withSelfRel());
+
+        return ResponseEntity.ok().body(model);
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    static class LectureDetail {
+        private String title;
+        private String classKind;
+        private String groupName;
+        private String certificateKind;
+        private String description;
+        private Integer price;
+        private Integer period;
+        private Integer studentCount;
+        private String region;
+        private Long instructorId;
+        private List<String> lectureUrlList;
+        private List<EquipmentDto> equipmentList;
+        private Location swimmingPoolLocation;
     }
 
     @GetMapping("/list/region")

@@ -107,7 +107,7 @@ operation::signUp[]
 operation::signIn[]
 
 [[resource-add-instructor-role]]
-=== 강사 권한 추가
+=== 강사 권한 및 강사 정보 추가
 operation::sign-addInstructorRole[]
 
 [[resource-account-tokenRefresh]]

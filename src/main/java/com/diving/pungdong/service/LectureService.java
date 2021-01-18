@@ -54,4 +54,9 @@ public class LectureService {
         }
         return savedLecture;
     }
+
+    public Lecture getLectureById(Long id) {
+        return
+                lectureJpaRepo.findById(id).orElse(new Lecture());
+    }
 }
