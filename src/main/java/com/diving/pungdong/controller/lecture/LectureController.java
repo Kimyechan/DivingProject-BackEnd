@@ -135,7 +135,7 @@ public class LectureController {
             throw new NoPermissionsException();
         }
 
-        Lecture updatedLecture = lectureService.updateLecture(email, lectureUpdateInfo, addLectureImageFiles, lecture);
+        Lecture updatedLecture = lectureService.updateLectureTx(email, lectureUpdateInfo, addLectureImageFiles, lecture);
         LectureUpdateRes lectureUpdateRes = LectureUpdateRes.builder()
                 .id(updatedLecture.getId())
                 .title(updatedLecture.getTitle())

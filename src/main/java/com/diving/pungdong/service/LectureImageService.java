@@ -28,7 +28,7 @@ public class LectureImageService {
         lectureImageJpaRepo.deleteByFileURI(lectureImageURL);
     }
 
-    public void lectureImageUpdate(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
+    public void deleteIfIsDeleted(LectureUpdateInfo lectureUpdateInfo) {
         if (!lectureUpdateInfo.getLectureImageUpdateList().isEmpty()) {
             for (LectureImageUpdate lectureImageUpdate : lectureUpdateInfo.getLectureImageUpdateList()) {
                 if (lectureImageUpdate.getIsDeleted()) {
@@ -37,7 +37,9 @@ public class LectureImageService {
                 }
             }
         }
+    }
 
+    public void addList(String email, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
         if (!addLectureImageFiles.isEmpty()) {
             for (MultipartFile file : addLectureImageFiles) {
                 String fileURI = s3Uploader.upload(file, "lecture", email);

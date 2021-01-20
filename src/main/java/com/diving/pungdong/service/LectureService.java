@@ -31,7 +31,7 @@ public class LectureService {
     private final LectureImageService lectureImageService;
     private final S3Uploader s3Uploader;
     private final EquipmentService equipmentService;
-    private final SwimmingPoolJpaRepo swimmingPoolJpaRepo;
+    private final SwimmingPoolService swimmingPoolService;
 
     public Lecture saveLecture(Lecture lecture) {
         return lectureJpaRepo.save(lecture);
@@ -65,10 +65,8 @@ public class LectureService {
         return lectureJpaRepo.findById(id).orElse(new Lecture());
     }
 
-    public Lecture updateLecture(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
-        Location location = lectureUpdateInfo.getSwimmingPoolLocation();
-        SwimmingPool swimmingPool = swimmingPoolJpaRepo.findByLocation(location).orElse(SwimmingPool.builder().location(location).build());
-        SwimmingPool updatedSwimmingPool = swimmingPoolJpaRepo.save(swimmingPool);
+    public Lecture updateLecture(LectureUpdateInfo lectureUpdateInfo, Lecture lecture) {
+        SwimmingPool updatedSwimmingPool = swimmingPoolService.changeSwimmingPool(lectureUpdateInfo);
 
         lecture.setSwimmingPool(updatedSwimmingPool);
         lecture.setTitle(lectureUpdateInfo.getTitle());
@@ -81,9 +79,14 @@ public class LectureService {
         lecture.setStudentCount(lectureUpdateInfo.getStudentCount());
         lecture.setRegion(lectureUpdateInfo.getRegion());
 
-        lectureImageService.lectureImageUpdate(email, lectureUpdateInfo, addLectureImageFiles, lecture);
+        return lectureJpaRepo.save(lecture);
+    }
+
+    public Lecture updateLectureTx(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
+        lectureImageService.deleteIfIsDeleted(lectureUpdateInfo);
+        lectureImageService.addList(email, addLectureImageFiles, lecture);
         equipmentService.lectureEquipmentUpdate(lectureUpdateInfo, lecture);
 
-        return lectureJpaRepo.save(lecture);
+        return updateLecture(lectureUpdateInfo, lecture);
     }
 }

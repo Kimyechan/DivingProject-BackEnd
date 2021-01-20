@@ -1,13 +1,12 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.config.S3Uploader;
+import com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
-import com.diving.pungdong.repo.EquipmentJpaRepo;
 import com.diving.pungdong.repo.LectureJpaRepo;
 import com.diving.pungdong.repo.SwimmingPoolJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +18,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.diving.pungdong.controller.lecture.LectureController.EquipmentUpdate;
-import com.diving.pungdong.controller.lecture.LectureController.LectureImageUpdate;
-import com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,7 +45,7 @@ class LectureServiceTest {
     private S3Uploader s3Uploader;
 
     @Mock
-    private SwimmingPoolJpaRepo swimmingPoolJpaRepo;
+    private SwimmingPoolService swimmingPoolService;
 
     @Mock
     private EquipmentService equipmentService;
@@ -57,7 +53,7 @@ class LectureServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService, swimmingPoolJpaRepo);
+        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService, swimmingPoolService);
     }
 
     @Test
@@ -181,21 +177,14 @@ class LectureServiceTest {
                 .swimmingPool(SwimmingPool.builder().location(lectureUpdateInfo.getSwimmingPoolLocation()).build())
                 .build();
 
-        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
-        MockMultipartFile file2 = new MockMultipartFile("fileList", "test2.txt", "image/*", "test data".getBytes());
-        List<MultipartFile> multipartFiles = new ArrayList<>();
-        multipartFiles.add(file1);
-        multipartFiles.add(file2);
-
         SwimmingPool swimmingPool = SwimmingPool.builder()
                 .location(lectureUpdateInfo.getSwimmingPoolLocation())
                 .build();
 
-        given(swimmingPoolJpaRepo.findByLocation(lectureUpdateInfo.getSwimmingPoolLocation())).willReturn(Optional.ofNullable(swimmingPool));
+        given(swimmingPoolService.changeSwimmingPool(lectureUpdateInfo)).willReturn(swimmingPool);
         assert swimmingPool != null;
-        given(swimmingPoolJpaRepo.save(swimmingPool)).willReturn(swimmingPool);
         given(lectureJpaRepo.save(any())).willReturn(updateLecture);
-        Lecture returnLecture = lectureService.updateLecture(lecture.getInstructor().getEmail(), lectureUpdateInfo, multipartFiles, lecture);
+        Lecture returnLecture = lectureService.updateLecture(lectureUpdateInfo, lecture);
 
         assertThat(returnLecture).isNotNull();
     }

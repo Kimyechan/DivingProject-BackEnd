@@ -278,7 +278,7 @@ class LectureControllerTest {
                         objectMapper.writeValueAsString(lectureUpdateInfo).getBytes());
 
         given(lectureService.getLectureById(1L)).willReturn(lecture);
-        given(lectureService.updateLecture(eq(account.getEmail()), eq(lectureUpdateInfo), anyList(), eq(lecture))).willReturn(updatedLecture);
+        given(lectureService.updateLectureTx(eq(account.getEmail()), eq(lectureUpdateInfo), anyList(), eq(lecture))).willReturn(updatedLecture);
 
         mockMvc.perform(multipart("/lecture/update")
                 .file(file1)
