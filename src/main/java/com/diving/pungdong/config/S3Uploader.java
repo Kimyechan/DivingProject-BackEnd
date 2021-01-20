@@ -3,6 +3,7 @@ package com.diving.pungdong.config;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,5 +67,9 @@ public class S3Uploader {
         }
 
         return Optional.empty();
+    }
+
+    public void deleteFileFromS3(String fileURL) {
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileURL));
     }
 }

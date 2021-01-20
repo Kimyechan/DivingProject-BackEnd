@@ -13,4 +13,8 @@ public class LectureImageService {
     public LectureImage saveLectureImage(LectureImage lectureImage) {
         return lectureImageJpaRepo.save(lectureImage);
     }
+
+    public void deleteByURL(String lectureImageURL) {
+        lectureImageJpaRepo.deleteByFileURI(lectureImageURL);
+    }
 }

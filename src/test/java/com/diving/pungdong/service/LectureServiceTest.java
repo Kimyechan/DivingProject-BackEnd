@@ -7,6 +7,7 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.repo.EquipmentJpaRepo;
 import com.diving.pungdong.repo.LectureJpaRepo;
+import com.diving.pungdong.repo.SwimmingPoolJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.MapKeyColumn;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,10 +46,13 @@ class LectureServiceTest {
     @Mock
     private EquipmentJpaRepo equipmentJpaRepo;
 
+    @Mock
+    private SwimmingPoolJpaRepo swimmingPoolJpaRepo;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentJpaRepo);
+        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentJpaRepo, swimmingPoolJpaRepo);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.diving.pungdong.controller.lecture;
 
+import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
@@ -123,9 +124,74 @@ public class LectureController {
         private String instructorName;
     }
 
-    @PostMapping("/upload")
-    public String upload(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {
-        return s3Uploader.upload(file, "lecture", authentication.getName());
+    @PostMapping("/update")
+    public ResponseEntity<EntityModel<LectureUpdateRes>> updateLecture(Authentication authentication,
+                                        @RequestPart("request") LectureUpdateInfo lectureUpdateInfo,
+                                        @RequestPart("fileList") List<MultipartFile> addLectureImageFiles) throws IOException {
+        Lecture lecture = lectureService.getLectureById(lectureUpdateInfo.getId());
+        String email = authentication.getName();
+
+        if (!lecture.getInstructor().getEmail().equals(email)) {
+            throw new NoPermissionsException();
+        }
+
+        Lecture updatedLecture = lectureService.updateLecture(email, lectureUpdateInfo, addLectureImageFiles, lecture);
+        LectureUpdateRes lectureUpdateRes = LectureUpdateRes.builder()
+                .id(updatedLecture.getId())
+                .title(updatedLecture.getTitle())
+                .build();
+
+        EntityModel<LectureUpdateRes> model = EntityModel.of(lectureUpdateRes);
+        model.add(linkTo(methodOn(LectureController.class).updateLecture(authentication, lectureUpdateInfo, addLectureImageFiles)).withSelfRel());
+
+        return ResponseEntity.ok().body(model);
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LectureUpdateInfo {
+        private Long id;
+        private String title;
+        private String classKind;
+        private String groupName;
+        private String certificateKind;
+        private String description;
+        private Integer price;
+        private Integer period;
+        private Integer studentCount;
+        private String region;
+        private List<LectureImageUpdate> lectureImageUpdateList;
+        private List<EquipmentUpdate> equipmentUpdateList;
+        private Location swimmingPoolLocation;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LectureImageUpdate {
+        String lectureImageURL;
+        Boolean isDeleted;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EquipmentUpdate {
+        private String name;
+        private Integer price;
+        Boolean isDeleted;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    static class LectureUpdateRes {
+        private Long id;
+        private String title;
     }
 
     @GetMapping("/detail")
@@ -133,6 +199,7 @@ public class LectureController {
         Lecture lecture = lectureService.getLectureById(id);
 
         LectureDetail lectureDetail = LectureDetail.builder()
+                .id(lecture.getId())
                 .title(lecture.getTitle())
                 .classKind(lecture.getClassKind())
                 .groupName(lecture.getGroupName())
@@ -171,6 +238,7 @@ public class LectureController {
     @Builder
     @AllArgsConstructor
     static class LectureDetail {
+        private Long id;
         private String title;
         private String classKind;
         private String groupName;
@@ -238,4 +306,8 @@ public class LectureController {
         private List<String> imageURL = new ArrayList<>();
     }
 
+    @PostMapping("/upload")
+    public String upload(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {
+        return s3Uploader.upload(file, "lecture", authentication.getName());
+    }
 }

@@ -5,6 +5,11 @@ import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.controller.lecture.LectureController.CreateLectureReq;
 import com.diving.pungdong.controller.lecture.LectureController.EquipmentDto;
+
+import static com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
+import static com.diving.pungdong.controller.lecture.LectureController.LectureImageUpdate;
+import static com.diving.pungdong.controller.lecture.LectureController.EquipmentUpdate;
+
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
@@ -15,6 +20,7 @@ import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -51,8 +57,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -209,6 +214,84 @@ class LectureControllerTest {
     }
 
     @Test
+    @DisplayName("강의 정보 수정")
+    public void update() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Location location = new Location(10.0, 10.0);
+        Lecture lecture = Lecture.builder()
+                .id(1L)
+                .title("강의1")
+                .classKind("스쿠버다이빙")
+                .groupName("AIDA")
+                .certificateKind("LEVEL1")
+                .description("강의 설명")
+                .price(300000)
+                .period(4)
+                .studentCount(5)
+                .region("서울")
+                .instructor(account)
+                .swimmingPool(SwimmingPool.builder().location(location).build())
+                .lectureImages(List.of(LectureImage.builder().fileURI("File URL1").build()))
+                .equipmentList(List.of(Equipment.builder().name("장비1").price(3000).build()))
+                .build();
+
+        LectureUpdateInfo lectureUpdateInfo = LectureUpdateInfo.builder()
+                .id(1L)
+                .title("강의 제목 Update")
+                .classKind("스킨 스쿠버")
+                .groupName("AIDA")
+                .certificateKind("LEVEL2")
+                .description("강의 설명  Update")
+                .price(400000)
+                .period(5)
+                .studentCount(6)
+                .region("부산")
+                .lectureImageUpdateList(List.of(LectureImageUpdate.builder().lectureImageURL("File URL1").isDeleted(true).build()))
+                .equipmentUpdateList(List.of(EquipmentUpdate.builder().name("장비1").price(5000).isDeleted(false).build()))
+                .build();
+
+        Lecture updatedLecture = Lecture.builder()
+                .id(1L)
+                .title("강의 제목 Update")
+                .classKind("스킨 스쿠버")
+                .groupName("AIDA")
+                .certificateKind("LEVEL2")
+                .description("강의 설명  Update")
+                .price(400000)
+                .period(5)
+                .studentCount(6)
+                .region("부산")
+                .instructor(Account.builder().id(10L).build())
+                .swimmingPool(SwimmingPool.builder().location(location).build())
+                .equipmentList(List.of(Equipment.builder().name("장비1").price(5000).build()))
+                .build();
+
+        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("fileList", "test2.txt", "image/*", "test data".getBytes());
+
+        MockMultipartFile request =
+                new MockMultipartFile("request",
+                        "request",
+                        MediaType.APPLICATION_JSON_VALUE,
+                        objectMapper.writeValueAsString(lectureUpdateInfo).getBytes());
+
+        given(lectureService.getLectureById(1L)).willReturn(lecture);
+        given(lectureService.updateLecture(eq(account.getEmail()), eq(lectureUpdateInfo), anyList(), eq(lecture))).willReturn(updatedLecture);
+
+        mockMvc.perform(multipart("/lecture/update")
+                .file(file1)
+                .file(file2)
+                .file(request)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("이미지 파일 업로드")
     public void upload() throws Exception {
         Account account = createAccount();
@@ -270,6 +353,7 @@ class LectureControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
                         ),
                         responseFields(
+                                fieldWithPath("id").description("강의 식별자 ID"),
                                 fieldWithPath("title").description("강의 제목"),
                                 fieldWithPath("classKind").description("강의 분야"),
                                 fieldWithPath("groupName").description("강사 소속 그룹"),

@@ -70,6 +70,12 @@ public class ExceptionAdvice {
         return responseService.getFailResult(Integer.valueOf(getMessage("accessDenied.code")), getMessage("accessDenied.msg"));
     }
 
+    @ExceptionHandler(NoPermissionsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public CommonResult NoPermissions(HttpServletRequest request, NoPermissionsException e) {
+        return responseService.getFailResult(Integer.valueOf(getMessage("noPermissions.code")), getMessage("noPermissions.msg"));
+    }
+
 //    @ExceptionHandler(Exception.class)
 //    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 //    protected CommonResult defaultException(HttpServletRequest request, Exception e) {
