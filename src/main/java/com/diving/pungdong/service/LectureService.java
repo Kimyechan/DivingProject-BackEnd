@@ -30,7 +30,7 @@ public class LectureService {
     private final LectureJpaRepo lectureJpaRepo;
     private final LectureImageService lectureImageService;
     private final S3Uploader s3Uploader;
-    private final EquipmentJpaRepo equipmentJpaRepo;
+    private final EquipmentService equipmentService;
     private final SwimmingPoolJpaRepo swimmingPoolJpaRepo;
 
     public Lecture saveLecture(Lecture lecture) {
@@ -46,7 +46,7 @@ public class LectureService {
 
         for (Equipment equipment : equipmentList) {
             equipment.setLecture(lecture);
-            equipmentJpaRepo.save(equipment);
+            equipmentService.saveEquipment(equipment);
         }
 
         for (MultipartFile file : fileList) {
@@ -68,9 +68,9 @@ public class LectureService {
     public Lecture updateLecture(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
         Location location = lectureUpdateInfo.getSwimmingPoolLocation();
         SwimmingPool swimmingPool = swimmingPoolJpaRepo.findByLocation(location).orElse(SwimmingPool.builder().location(location).build());
-        swimmingPoolJpaRepo.save(swimmingPool);
+        SwimmingPool updatedSwimmingPool = swimmingPoolJpaRepo.save(swimmingPool);
 
-        lecture.setSwimmingPool(swimmingPool);
+        lecture.setSwimmingPool(updatedSwimmingPool);
         lecture.setTitle(lectureUpdateInfo.getTitle());
         lecture.setClassKind(lectureUpdateInfo.getClassKind());
         lecture.setGroupName(lectureUpdateInfo.getGroupName());
@@ -81,44 +81,8 @@ public class LectureService {
         lecture.setStudentCount(lectureUpdateInfo.getStudentCount());
         lecture.setRegion(lectureUpdateInfo.getRegion());
 
-        if (!lectureUpdateInfo.getLectureImageUpdateList().isEmpty()) {
-            for (LectureImageUpdate lectureImageUpdate : lectureUpdateInfo.getLectureImageUpdateList()) {
-                if (lectureImageUpdate.getIsDeleted()) {
-                    lectureImageService.deleteByURL(lectureImageUpdate.getLectureImageURL());
-                    s3Uploader.deleteFileFromS3(lectureImageUpdate.getLectureImageURL());
-                }
-            }
-        }
-
-        if (!addLectureImageFiles.isEmpty()) {
-            for (MultipartFile file : addLectureImageFiles) {
-                String fileURI = s3Uploader.upload(file, "lecture", email);
-                LectureImage lectureImage = LectureImage.builder()
-                        .fileURI(fileURI)
-                        .lecture(lecture)
-                        .build();
-                lectureImageService.saveLectureImage(lectureImage);
-                lecture.getLectureImages().add(lectureImage);
-            }
-        }
-
-        if (!lectureUpdateInfo.getEquipmentUpdateList().isEmpty()) {
-            for (EquipmentUpdate equipmentUpdate : lectureUpdateInfo.getEquipmentUpdateList()) {
-                Equipment persistenceEquipment = equipmentJpaRepo.findByName(equipmentUpdate.getName()).orElse(null);
-                if (persistenceEquipment == null) {
-                    Equipment equipment = Equipment.builder()
-                            .name(equipmentUpdate.getName())
-                            .price(equipmentUpdate.getPrice())
-                            .lecture(lecture)
-                            .build();
-                    equipmentJpaRepo.save(equipment);
-                }
-
-                if (equipmentUpdate.getIsDeleted()) {
-                    equipmentJpaRepo.deleteByName(equipmentUpdate.getName());
-                }
-            }
-        }
+        lectureImageService.lectureImageUpdate(email, lectureUpdateInfo, addLectureImageFiles, lecture);
+        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo, lecture);
 
         return lectureJpaRepo.save(lecture);
     }
