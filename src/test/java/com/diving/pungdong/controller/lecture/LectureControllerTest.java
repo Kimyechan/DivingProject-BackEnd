@@ -55,6 +55,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -250,6 +251,7 @@ class LectureControllerTest {
                 .region("부산")
                 .lectureImageUpdateList(List.of(LectureImageUpdate.builder().lectureImageURL("File URL1").isDeleted(true).build()))
                 .equipmentUpdateList(List.of(EquipmentUpdate.builder().name("장비1").price(5000).isDeleted(false).build()))
+                .swimmingPoolLocation(location)
                 .build();
 
         Lecture updatedLecture = Lecture.builder()
@@ -288,7 +290,48 @@ class LectureControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("update-lecture",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestParts(
+                                partWithName("request").description("강의 수정 정보 JSON 데이터"),
+                                partWithName("fileList").description("추가할 이미지 파일 리스트")
+                        ),
+                        requestPartBody("fileList"),
+                        requestPartBody("request"),
+                        requestPartFields(
+                                "request",
+                                fieldWithPath("id").description("강의 식별자"),
+                                fieldWithPath("title").description("강의 이름"),
+                                fieldWithPath("classKind").description("강의 종류"),
+                                fieldWithPath("groupName").description("단체명"),
+                                fieldWithPath("certificateKind").description("자격증 종류"),
+                                fieldWithPath("description").description("강의 설명"),
+                                fieldWithPath("price").description("강의 비용"),
+                                fieldWithPath("period").description("강의 기간"),
+                                fieldWithPath("studentCount").description("수강 인원 제한"),
+                                fieldWithPath("region").description("강의 지역"),
+                                fieldWithPath("lectureImageUpdateList[0].lectureImageURL").description("첫번째 강의 이미지 링크"),
+                                fieldWithPath("lectureImageUpdateList[0].isDeleted").description("해당 이미지 삭제 여부 체크"),
+                                fieldWithPath("equipmentUpdateList[0].name").description("첫번째 대여 장비 이름"),
+                                fieldWithPath("equipmentUpdateList[0].price").description("첫번째 대여 장비 가격"),
+                                fieldWithPath("equipmentUpdateList[0].isDeleted").description("해당 장비 정보 삭제 여부 체크"),
+                                fieldWithPath("swimmingPoolLocation.latitude").description("수영장 위치 위도"),
+                                fieldWithPath("swimmingPoolLocation.longitude").description("수영장 위치 경도")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("강의 식별자"),
+                                fieldWithPath("title").description("강의 이름"),
+                                fieldWithPath("_links.self.href").description("해당 API 주소")
+                        )
+                ));
     }
 
     @Test
