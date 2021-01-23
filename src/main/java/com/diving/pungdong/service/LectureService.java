@@ -89,4 +89,8 @@ public class LectureService {
 
         return updateLecture(lectureUpdateInfo, lecture);
     }
+
+    public void deleteLectureById(Long id) {
+        lectureJpaRepo.deleteById(id);
+    }
 }

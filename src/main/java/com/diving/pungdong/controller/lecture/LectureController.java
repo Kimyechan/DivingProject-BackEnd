@@ -12,6 +12,7 @@ import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.SwimmingPoolService;
 import lombok.*;
+import lombok.experimental.WithBy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -192,6 +193,32 @@ public class LectureController {
     static class LectureUpdateRes {
         private Long id;
         private String title;
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<EntityModel<LectureDeleteRes>> deleteLecture(Authentication authentication, @RequestParam("id") Long id) {
+        Lecture lecture = lectureService.getLectureById(id);
+        String email = authentication.getName();
+        if (!lecture.getInstructor().getEmail().equals(email)) {
+            throw new NoPermissionsException();
+        }
+
+        lectureService.deleteLectureById(id);
+
+        LectureDeleteRes lectureDeleteRes = LectureDeleteRes.builder()
+                .lectureId(id)
+                .build();
+
+        EntityModel<LectureDeleteRes> model = EntityModel.of(lectureDeleteRes);
+        model.add(linkTo(methodOn(LectureController.class).deleteLecture(authentication, id)).withSelfRel());
+
+        return ResponseEntity.ok().body(model);
+    }
+
+    @Data
+    @Builder
+    static class LectureDeleteRes {
+        private Long lectureId;
     }
 
     @GetMapping("/detail")

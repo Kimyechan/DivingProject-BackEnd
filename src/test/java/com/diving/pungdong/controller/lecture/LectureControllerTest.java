@@ -3,13 +3,7 @@ package com.diving.pungdong.controller.lecture;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.controller.lecture.LectureController.CreateLectureReq;
-import com.diving.pungdong.controller.lecture.LectureController.EquipmentDto;
-
-import static com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
-import static com.diving.pungdong.controller.lecture.LectureController.LectureImageUpdate;
-import static com.diving.pungdong.controller.lecture.LectureController.EquipmentUpdate;
-
+import com.diving.pungdong.controller.lecture.LectureController.*;
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
@@ -18,9 +12,11 @@ import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
-import com.diving.pungdong.service.*;
+import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.LectureImageService;
+import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.SwimmingPoolService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -42,6 +38,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -50,16 +47,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
+import static com.diving.pungdong.controller.lecture.LectureController.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -332,6 +331,30 @@ class LectureControllerTest {
                                 fieldWithPath("_links.self.href").description("해당 API 주소")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("강의 삭제")
+    public void deleteLecture() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Lecture lecture = Lecture.builder()
+                .id(1L)
+                .instructor(account)
+                .build();
+
+        given(lectureService.getLectureById(1L)).willReturn(lecture);
+
+        mockMvc.perform(delete("/lecture/delete")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false")
+                .param("id", "1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("lectureId").exists());
+
+        verify(lectureService, times(1)).deleteLectureById(anyLong());
     }
 
     @Test
