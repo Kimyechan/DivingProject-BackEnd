@@ -352,7 +352,23 @@ class LectureControllerTest {
                 .param("id", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("lectureId").exists());
+                .andExpect(jsonPath("lectureId").exists())
+                .andDo(document("delete-lecture",
+                        requestHeaders(
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestParameters(
+                                parameterWithName("id").description("삭제 요청할 강의 식별자 값")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("\"HAL JSON 타입\"")
+                        ),
+                        responseFields(
+                                fieldWithPath("lectureId").description("삭제된 강의 식별자 값"),
+                                fieldWithPath("_links.self.href").description("해당 API URI")
+                        )
+                ));
 
         verify(lectureService, times(1)).deleteLectureById(anyLong());
     }
