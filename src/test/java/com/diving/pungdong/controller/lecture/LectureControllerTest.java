@@ -126,7 +126,7 @@ class LectureControllerTest {
 
         MockMultipartFile request =
                 new MockMultipartFile("request",
-                        "request",
+                        "request.json",
                         MediaType.APPLICATION_JSON_VALUE,
                         objectMapper.writeValueAsString(createLectureReq).getBytes());
         String accessToken = jwtTokenProvider.createAccessToken("1", Set.of(Role.INSTRUCTOR));

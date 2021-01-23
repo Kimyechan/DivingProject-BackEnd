@@ -85,7 +85,7 @@ public class LectureService {
     public Lecture updateLectureTx(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
         lectureImageService.deleteIfIsDeleted(lectureUpdateInfo);
         lectureImageService.addList(email, addLectureImageFiles, lecture);
-        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo, lecture);
+        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo.getEquipmentUpdateList(), lecture);
 
         return updateLecture(lectureUpdateInfo, lecture);
     }

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.diving.pungdong.controller.lecture.LectureController.*;
 
 @Service
@@ -21,9 +23,9 @@ public class EquipmentService {
         return equipmentJpaRepo.save(equipment);
     }
 
-    public void lectureEquipmentUpdate(LectureUpdateInfo lectureUpdateInfo, Lecture lecture) {
-        if (!lectureUpdateInfo.getEquipmentUpdateList().isEmpty()) {
-            for (EquipmentUpdate equipmentUpdate : lectureUpdateInfo.getEquipmentUpdateList()) {
+    public void lectureEquipmentUpdate(List<EquipmentUpdate> equipmentUpdateList, Lecture lecture) {
+        if (!equipmentUpdateList.isEmpty()) {
+            for (EquipmentUpdate equipmentUpdate : equipmentUpdateList) {
                 Equipment persistenceEquipment = equipmentJpaRepo.findByName(equipmentUpdate.getName()).orElse(null);
                 if (persistenceEquipment == null) {
                     Equipment equipment = Equipment.builder()
