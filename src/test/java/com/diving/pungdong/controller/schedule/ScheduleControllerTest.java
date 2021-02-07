@@ -46,6 +46,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -111,7 +114,33 @@ class ScheduleControllerTest {
                 .header("IsRefreshToken", "false")
                 .content(objectMapper.writeValueAsString(req)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(document("schedule-create",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestFields(
+                                fieldWithPath("lectureId").description("강의 식별자 값"),
+                                fieldWithPath("period").description("강의 기간"),
+                                fieldWithPath("detailReqList").description("강의 한 날에 대한 세부사항 리스트"),
+                                fieldWithPath("detailReqList[].date").description("강의 날짜"),
+                                fieldWithPath("detailReqList[].startTime").description("강의 시작 시각"),
+                                fieldWithPath("detailReqList[].endTime").description("강의 종료 시간"),
+                                fieldWithPath("detailReqList[].location.latitude").description("위치 위도"),
+                                fieldWithPath("detailReqList[].location.longitude").description("위치 경도"),
+                                fieldWithPath("detailReqList[].location.address").description("위치 상세 주소")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("lectureId").description("강의 식별자 값"),
+                                fieldWithPath("scheduleId").description("일정 식별자 값"),
+                                fieldWithPath("_links.self.href").description("해당 API 주소")
+                        )
+                ));
     }
 
     public Account createAccount() {
