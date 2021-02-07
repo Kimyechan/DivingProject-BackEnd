@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"instructor", "swimmingPool", "equipmentList", "lectureImages"})
+@ToString(exclude = {"instructor", "equipmentList", "lectureImages"})
 public class Lecture {
 
     @Id @GeneratedValue

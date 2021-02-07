@@ -1,5 +1,6 @@
 package com.diving.pungdong.domain.schedule;
 
+import com.diving.pungdong.domain.lecture.Lecture;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,6 +17,9 @@ public class Schedule {
     private Long id;
 
     private Integer period;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Lecture lecture;
 
     @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
     private List<ScheduleDetail> scheduleDetails;
