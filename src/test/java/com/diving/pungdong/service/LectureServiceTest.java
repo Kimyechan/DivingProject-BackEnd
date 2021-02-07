@@ -69,7 +69,6 @@ class LectureServiceTest {
                 .period(4)
                 .studentCount(5)
                 .instructor(new Account())
-                .swimmingPool(new SwimmingPool())
                 .build();
 
         given(lectureJpaRepo.save(lecture)).willReturn(lecture);
@@ -93,7 +92,6 @@ class LectureServiceTest {
                 .period(4)
                 .studentCount(5)
                 .instructor(new Account())
-                .swimmingPool(new SwimmingPool())
                 .build();
 
         String email = "kkk@gmail.com";
@@ -132,7 +130,7 @@ class LectureServiceTest {
     @Test
     @DisplayName("강의 수정")
     public void updateLecture() throws IOException {
-        Location location = new Location(10.0, 10.0);
+        Location location = new Location(10.0, 10.0, "detail Address");
         Lecture lecture = Lecture.builder()
                 .id(1L)
                 .title("강의1")
@@ -145,7 +143,6 @@ class LectureServiceTest {
                 .studentCount(5)
                 .region("서울")
                 .instructor(Account.builder().email("kkk@gmail.com").build())
-                .swimmingPool(SwimmingPool.builder().location(location).build())
                 .build();
 
         LectureUpdateInfo lectureUpdateInfo = LectureUpdateInfo.builder()
@@ -159,7 +156,6 @@ class LectureServiceTest {
                 .period(5)
                 .studentCount(6)
                 .region("부산")
-                .swimmingPoolLocation(new Location(20.0, 20.0))
                 .build();
 
         Lecture updateLecture = Lecture.builder()
@@ -174,15 +170,8 @@ class LectureServiceTest {
                 .period(lectureUpdateInfo.getPeriod())
                 .studentCount(lectureUpdateInfo.getStudentCount())
                 .region(lectureUpdateInfo.getRegion())
-                .swimmingPool(SwimmingPool.builder().location(lectureUpdateInfo.getSwimmingPoolLocation()).build())
                 .build();
 
-        SwimmingPool swimmingPool = SwimmingPool.builder()
-                .location(lectureUpdateInfo.getSwimmingPoolLocation())
-                .build();
-
-        given(swimmingPoolService.changeSwimmingPool(lectureUpdateInfo)).willReturn(swimmingPool);
-        assert swimmingPool != null;
         given(lectureJpaRepo.save(any())).willReturn(updateLecture);
         Lecture returnLecture = lectureService.updateLecture(lectureUpdateInfo, lecture);
 

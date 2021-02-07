@@ -38,7 +38,6 @@ class LectureJpaRepoTest {
                 .period(4)
                 .studentCount(5)
                 .instructor(new Account())
-                .swimmingPool(new SwimmingPool())
                 .lectureImages(List.of(new LectureImage()))
                 .build();
 

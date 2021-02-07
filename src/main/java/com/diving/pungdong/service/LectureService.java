@@ -66,9 +66,6 @@ public class LectureService {
     }
 
     public Lecture updateLecture(LectureUpdateInfo lectureUpdateInfo, Lecture lecture) {
-        SwimmingPool updatedSwimmingPool = swimmingPoolService.changeSwimmingPool(lectureUpdateInfo);
-
-        lecture.setSwimmingPool(updatedSwimmingPool);
         lecture.setTitle(lectureUpdateInfo.getTitle());
         lecture.setClassKind(lectureUpdateInfo.getClassKind());
         lecture.setGroupName(lectureUpdateInfo.getGroupName());

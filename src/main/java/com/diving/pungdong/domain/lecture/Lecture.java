@@ -49,7 +49,4 @@ public class Lecture {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account instructor;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private SwimmingPool swimmingPool;
 }

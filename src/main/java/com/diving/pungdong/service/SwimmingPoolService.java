@@ -20,10 +20,4 @@ public class SwimmingPoolService {
     public SwimmingPool saveSwimmingPool(SwimmingPool swimmingPool) {
         return swimmingPoolJpaRepo.save(swimmingPool);
     }
-
-    public SwimmingPool changeSwimmingPool(LectureUpdateInfo lectureUpdateInfo) {
-        Location location = lectureUpdateInfo.getSwimmingPoolLocation();
-        SwimmingPool swimmingPool = swimmingPoolJpaRepo.findByLocation(location).orElse(SwimmingPool.builder().location(location).build());
-        return swimmingPoolJpaRepo.save(swimmingPool);
-    }
 }

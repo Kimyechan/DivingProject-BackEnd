@@ -11,6 +11,7 @@ import javax.persistence.Embeddable;
 @EqualsAndHashCode
 @Embeddable
 public class Location {
-    Double latitude;
-    Double longitude;
+    private Double latitude;
+    private Double longitude;
+    private String address;
 }

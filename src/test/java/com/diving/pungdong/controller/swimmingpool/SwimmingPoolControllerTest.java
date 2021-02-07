@@ -56,7 +56,7 @@ class SwimmingPoolControllerTest {
     @DisplayName("수영장 정보 저장")
     public void saveSwimmingPool() throws Exception {
         Account account = createAccount();
-        SwimmingPoolSaveReq createReq = new SwimmingPoolSaveReq(new Location(10.0, 10.0));
+        SwimmingPoolSaveReq createReq = new SwimmingPoolSaveReq(new Location(10.0, 10.0, "detail Address"));
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
         mockMvc.perform(post("/swimmingPool/create")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)

@@ -51,8 +51,8 @@ public class LectureController {
                                         @RequestPart("request") CreateLectureReq createLectureReq,
                                         @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {
         Account instructor = accountService.findAccountByEmail(authentication.getName());
-        SwimmingPool swimmingPool = swimmingPoolService.getSwimmingPool(createLectureReq.getSwimmingPoolId());
 
+        // ToDo: 수영장 없애고 위치정보 따로 (위도 경도)
         Lecture lecture = Lecture.builder()
                 .title(createLectureReq.getTitle())
                 .description(createLectureReq.getDescription())
@@ -64,7 +64,6 @@ public class LectureController {
                 .studentCount(createLectureReq.getStudentCount())
                 .region(createLectureReq.getRegion())
                 .instructor(instructor)
-                .swimmingPool(swimmingPool)
                 .build();
 
         String email = authentication.getName();
@@ -81,7 +80,7 @@ public class LectureController {
         Lecture savedLecture = lectureService.createLecture(email, fileList, lecture, equipmentList);
 
         CreateLectureRes createLectureRes
-                = new CreateLectureRes(savedLecture.getTitle(), savedLecture.getInstructor().getUserName());
+                = new CreateLectureRes(savedLecture.getId(), savedLecture.getTitle(), savedLecture.getInstructor().getUserName());
 
         EntityModel<CreateLectureRes> model = EntityModel.of(createLectureRes);
         WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(authentication, createLectureReq, fileList));
@@ -105,7 +104,6 @@ public class LectureController {
         @NotEmpty private Integer period;
         @NotEmpty private Integer studentCount;
         @NotEmpty private String region;
-        @NotEmpty private Long swimmingPoolId;
         private List<EquipmentDto> equipmentList = new ArrayList<>();
     }
 
@@ -121,6 +119,7 @@ public class LectureController {
     @Data
     @AllArgsConstructor
     static class CreateLectureRes {
+        private Long lectureId;
         private String title;
         private String instructorName;
     }
@@ -165,7 +164,6 @@ public class LectureController {
         private String region;
         private List<LectureImageUpdate> lectureImageUpdateList;
         private List<EquipmentUpdate> equipmentUpdateList;
-        private Location swimmingPoolLocation;
     }
 
     @Data
@@ -224,7 +222,7 @@ public class LectureController {
     @GetMapping("/detail")
     public ResponseEntity<EntityModel<LectureDetail>> getLectureDetail(@RequestParam Long id) {
         Lecture lecture = lectureService.getLectureById(id);
-
+        // ToDo: 일정 보기 추가 - 위치 정보 강의 일정이랑 묶기, 시간도 같이 묶기
         LectureDetail lectureDetail = LectureDetail.builder()
                 .id(lecture.getId())
                 .title(lecture.getTitle())
@@ -237,7 +235,6 @@ public class LectureController {
                 .studentCount(lecture.getStudentCount())
                 .region(lecture.getRegion())
                 .instructorId(lecture.getInstructor().getId())
-                .swimmingPoolLocation(lecture.getSwimmingPool().getLocation())
                 .lectureUrlList(new ArrayList<>())
                 .equipmentList(new ArrayList<>())
                 .build();
@@ -278,9 +275,9 @@ public class LectureController {
         private Long instructorId;
         private List<String> lectureUrlList;
         private List<EquipmentDto> equipmentList;
-        private Location swimmingPoolLocation;
     }
 
+    // ToDo: 겅색 필터 추가
     @GetMapping("/list/region")
     public ResponseEntity<PagedModel<EntityModel<LectureByRegionRes>>> getListByRegion(LectureByRegionReq lectureByRegionReq,
                                                                                        Pageable pageable,
