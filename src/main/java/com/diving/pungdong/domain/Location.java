@@ -9,6 +9,7 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Builder
 @Embeddable
 public class Location {
     private Double latitude;
