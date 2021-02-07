@@ -142,3 +142,10 @@ operation::get-lecture-detail[]
 [[resource-lecture-get-by-region]]
 === 지역별 강의 조회
 operation::get-lecture-by-region[]
+
+[[resource-schedule]]
+== 강의 일정
+
+[[resoucre-schedule-create]]
+=== 강의 일정 생성
+operation::schedule-create[]
