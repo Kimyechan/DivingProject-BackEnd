@@ -34,7 +34,7 @@ class SwimmingPoolServiceTest {
     @Test
     @DisplayName("수영장 단건 조회 By Id")
     public void getSwimmingPool() {
-        Location location = new Location(10.0, 10.0);
+        Location location = new Location(10.0, 10.0, "detail Address");
         SwimmingPool swimmingPool = SwimmingPool.builder()
                 .id(1L)
                 .location(location)

@@ -9,8 +9,10 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Builder
 @Embeddable
 public class Location {
-    Double latitude;
-    Double longitude;
+    private Double latitude;
+    private Double longitude;
+    private String address;
 }

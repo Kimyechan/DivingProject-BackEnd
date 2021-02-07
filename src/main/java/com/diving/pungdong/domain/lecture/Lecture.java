@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"instructor", "swimmingPool", "equipmentList", "lectureImages"})
+@ToString(exclude = {"instructor", "equipmentList", "lectureImages"})
 public class Lecture {
 
     @Id @GeneratedValue
@@ -49,7 +49,4 @@ public class Lecture {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account instructor;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private SwimmingPool swimmingPool;
 }

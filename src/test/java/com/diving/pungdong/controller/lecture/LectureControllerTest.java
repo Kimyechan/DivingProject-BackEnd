@@ -4,14 +4,12 @@ import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.controller.lecture.LectureController.*;
-import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
-import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -38,7 +36,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -47,7 +44,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.diving.pungdong.controller.lecture.LectureController.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -117,7 +113,6 @@ class LectureControllerTest {
                 .period(4)
                 .studentCount(5)
                 .region("서울")
-                .swimmingPoolId(1L)
                 .equipmentList(equipmentList)
                 .build();
 
@@ -130,15 +125,14 @@ class LectureControllerTest {
                         MediaType.APPLICATION_JSON_VALUE,
                         objectMapper.writeValueAsString(createLectureReq).getBytes());
         String accessToken = jwtTokenProvider.createAccessToken("1", Set.of(Role.INSTRUCTOR));
-        SwimmingPool swimmingPool = new SwimmingPool();
 
         Lecture lecture = Lecture.builder()
+                .id(1L)
                 .title(createLectureReq.getTitle())
                 .instructor(account)
                 .build();
 
         given(accountService.findAccountByEmail(account.getEmail())).willReturn(account);
-        given(swimmingPoolService.getSwimmingPool(1L)).willReturn(swimmingPool);
         given(lectureService.createLecture(eq(account.getEmail()), anyList(), any(Lecture.class), anyList())).willReturn(lecture);
 
         mockMvc.perform(multipart("/lecture/create")
@@ -173,7 +167,6 @@ class LectureControllerTest {
                                 fieldWithPath("period").description("강의 기간"),
                                 fieldWithPath("studentCount").description("수강 인원 제한"),
                                 fieldWithPath("region").description("강의 지역"),
-                                fieldWithPath("swimmingPoolId").description("수영장 식별자 ID"),
                                 fieldWithPath("equipmentList[0].name").description("대여 장비1 이름"),
                                 fieldWithPath("equipmentList[0].price").description("대여 장비1 가격")
                         ),
@@ -182,6 +175,7 @@ class LectureControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
                         ),
                         responseFields(
+                                fieldWithPath("lectureId").description("강의 식별자 값"),
                                 fieldWithPath("title").description("강의 제목"),
                                 fieldWithPath("instructorName").description("강사 이름"),
                                 fieldWithPath("_links.self.href").description("해당 API URI"),
@@ -219,7 +213,6 @@ class LectureControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
-        Location location = new Location(10.0, 10.0);
         Lecture lecture = Lecture.builder()
                 .id(1L)
                 .title("강의1")
@@ -232,7 +225,6 @@ class LectureControllerTest {
                 .studentCount(5)
                 .region("서울")
                 .instructor(account)
-                .swimmingPool(SwimmingPool.builder().location(location).build())
                 .lectureImages(List.of(LectureImage.builder().fileURI("File URL1").build()))
                 .equipmentList(List.of(Equipment.builder().name("장비1").price(3000).build()))
                 .build();
@@ -250,7 +242,6 @@ class LectureControllerTest {
                 .region("부산")
                 .lectureImageUpdateList(List.of(LectureImageUpdate.builder().lectureImageURL("File URL1").isDeleted(true).build()))
                 .equipmentUpdateList(List.of(EquipmentUpdate.builder().name("장비1").price(5000).isDeleted(false).build()))
-                .swimmingPoolLocation(location)
                 .build();
 
         Lecture updatedLecture = Lecture.builder()
@@ -265,7 +256,6 @@ class LectureControllerTest {
                 .studentCount(6)
                 .region("부산")
                 .instructor(Account.builder().id(10L).build())
-                .swimmingPool(SwimmingPool.builder().location(location).build())
                 .equipmentList(List.of(Equipment.builder().name("장비1").price(5000).build()))
                 .build();
 
@@ -318,9 +308,7 @@ class LectureControllerTest {
                                 fieldWithPath("lectureImageUpdateList[0].isDeleted").description("해당 이미지 삭제 여부 체크"),
                                 fieldWithPath("equipmentUpdateList[0].name").description("첫번째 대여 장비 이름"),
                                 fieldWithPath("equipmentUpdateList[0].price").description("첫번째 대여 장비 가격"),
-                                fieldWithPath("equipmentUpdateList[0].isDeleted").description("해당 장비 정보 삭제 여부 체크"),
-                                fieldWithPath("swimmingPoolLocation.latitude").description("수영장 위치 위도"),
-                                fieldWithPath("swimmingPoolLocation.longitude").description("수영장 위치 경도")
+                                fieldWithPath("equipmentUpdateList[0].isDeleted").description("해당 장비 정보 삭제 여부 체크")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
@@ -395,8 +383,6 @@ class LectureControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
-        Location location = new Location(10.0, 10.0);
-
         Lecture lecture = Lecture.builder()
                 .title("강의1")
                 .classKind("스쿠버다이빙")
@@ -408,7 +394,6 @@ class LectureControllerTest {
                 .studentCount(5)
                 .region("서울")
                 .instructor(Account.builder().id(10L).build())
-                .swimmingPool(SwimmingPool.builder().location(location).build())
                 .lectureImages(List.of(LectureImage.builder().fileURI("File URL1").build()))
                 .equipmentList(List.of(Equipment.builder().name("장비1").price(3000).build()))
                 .build();
@@ -449,8 +434,6 @@ class LectureControllerTest {
                                 fieldWithPath("lectureUrlList[0]").description("강의 이미지 URL"),
                                 fieldWithPath("equipmentList[0].name").description("대여 장비 이름"),
                                 fieldWithPath("equipmentList[0].price").description("대여 장비 가격"),
-                                fieldWithPath("swimmingPoolLocation.latitude").description("수영장 위치 위도"),
-                                fieldWithPath("swimmingPoolLocation.longitude").description("수영장 위치 경도"),
                                 fieldWithPath("_links.self.href").description("해당 API URL")
                         )
                 ));
