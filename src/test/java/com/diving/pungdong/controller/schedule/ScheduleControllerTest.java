@@ -94,11 +94,14 @@ class ScheduleControllerTest {
                     .latitude(37.0)
                     .longitude(127.0)
                     .build();
+            List<LocalTime> startTimes = new ArrayList<>();
+            startTimes.add(LocalTime.of(13, 0));
+            startTimes.add(LocalTime.of(15, 0));
 
             ScheduleDetailReq scheduleDetailReq = ScheduleDetailReq.builder()
                     .date(LocalDate.of(2021, 2, i))
-                    .startTime(LocalTime.of(13, 0))
-                    .endTime(LocalTime.of(16, 0))
+                    .startTimes(startTimes)
+                    .lectureTime(LocalTime.of(1, 30))
                     .location(location)
                     .build();
 
@@ -126,8 +129,8 @@ class ScheduleControllerTest {
                                 fieldWithPath("period").description("강의 기간"),
                                 fieldWithPath("detailReqList").description("강의 한 날에 대한 세부사항 리스트"),
                                 fieldWithPath("detailReqList[].date").description("강의 날짜"),
-                                fieldWithPath("detailReqList[].startTime").description("강의 시작 시각"),
-                                fieldWithPath("detailReqList[].endTime").description("강의 종료 시간"),
+                                fieldWithPath("detailReqList[].startTimes[]").description("강의 시작 시간 리스트"),
+                                fieldWithPath("detailReqList[].lectureTime").description("강의 시간"),
                                 fieldWithPath("detailReqList[].location.latitude").description("위치 위도"),
                                 fieldWithPath("detailReqList[].location.longitude").description("위치 경도"),
                                 fieldWithPath("detailReqList[].location.address").description("위치 상세 주소")

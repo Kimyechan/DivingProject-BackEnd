@@ -32,8 +32,8 @@ public class ScheduleService {
         for (ScheduleDetailReq scheduleDetailReq : scheduleCreateReq.getDetailReqList()) {
             ScheduleDetail scheduleDetail = ScheduleDetail.builder()
                     .date(scheduleDetailReq.getDate())
-                    .startTime(scheduleDetailReq.getStartTime())
-                    .endTime(scheduleDetailReq.getEndTime())
+                    .startTimes(scheduleDetailReq.getStartTimes())
+                    .lectureTime(scheduleDetailReq.getLectureTime())
                     .location(scheduleDetailReq.getLocation())
                     .schedule(schedule)
                     .build();
