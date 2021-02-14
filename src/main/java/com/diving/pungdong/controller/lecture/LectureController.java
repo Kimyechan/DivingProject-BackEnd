@@ -7,6 +7,8 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
+import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureService;
@@ -28,8 +30,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.ElementCollection;
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +47,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class LectureController {
 
     private final LectureService lectureService;
-    private final SwimmingPoolService swimmingPoolService;
     private final AccountService accountService;
     private final S3Uploader s3Uploader;
 
@@ -52,7 +56,6 @@ public class LectureController {
                                         @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {
         Account instructor = accountService.findAccountByEmail(authentication.getName());
 
-        // ToDo: 수영장 없애고 위치정보 따로 (위도 경도)
         Lecture lecture = Lecture.builder()
                 .title(createLectureReq.getTitle())
                 .description(createLectureReq.getDescription())
@@ -222,7 +225,9 @@ public class LectureController {
     @GetMapping("/detail")
     public ResponseEntity<EntityModel<LectureDetail>> getLectureDetail(@RequestParam Long id) {
         Lecture lecture = lectureService.getLectureById(id);
-        // ToDo: 일정 보기 추가 - 위치 정보 강의 일정이랑 묶기, 시간도 같이 묶기
+
+        List<ScheduleDto> schedules = getScheduleDtos(lecture);
+
         LectureDetail lectureDetail = LectureDetail.builder()
                 .id(lecture.getId())
                 .title(lecture.getTitle())
@@ -237,6 +242,7 @@ public class LectureController {
                 .instructorId(lecture.getInstructor().getId())
                 .lectureUrlList(new ArrayList<>())
                 .equipmentList(new ArrayList<>())
+                .schedules(schedules)
                 .build();
 
         for (LectureImage lectureImage : lecture.getLectureImages()) {
@@ -258,6 +264,28 @@ public class LectureController {
         return ResponseEntity.ok().body(model);
     }
 
+    public List<ScheduleDto> getScheduleDtos(Lecture lecture) {
+        List<ScheduleDto> schedules = new ArrayList<>();
+        for (Schedule schedule : lecture.getSchedules()) {
+            List<ScheduleDetailDto> scheduleDetails = new ArrayList<>();
+            for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
+                ScheduleDetailDto detailDto = ScheduleDetailDto.builder()
+                        .date(scheduleDetail.getDate())
+                        .startTimes(scheduleDetail.getStartTimes())
+                        .lectureTime(scheduleDetail.getLectureTime())
+                        .location(scheduleDetail.getLocation())
+                        .build();
+                scheduleDetails.add(detailDto);
+            }
+            ScheduleDto dto = ScheduleDto.builder()
+                    .period(schedule.getPeriod())
+                    .scheduleDetails(scheduleDetails)
+                    .build();
+            schedules.add(dto);
+        }
+        return schedules;
+    }
+
     @Data
     @Builder
     @AllArgsConstructor
@@ -275,7 +303,27 @@ public class LectureController {
         private Long instructorId;
         private List<String> lectureUrlList;
         private List<EquipmentDto> equipmentList;
+        private List<ScheduleDto> schedules;
     }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class ScheduleDto {
+        private Integer period;
+        private List<ScheduleDetailDto> scheduleDetails;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class ScheduleDetailDto {
+        private LocalDate date;
+        private List<LocalTime> startTimes;
+        private LocalTime lectureTime;
+        private Location location;
+    }
+
 
     // ToDo: 겅색 필터 추가
     @GetMapping("/list/region")
