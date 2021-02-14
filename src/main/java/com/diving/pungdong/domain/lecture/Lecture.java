@@ -2,6 +2,7 @@ package com.diving.pungdong.domain.lecture;
 
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
+import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import lombok.*;
 
@@ -49,4 +50,7 @@ public class Lecture {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account instructor;
+
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY)
+    private List<Schedule> schedules;
 }
