@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,9 +22,10 @@ public class ScheduleDetail {
 
     private LocalDate date;
 
-    private LocalTime startTime;
+    @ElementCollection
+    private List<LocalTime> startTimes;
 
-    private LocalTime endTime;
+    private LocalTime lectureTime;
 
     private Location location;
 

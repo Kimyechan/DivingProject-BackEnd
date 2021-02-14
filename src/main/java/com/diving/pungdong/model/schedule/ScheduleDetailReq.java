@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,7 +16,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class ScheduleDetailReq {
     private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private List<LocalTime> startTimes;
+    private LocalTime lectureTime;
     private Location location;
 }
