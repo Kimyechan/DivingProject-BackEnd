@@ -3,6 +3,8 @@ package com.diving.pungdong.service;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
+import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.LectureImageJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,9 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-
-import static com.diving.pungdong.controller.lecture.LectureController.LectureImageUpdate;
-import static com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
 
 @Service
 @RequiredArgsConstructor

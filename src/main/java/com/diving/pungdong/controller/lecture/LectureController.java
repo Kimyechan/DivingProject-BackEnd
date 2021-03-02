@@ -2,19 +2,26 @@ package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
-import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
+import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
+import com.diving.pungdong.dto.lecture.create.CreateLectureRes;
+import com.diving.pungdong.dto.lecture.create.EquipmentDto;
+import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
+import com.diving.pungdong.dto.lecture.detail.LectureDetail;
+import com.diving.pungdong.dto.lecture.detail.ScheduleDetailDto;
+import com.diving.pungdong.dto.lecture.detail.ScheduleDto;
+import com.diving.pungdong.dto.lecture.search.LectureByRegionReq;
+import com.diving.pungdong.dto.lecture.search.LectureByRegionRes;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateRes;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureService;
-import com.diving.pungdong.service.SwimmingPoolService;
-import lombok.*;
-import lombok.experimental.WithBy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -30,11 +37,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.ElementCollection;
-import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,44 +96,10 @@ public class LectureController {
         return ResponseEntity.created(selfLink.toUri()).body(model);
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    static class CreateLectureReq {
-        @NotEmpty private String title;
-        @NotEmpty private String classKind;
-        @NotEmpty private String groupName;
-        @NotEmpty private String certificateKind;
-        @NotEmpty private String description;
-        @NotEmpty private Integer price;
-        @NotEmpty private Integer period;
-        @NotEmpty private Integer studentCount;
-        @NotEmpty private String region;
-        private List<EquipmentDto> equipmentList = new ArrayList<>();
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class EquipmentDto {
-        private String name;
-        private Integer price;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class CreateLectureRes {
-        private Long lectureId;
-        private String title;
-        private String instructorName;
-    }
-
     @PostMapping("/update")
     public ResponseEntity<EntityModel<LectureUpdateRes>> updateLecture(Authentication authentication,
-                                        @RequestPart("request") LectureUpdateInfo lectureUpdateInfo,
-                                        @RequestPart("fileList") List<MultipartFile> addLectureImageFiles) throws IOException {
+                                                                       @RequestPart("request") LectureUpdateInfo lectureUpdateInfo,
+                                                                       @RequestPart("fileList") List<MultipartFile> addLectureImageFiles) throws IOException {
         Lecture lecture = lectureService.getLectureById(lectureUpdateInfo.getId());
         String email = authentication.getName();
 
@@ -148,52 +117,6 @@ public class LectureController {
         model.add(linkTo(methodOn(LectureController.class).updateLecture(authentication, lectureUpdateInfo, addLectureImageFiles)).withSelfRel());
 
         return ResponseEntity.ok().body(model);
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class LectureUpdateInfo {
-        private Long id;
-        private String title;
-        private String classKind;
-        private String groupName;
-        private String certificateKind;
-        private String description;
-        private Integer price;
-        private Integer period;
-        private Integer studentCount;
-        private String region;
-        private List<LectureImageUpdate> lectureImageUpdateList;
-        private List<EquipmentUpdate> equipmentUpdateList;
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class LectureImageUpdate {
-        String lectureImageURL;
-        Boolean isDeleted;
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class EquipmentUpdate {
-        private String name;
-        private Integer price;
-        Boolean isDeleted;
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    static class LectureUpdateRes {
-        private Long id;
-        private String title;
     }
 
     @DeleteMapping("/delete")
@@ -214,12 +137,6 @@ public class LectureController {
         model.add(linkTo(methodOn(LectureController.class).deleteLecture(authentication, id)).withSelfRel());
 
         return ResponseEntity.ok().body(model);
-    }
-
-    @Data
-    @Builder
-    static class LectureDeleteRes {
-        private Long lectureId;
     }
 
     @GetMapping("/detail")
@@ -286,45 +203,6 @@ public class LectureController {
         return schedules;
     }
 
-    @Data
-    @Builder
-    @AllArgsConstructor
-    static class LectureDetail {
-        private Long id;
-        private String title;
-        private String classKind;
-        private String groupName;
-        private String certificateKind;
-        private String description;
-        private Integer price;
-        private Integer period;
-        private Integer studentCount;
-        private String region;
-        private Long instructorId;
-        private List<String> lectureUrlList;
-        private List<EquipmentDto> equipmentList;
-        private List<ScheduleDto> schedules;
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    public static class ScheduleDto {
-        private Integer period;
-        private List<ScheduleDetailDto> scheduleDetails;
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    public static class ScheduleDetailDto {
-        private LocalDate date;
-        private List<LocalTime> startTimes;
-        private LocalTime lectureTime;
-        private Location location;
-    }
-
-
     // ToDo: 겅색 필터 추가
     @GetMapping("/list/region")
     public ResponseEntity<PagedModel<EntityModel<LectureByRegionRes>>> getListByRegion(LectureByRegionReq lectureByRegionReq,
@@ -354,28 +232,6 @@ public class LectureController {
         Page<LectureByRegionRes> result = new PageImpl<>(lectureByRegionRes, pageable, lectures.getTotalElements());
         PagedModel<EntityModel<LectureByRegionRes>> model = assembler.toModel(result);
         return ResponseEntity.ok().body(model);
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    static class LectureByRegionReq {
-        @NotEmpty private String region;
-    }
-    
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    static class LectureByRegionRes {
-        private Long id;
-        private String title;
-        private String classKind;
-        private String groupName;
-        private String certificateKind;
-        private Integer price;
-        private String region;
-        private List<String> imageURL = new ArrayList<>();
     }
 
     @PostMapping("/upload")

@@ -2,17 +2,12 @@ package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.CUserNotFoundException;
-import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.controller.lecture.LectureController;
-import static com.diving.pungdong.controller.sign.SignController.AddInstructorRoleReq;
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.InstructorImage;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -28,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.diving.pungdong.controller.sign.SignController.AddInstructorRoleReq;
 
 @Service
 @RequiredArgsConstructor

@@ -1,8 +1,8 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.controller.lecture.LectureController;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
 import com.diving.pungdong.repo.EquipmentJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.diving.pungdong.controller.lecture.LectureController.*;
 
 @Service
 @RequiredArgsConstructor

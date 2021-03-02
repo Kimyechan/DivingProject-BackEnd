@@ -1,23 +1,17 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
-import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
-import com.diving.pungdong.repo.EquipmentJpaRepo;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.LectureJpaRepo;
-import com.diving.pungdong.repo.SwimmingPoolJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
-import com.diving.pungdong.controller.lecture.LectureController.LectureImageUpdate;
-import com.diving.pungdong.controller.lecture.LectureController.EquipmentUpdate;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
