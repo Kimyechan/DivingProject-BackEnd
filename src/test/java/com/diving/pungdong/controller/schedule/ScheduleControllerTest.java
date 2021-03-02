@@ -172,31 +172,7 @@ class ScheduleControllerTest {
     public void getScheduleByLectureId() throws Exception {
         Long lectureId = 1L;
 
-        List<Schedule> schedules = new ArrayList<>();
-        Schedule schedule = Schedule.builder()
-                .period(3)
-                .build();
-
-        Location location = Location.builder()
-                .latitude(37.0)
-                .longitude(127.0)
-                .address("상세 주소")
-                .build();
-
-        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
-
-        for (int i = 0; i < 3; i++) {
-            ScheduleDetail scheduleDetail = ScheduleDetail.builder()
-                    .date(LocalDate.of(2021, 3, 1).plusDays(i))
-                    .startTimes(List.of(LocalTime.of(13, 0), LocalTime.of(15, 0)))
-                    .lectureTime(LocalTime.of(1, 30))
-                    .location(location)
-                    .build();
-            scheduleDetails.add(scheduleDetail);
-        }
-
-        schedule.setScheduleDetails(scheduleDetails);
-        schedules.add(schedule);
+        List<Schedule> schedules = createSchedules();
 
         given(scheduleService.getByLectureId(lectureId)).willReturn(schedules);
 
@@ -214,5 +190,39 @@ class ScheduleControllerTest {
 //                                fieldWithPath("schedules[].scheduleDetails[].location.latitude").description("강의 진행 장소 위도"),
 //                                fieldWithPath("schedules[].scheduleDetails[].location.longitude").description("강의 진행 장소 경도"),
 //                                fieldWithPath("schedules[].scheduleDetails[].location.address").description("강의 진행 장소 상세주소"),
+    }
+
+    public List<Schedule> createSchedules() {
+        List<Schedule> schedules = new ArrayList<>();
+        Schedule schedule = Schedule.builder()
+                .period(3)
+                .build();
+
+        Location location = Location.builder()
+                .latitude(37.0)
+                .longitude(127.0)
+                .address("상세 주소")
+                .build();
+
+        List<ScheduleDetail> scheduleDetails = createScheduleDetails(location);
+
+        schedule.setScheduleDetails(scheduleDetails);
+        schedules.add(schedule);
+        return schedules;
+    }
+
+    public List<ScheduleDetail> createScheduleDetails(Location location) {
+        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            ScheduleDetail scheduleDetail = ScheduleDetail.builder()
+                    .date(LocalDate.of(2021, 3, 1).plusDays(i))
+                    .startTimes(List.of(LocalTime.of(13, 0), LocalTime.of(15, 0)))
+                    .lectureTime(LocalTime.of(1, 30))
+                    .location(location)
+                    .build();
+            scheduleDetails.add(scheduleDetail);
+        }
+        return scheduleDetails;
     }
 }

@@ -33,10 +33,6 @@ public class Lecture {
 
     private Integer price;
 
-    private Integer period;
-
-    private Integer studentCount;
-
     private String region;
 
     @Builder.Default

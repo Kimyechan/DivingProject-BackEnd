@@ -63,8 +63,6 @@ class LectureServiceTest {
                 .groupName("AIDA")
                 .certificateKind("Level1")
                 .price(100000)
-                .period(4)
-                .studentCount(5)
                 .instructor(new Account())
                 .build();
 
@@ -86,8 +84,6 @@ class LectureServiceTest {
                 .groupName("AIDA")
                 .certificateKind("Level1")
                 .price(100000)
-                .period(4)
-                .studentCount(5)
                 .instructor(new Account())
                 .build();
 
@@ -136,8 +132,6 @@ class LectureServiceTest {
                 .certificateKind("LEVEL1")
                 .description("강의 설명")
                 .price(300000)
-                .period(4)
-                .studentCount(5)
                 .region("서울")
                 .instructor(Account.builder().email("kkk@gmail.com").build())
                 .build();
@@ -163,9 +157,6 @@ class LectureServiceTest {
                 .certificateKind(lectureUpdateInfo.getCertificateKind())
                 .description(lectureUpdateInfo.getDescription())
                 .price(lectureUpdateInfo.getPrice())
-                .period(lectureUpdateInfo.getPrice())
-                .period(lectureUpdateInfo.getPeriod())
-                .studentCount(lectureUpdateInfo.getStudentCount())
                 .region(lectureUpdateInfo.getRegion())
                 .build();
 

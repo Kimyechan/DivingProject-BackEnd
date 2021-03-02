@@ -66,8 +66,6 @@ public class LectureService {
         lecture.setCertificateKind(lectureUpdateInfo.getCertificateKind());
         lecture.setDescription(lectureUpdateInfo.getDescription());
         lecture.setPrice(lectureUpdateInfo.getPrice());
-        lecture.setPeriod(lectureUpdateInfo.getPeriod());
-        lecture.setStudentCount(lectureUpdateInfo.getStudentCount());
         lecture.setRegion(lectureUpdateInfo.getRegion());
 
         return lectureJpaRepo.save(lecture);

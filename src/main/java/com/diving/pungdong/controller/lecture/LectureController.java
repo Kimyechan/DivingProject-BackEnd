@@ -65,9 +65,7 @@ public class LectureController {
                 .classKind(createLectureReq.getClassKind())
                 .groupName(createLectureReq.getGroupName())
                 .certificateKind(createLectureReq.getCertificateKind())
-                .period(createLectureReq.getPeriod())
                 .price(createLectureReq.getPrice())
-                .studentCount(createLectureReq.getStudentCount())
                 .region(createLectureReq.getRegion())
                 .instructor(instructor)
                 .build();
@@ -160,8 +158,6 @@ public class LectureController {
                 .certificateKind(lecture.getCertificateKind())
                 .description(lecture.getDescription())
                 .price(lecture.getPrice())
-                .period(lecture.getPeriod())
-                .studentCount(lecture.getStudentCount())
                 .region(lecture.getRegion())
                 .instructorId(lecture.getInstructor().getId())
                 .lectureUrlList(new ArrayList<>())
