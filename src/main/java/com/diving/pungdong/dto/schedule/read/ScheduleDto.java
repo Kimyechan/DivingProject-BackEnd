@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.lecture.detail;
+package com.diving.pungdong.dto.schedule.read;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

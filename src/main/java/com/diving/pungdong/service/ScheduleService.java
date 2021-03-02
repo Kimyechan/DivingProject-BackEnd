@@ -3,13 +3,15 @@ package com.diving.pungdong.service;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
-import com.diving.pungdong.model.schedule.ScheduleCreateReq;
-import com.diving.pungdong.model.schedule.ScheduleDetailReq;
+import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
+import com.diving.pungdong.dto.schedule.create.ScheduleDetailReq;
 import com.diving.pungdong.repo.ScheduleDetailJpaRepo;
 import com.diving.pungdong.repo.ScheduleJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,4 +44,9 @@ public class ScheduleService {
 
         return savedSchedule;
     }
+
+    public List<Schedule> getByLectureId(Long lectureId) {
+        return scheduleJpaRepo.findByLectureId(lectureId);
+    }
+
 }

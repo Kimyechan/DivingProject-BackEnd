@@ -1,8 +1,8 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.controller.lecture.LectureController.EquipmentUpdate;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
 import com.diving.pungdong.repo.EquipmentJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
