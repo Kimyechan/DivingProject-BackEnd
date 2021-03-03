@@ -3,7 +3,6 @@ package com.diving.pungdong.domain.lecture;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import lombok.*;
 
 import javax.persistence.*;
@@ -33,10 +32,6 @@ public class Lecture {
     private String description;
 
     private Integer price;
-
-    private Integer period;
-
-    private Integer studentCount;
 
     private String region;
 

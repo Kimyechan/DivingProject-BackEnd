@@ -1,10 +1,10 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.controller.lecture.LectureController.LectureImageUpdate;
-import com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
+import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.LectureImageJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

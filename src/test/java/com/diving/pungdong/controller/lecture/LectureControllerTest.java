@@ -3,7 +3,6 @@ package com.diving.pungdong.controller.lecture;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.controller.lecture.LectureController.*;
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
@@ -13,6 +12,11 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
+import com.diving.pungdong.dto.lecture.create.EquipmentDto;
+import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
+import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -226,8 +230,6 @@ class LectureControllerTest {
                 .certificateKind("LEVEL1")
                 .description("강의 설명")
                 .price(300000)
-                .period(4)
-                .studentCount(5)
                 .region("서울")
                 .instructor(account)
                 .lectureImages(List.of(LectureImage.builder().fileURI("File URL1").build()))
@@ -257,8 +259,6 @@ class LectureControllerTest {
                 .certificateKind("LEVEL2")
                 .description("강의 설명  Update")
                 .price(400000)
-                .period(5)
-                .studentCount(6)
                 .region("부산")
                 .instructor(Account.builder().id(10L).build())
                 .equipmentList(List.of(Equipment.builder().name("장비1").price(5000).build()))
@@ -388,29 +388,6 @@ class LectureControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
-        List<Schedule> schedules = new ArrayList<>();
-        Schedule schedule = Schedule.builder()
-                .period(3)
-                .build();
-
-        Location location = Location.builder()
-                .latitude(37.0)
-                .longitude(127.0)
-                .address("상세 주소")
-                .build();
-        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            ScheduleDetail scheduleDetail = ScheduleDetail.builder()
-                    .date(LocalDate.of(2021, 3, 1).plusDays(i))
-                    .startTimes(List.of(LocalTime.of(13, 0), LocalTime.of(15,0)))
-                    .lectureTime(LocalTime.of(1, 30))
-                    .location(location)
-                    .build();
-            scheduleDetails.add(scheduleDetail);
-        }
-        schedule.setScheduleDetails(scheduleDetails);
-        schedules.add(schedule);
-
         Lecture lecture = Lecture.builder()
                 .title("강의1")
                 .classKind("스쿠버다이빙")
@@ -418,13 +395,10 @@ class LectureControllerTest {
                 .certificateKind("LEVEL1")
                 .description("강의 설명")
                 .price(300000)
-                .period(4)
-                .studentCount(5)
                 .region("서울")
                 .instructor(Account.builder().id(10L).build())
                 .lectureImages(List.of(LectureImage.builder().fileURI("File URL1").build()))
                 .equipmentList(List.of(Equipment.builder().name("장비1").price(3000).build()))
-                .schedules(schedules)
                 .build();
 
         given(lectureService.getLectureById(1L)).willReturn(lecture);
@@ -463,15 +437,6 @@ class LectureControllerTest {
                                 fieldWithPath("lectureUrlList[0]").description("강의 이미지 URL"),
                                 fieldWithPath("equipmentList[0].name").description("대여 장비 이름"),
                                 fieldWithPath("equipmentList[0].price").description("대여 장비 가격"),
-                                fieldWithPath("schedules").description("강의 일정 리스트"),
-                                fieldWithPath("schedules[].period").description("강의 총 진행 날짜 수"),
-                                fieldWithPath("schedules[].scheduleDetails[]").description("각 강의 날짜 상세 내용"),
-                                fieldWithPath("schedules[].scheduleDetails[].date").description("강의 진행 날짜"),
-                                fieldWithPath("schedules[].scheduleDetails[].startTimes[]").description("해당 날짜 강의 가능 시간 리스트"),
-                                fieldWithPath("schedules[].scheduleDetails[].lectureTime").description("한 강의 당 진행시간"),
-                                fieldWithPath("schedules[].scheduleDetails[].location.latitude").description("강의 진행 장소 위도"),
-                                fieldWithPath("schedules[].scheduleDetails[].location.longitude").description("강의 진행 장소 경도"),
-                                fieldWithPath("schedules[].scheduleDetails[].location.address").description("강의 진행 장소 상세주소"),
                                 fieldWithPath("_links.self.href").description("해당 API URL")
                         )
 
@@ -545,8 +510,6 @@ class LectureControllerTest {
                     .groupName("AIDA")
                     .certificateKind("Level1")
                     .price(100000)
-                    .period(4)
-                    .studentCount(5)
                     .region("서울")
                     .lectureImages(List.of(lectureImage))
                     .build();

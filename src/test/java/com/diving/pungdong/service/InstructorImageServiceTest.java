@@ -1,7 +1,10 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.domain.account.*;
+import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.account.Gender;
+import com.diving.pungdong.domain.account.InstructorImgCategory;
+import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.repo.InstructorImageJpaRepo;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,13 +15,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;

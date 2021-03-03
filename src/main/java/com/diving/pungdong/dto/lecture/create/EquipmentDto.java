@@ -1,4 +1,4 @@
-package com.diving.pungdong.model.schedule;
+package com.diving.pungdong.dto.lecture.create;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleCreateRes {
-    private Long lectureId;
-    private Long scheduleId;
+public class EquipmentDto {
+    private String name;
+    private Integer price;
 }

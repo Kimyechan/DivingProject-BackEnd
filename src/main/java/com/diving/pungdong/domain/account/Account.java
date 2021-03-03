@@ -1,8 +1,6 @@
 package com.diving.pungdong.domain.account;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.collection.internal.PersistentSet;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

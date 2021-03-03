@@ -2,22 +2,26 @@ package com.diving.pungdong.controller.schedule;
 
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.model.schedule.ScheduleCreateReq;
-import com.diving.pungdong.model.schedule.ScheduleCreateRes;
+import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.domain.schedule.ScheduleTime;
+import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
+import com.diving.pungdong.dto.schedule.create.ScheduleCreateRes;
+import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
+import com.diving.pungdong.dto.schedule.read.ScheduleDto;
+import com.diving.pungdong.dto.schedule.read.ScheduleTimeDto;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -46,5 +50,66 @@ public class ScheduleController {
         model.add(linkBuilder.withSelfRel());
 
         return ResponseEntity.created(uri).body(model);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> read(@RequestParam Long lectureId) {
+        List<Schedule> newScheduleList = scheduleService.filterListByCheckingPast(lectureId);
+
+        List<ScheduleDto> scheduleDtoList = mapToScheduleDtoList(newScheduleList);
+
+        CollectionModel<ScheduleDto> model = CollectionModel.of(scheduleDtoList);
+        model.add(linkTo(methodOn(ScheduleController.class).read(lectureId)).withSelfRel());
+        return ResponseEntity.ok().body(model);
+    }
+
+
+    public List<ScheduleDto> mapToScheduleDtoList(List<Schedule> scheduleList) {
+        List<ScheduleDto> schedules = new ArrayList<>();
+
+        for (Schedule schedule : scheduleList) {
+            List<ScheduleDetailDto> scheduleDetails = mapToScheduleDetailDtoList(schedule);
+
+            ScheduleDto dto = ScheduleDto.builder()
+                    .period(schedule.getPeriod())
+                    .maxNumber(schedule.getMaxNumber())
+                    .scheduleDetails(scheduleDetails)
+                    .build();
+            schedules.add(dto);
+        }
+
+        return schedules;
+    }
+
+    public List<ScheduleDetailDto> mapToScheduleDetailDtoList(Schedule schedule) {
+        List<ScheduleDetailDto> scheduleDetails = new ArrayList<>();
+
+        for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
+            List<ScheduleTimeDto> scheduleTimeDtoList = mapToScheduleTimeDtoList(scheduleDetail.getScheduleTimes());
+
+            ScheduleDetailDto detailDto = ScheduleDetailDto.builder()
+                    .date(scheduleDetail.getDate())
+                    .scheduleTimeDtoList(scheduleTimeDtoList)
+                    .lectureTime(scheduleDetail.getLectureTime())
+                    .location(scheduleDetail.getLocation())
+                    .build();
+            scheduleDetails.add(detailDto);
+        }
+
+        return scheduleDetails;
+    }
+
+    private List<ScheduleTimeDto> mapToScheduleTimeDtoList(List<ScheduleTime> scheduleTimes) {
+        List<ScheduleTimeDto> scheduleTimeDtoList = new ArrayList<>();
+
+        for (ScheduleTime scheduleTime : scheduleTimes) {
+            ScheduleTimeDto scheduleTimeDto = ScheduleTimeDto.builder()
+                    .startTime(scheduleTime.getStartTime())
+                    .currentNumber(scheduleTime.getCurrentNumber())
+                    .build();
+            scheduleTimeDtoList.add(scheduleTimeDto);
+        }
+
+        return scheduleTimeDtoList;
     }
 }

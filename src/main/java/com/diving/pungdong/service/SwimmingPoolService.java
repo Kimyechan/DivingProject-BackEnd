@@ -1,7 +1,5 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
-import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.swimmingPool.SwimmingPool;
 import com.diving.pungdong.repo.SwimmingPoolJpaRepo;
 import lombok.RequiredArgsConstructor;
