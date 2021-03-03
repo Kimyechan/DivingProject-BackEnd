@@ -34,8 +34,6 @@ class LectureJpaRepoTest {
                 .groupName("AIDA")
                 .certificateKind("Level1")
                 .price(100000)
-                .period(4)
-                .studentCount(5)
                 .instructor(new Account())
                 .lectureImages(List.of(new LectureImage()))
                 .build();
@@ -68,8 +66,6 @@ class LectureJpaRepoTest {
                     .groupName("AIDA")
                     .certificateKind("Level1")
                     .price(100000)
-                    .period(4)
-                    .studentCount(5)
                     .region("서울")
                     .build();
 

@@ -1,4 +1,4 @@
-package com.diving.pungdong.model.schedule;
+package com.diving.pungdong.dto.schedule.create;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

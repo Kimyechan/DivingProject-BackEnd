@@ -24,5 +24,4 @@ public class LectureDetail {
     private Long instructorId;
     private List<String> lectureUrlList;
     private List<EquipmentDto> equipmentList;
-    private List<ScheduleDto> schedules;
 }

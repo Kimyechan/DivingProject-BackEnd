@@ -21,13 +21,13 @@ public class ScheduleDetail {
 
     private LocalDate date;
 
-    @ElementCollection
-    private List<LocalTime> startTimes;
-
     private LocalTime lectureTime;
 
     private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Schedule schedule;
+
+    @OneToMany(mappedBy = "scheduleDetail", fetch = FetchType.LAZY)
+    private List<ScheduleTime> scheduleTimes;
 }

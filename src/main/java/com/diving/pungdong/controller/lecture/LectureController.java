@@ -13,8 +13,8 @@ import com.diving.pungdong.dto.lecture.create.CreateLectureRes;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
-import com.diving.pungdong.dto.lecture.detail.ScheduleDetailDto;
-import com.diving.pungdong.dto.lecture.detail.ScheduleDto;
+import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
+import com.diving.pungdong.dto.schedule.read.ScheduleDto;
 import com.diving.pungdong.dto.lecture.search.LectureByRegionReq;
 import com.diving.pungdong.dto.lecture.search.LectureByRegionRes;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -65,9 +65,7 @@ public class LectureController {
                 .classKind(createLectureReq.getClassKind())
                 .groupName(createLectureReq.getGroupName())
                 .certificateKind(createLectureReq.getCertificateKind())
-                .period(createLectureReq.getPeriod())
                 .price(createLectureReq.getPrice())
-                .studentCount(createLectureReq.getStudentCount())
                 .region(createLectureReq.getRegion())
                 .instructor(instructor)
                 .build();
@@ -143,8 +141,15 @@ public class LectureController {
     public ResponseEntity<EntityModel<LectureDetail>> getLectureDetail(@RequestParam Long id) {
         Lecture lecture = lectureService.getLectureById(id);
 
-        List<ScheduleDto> schedules = getScheduleDtos(lecture);
+        LectureDetail lectureDetail = mapToLectureDetail(lecture);
 
+        EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
+        model.add(linkTo(methodOn(LectureController.class).getLectureDetail(id)).withSelfRel());
+
+        return ResponseEntity.ok().body(model);
+    }
+
+    public LectureDetail mapToLectureDetail(Lecture lecture) {
         LectureDetail lectureDetail = LectureDetail.builder()
                 .id(lecture.getId())
                 .title(lecture.getTitle())
@@ -153,13 +158,10 @@ public class LectureController {
                 .certificateKind(lecture.getCertificateKind())
                 .description(lecture.getDescription())
                 .price(lecture.getPrice())
-                .period(lecture.getPeriod())
-                .studentCount(lecture.getStudentCount())
                 .region(lecture.getRegion())
                 .instructorId(lecture.getInstructor().getId())
                 .lectureUrlList(new ArrayList<>())
                 .equipmentList(new ArrayList<>())
-                .schedules(schedules)
                 .build();
 
         for (LectureImage lectureImage : lecture.getLectureImages()) {
@@ -174,33 +176,7 @@ public class LectureController {
 
             lectureDetail.getEquipmentList().add(equipmentDto);
         }
-
-        EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
-        model.add(linkTo(methodOn(LectureController.class).getLectureDetail(id)).withSelfRel());
-
-        return ResponseEntity.ok().body(model);
-    }
-
-    public List<ScheduleDto> getScheduleDtos(Lecture lecture) {
-        List<ScheduleDto> schedules = new ArrayList<>();
-        for (Schedule schedule : lecture.getSchedules()) {
-            List<ScheduleDetailDto> scheduleDetails = new ArrayList<>();
-            for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
-                ScheduleDetailDto detailDto = ScheduleDetailDto.builder()
-                        .date(scheduleDetail.getDate())
-                        .startTimes(scheduleDetail.getStartTimes())
-                        .lectureTime(scheduleDetail.getLectureTime())
-                        .location(scheduleDetail.getLocation())
-                        .build();
-                scheduleDetails.add(detailDto);
-            }
-            ScheduleDto dto = ScheduleDto.builder()
-                    .period(schedule.getPeriod())
-                    .scheduleDetails(scheduleDetails)
-                    .build();
-            schedules.add(dto);
-        }
-        return schedules;
+        return lectureDetail;
     }
 
     // ToDo: 겅색 필터 추가

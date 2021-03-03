@@ -1,11 +1,11 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.config.S3Uploader;
-import com.diving.pungdong.controller.lecture.LectureController.LectureUpdateInfo;
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.LectureJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -63,8 +63,6 @@ class LectureServiceTest {
                 .groupName("AIDA")
                 .certificateKind("Level1")
                 .price(100000)
-                .period(4)
-                .studentCount(5)
                 .instructor(new Account())
                 .build();
 
@@ -86,8 +84,6 @@ class LectureServiceTest {
                 .groupName("AIDA")
                 .certificateKind("Level1")
                 .price(100000)
-                .period(4)
-                .studentCount(5)
                 .instructor(new Account())
                 .build();
 
@@ -136,8 +132,6 @@ class LectureServiceTest {
                 .certificateKind("LEVEL1")
                 .description("강의 설명")
                 .price(300000)
-                .period(4)
-                .studentCount(5)
                 .region("서울")
                 .instructor(Account.builder().email("kkk@gmail.com").build())
                 .build();
@@ -163,9 +157,6 @@ class LectureServiceTest {
                 .certificateKind(lectureUpdateInfo.getCertificateKind())
                 .description(lectureUpdateInfo.getDescription())
                 .price(lectureUpdateInfo.getPrice())
-                .period(lectureUpdateInfo.getPrice())
-                .period(lectureUpdateInfo.getPeriod())
-                .studentCount(lectureUpdateInfo.getStudentCount())
                 .region(lectureUpdateInfo.getRegion())
                 .build();
 

@@ -8,8 +8,10 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.model.schedule.ScheduleCreateReq;
-import com.diving.pungdong.model.schedule.ScheduleDetailReq;
+import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.domain.schedule.ScheduleTime;
+import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
+import com.diving.pungdong.dto.schedule.create.ScheduleDetailReq;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ScheduleService;
@@ -45,6 +47,9 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,6 +86,7 @@ class ScheduleControllerTest {
         ScheduleCreateReq req = ScheduleCreateReq.builder()
                 .lectureId(1L)
                 .period(3)
+                .maxNumber(5)
                 .build();
 
         List<ScheduleDetailReq> detailReqs = new ArrayList<>();
@@ -123,6 +129,7 @@ class ScheduleControllerTest {
                         requestFields(
                                 fieldWithPath("lectureId").description("강의 식별자 값"),
                                 fieldWithPath("period").description("강의 기간"),
+                                fieldWithPath("maxNumber").description("수강 제한 인원 수"),
                                 fieldWithPath("detailReqList").description("강의 한 날에 대한 세부사항 리스트"),
                                 fieldWithPath("detailReqList[].date").description("강의 날짜"),
                                 fieldWithPath("detailReqList[].startTimes[]").description("강의 시작 시간 리스트"),
@@ -163,5 +170,86 @@ class ScheduleControllerTest {
         return roles.stream()
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
                 .collect(Collectors.toList());
+    }
+
+    @Test
+    @DisplayName("해당 강의 일정 조회")
+    public void getScheduleByLectureId() throws Exception {
+        Long lectureId = 1L;
+
+        List<Schedule> schedules = createSchedules();
+
+        given(scheduleService.filterListByCheckingPast(lectureId)).willReturn(schedules);
+
+        mockMvc.perform(get("/schedule")
+                .param("lectureId", String.valueOf(lectureId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("schedule-read",
+                        requestParameters(
+                                parameterWithName("lectureId").description("강의 식별자 값")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.scheduleDtoList[].period").description("총 강의 회차"),
+                                fieldWithPath("_embedded.scheduleDtoList[].maxNumber").description("강의 최대 인원"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].date").description("강의 날짜"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].startTime").description("강의 시작 시간"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].currentNumber").description("현재 신청한 인원 수"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].lectureTime").description("강의 진행 시간"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.latitude").description("강의 장소 위도"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.longitude").description("강의 장소 경도"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.address").description("강의 장소 주소"),
+                                fieldWithPath("_links.self.href").description("해당 API URL")
+                        )
+                ));
+    }
+
+    public List<Schedule> createSchedules() {
+        List<Schedule> schedules = new ArrayList<>();
+        Schedule schedule = Schedule.builder()
+                .period(3)
+                .maxNumber(10)
+                .build();
+
+        Location location = Location.builder()
+                .latitude(37.0)
+                .longitude(127.0)
+                .address("상세 주소")
+                .build();
+
+        List<ScheduleDetail> scheduleDetails = createScheduleDetails(location, schedule.getPeriod());
+
+        schedule.setScheduleDetails(scheduleDetails);
+        schedules.add(schedule);
+        return schedules;
+    }
+
+    public List<ScheduleDetail> createScheduleDetails(Location location, Integer period) {
+        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
+        List<ScheduleTime> scheduleTimes = createScheduleTimes();
+        for (int i = 0; i < period; i++) {
+            ScheduleDetail scheduleDetail = ScheduleDetail.builder()
+                    .date(LocalDate.of(2021, 3, 1).plusDays(i))
+                    .scheduleTimes(scheduleTimes)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .location(location)
+                    .build();
+            scheduleDetails.add(scheduleDetail);
+        }
+        return scheduleDetails;
+    }
+
+    public List<ScheduleTime> createScheduleTimes() {
+        List<ScheduleTime> scheduleTimes = new ArrayList<>();
+        ScheduleTime scheduleTime = ScheduleTime.builder()
+                .startTime(LocalTime.of(13, 0))
+                .currentNumber(5)
+                .build();
+
+        scheduleTimes.add(scheduleTime);
+        return scheduleTimes;
     }
 }

@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.lecture.detail;
+package com.diving.pungdong.dto.schedule.read;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,5 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ScheduleDto {
     private Integer period;
+    private Integer maxNumber;
     private List<ScheduleDetailDto> scheduleDetails;
 }
