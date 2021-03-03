@@ -83,6 +83,7 @@ class ScheduleControllerTest {
         ScheduleCreateReq req = ScheduleCreateReq.builder()
                 .lectureId(1L)
                 .period(3)
+                .maxNumber(5)
                 .build();
 
         List<ScheduleDetailReq> detailReqs = new ArrayList<>();
@@ -125,6 +126,7 @@ class ScheduleControllerTest {
                         requestFields(
                                 fieldWithPath("lectureId").description("강의 식별자 값"),
                                 fieldWithPath("period").description("강의 기간"),
+                                fieldWithPath("maxNumber").description("수강 제한 인원 수"),
                                 fieldWithPath("detailReqList").description("강의 한 날에 대한 세부사항 리스트"),
                                 fieldWithPath("detailReqList[].date").description("강의 날짜"),
                                 fieldWithPath("detailReqList[].startTimes[]").description("강의 시작 시간 리스트"),

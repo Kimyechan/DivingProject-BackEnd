@@ -14,5 +14,6 @@ import java.util.List;
 public class ScheduleCreateReq {
     private Long lectureId;
     private Integer period;
+    private Integer maxNumber;
     List<ScheduleDetailReq> detailReqList;
 }

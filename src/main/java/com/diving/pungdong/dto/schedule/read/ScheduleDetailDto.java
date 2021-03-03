@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ScheduleDetailDto {
     private LocalDate date;
-    private List<LocalTime> startTimes;
+    private List<ScheduleTimeDto> scheduleTimeDtoList;
     private LocalTime lectureTime;
     private Location location;
 }

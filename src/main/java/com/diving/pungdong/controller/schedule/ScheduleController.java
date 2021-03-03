@@ -3,10 +3,12 @@ package com.diving.pungdong.controller.schedule;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.domain.schedule.ScheduleTime;
 import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
 import com.diving.pungdong.dto.schedule.read.ScheduleDto;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateRes;
+import com.diving.pungdong.dto.schedule.read.ScheduleTimeDto;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +64,7 @@ public class ScheduleController {
 
         for (Schedule schedule : scheduleList) {
             List<ScheduleDetailDto> scheduleDetails = mapToScheduleDetailDtoList(schedule);
+
             ScheduleDto dto = ScheduleDto.builder()
                     .period(schedule.getPeriod())
                     .scheduleDetails(scheduleDetails)
@@ -76,9 +79,11 @@ public class ScheduleController {
         List<ScheduleDetailDto> scheduleDetails = new ArrayList<>();
 
         for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
+            List<ScheduleTimeDto> scheduleTimeDtoList = mapToScheduleTimeDtoList(scheduleDetail.getScheduleTimes());
+
             ScheduleDetailDto detailDto = ScheduleDetailDto.builder()
                     .date(scheduleDetail.getDate())
-                    .startTimes(scheduleDetail.getStartTimes())
+                    .scheduleTimeDtoList(scheduleTimeDtoList)
                     .lectureTime(scheduleDetail.getLectureTime())
                     .location(scheduleDetail.getLocation())
                     .build();
@@ -86,5 +91,19 @@ public class ScheduleController {
         }
 
         return scheduleDetails;
+    }
+
+    private List<ScheduleTimeDto> mapToScheduleTimeDtoList(List<ScheduleTime> scheduleTimes) {
+        List<ScheduleTimeDto> scheduleTimeDtoList = new ArrayList<>();
+
+        for (ScheduleTime scheduleTime : scheduleTimes) {
+            ScheduleTimeDto scheduleTimeDto = ScheduleTimeDto.builder()
+                    .startTime(scheduleTime.getStartTime())
+                    .currentNumber(scheduleTime.getCurrentNumber())
+                    .build();
+            scheduleTimeDtoList.add(scheduleTimeDto);
+        }
+
+        return scheduleTimeDtoList;
     }
 }

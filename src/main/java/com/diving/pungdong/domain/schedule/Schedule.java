@@ -18,6 +18,8 @@ public class Schedule {
 
     private Integer period;
 
+    private Integer maxNumber;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;
 
