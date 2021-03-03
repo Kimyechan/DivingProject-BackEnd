@@ -4,10 +4,10 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.domain.schedule.ScheduleTime;
-import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
-import com.diving.pungdong.dto.schedule.read.ScheduleDto;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateRes;
+import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
+import com.diving.pungdong.dto.schedule.read.ScheduleDto;
 import com.diving.pungdong.dto.schedule.read.ScheduleTimeDto;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ScheduleService;
@@ -53,11 +53,12 @@ public class ScheduleController {
 
     @GetMapping
     public ResponseEntity<?> read(@RequestParam Long lectureId) {
-        List<Schedule> scheduleList = scheduleService.getByLectureId(lectureId);
+        List<Schedule> newScheduleList = scheduleService.filterListByCheckingPast(lectureId);
 
-        List<ScheduleDto> scheduleDtoList = mapToScheduleDtoList(scheduleList);
-        return ResponseEntity.ok().build();
+        List<ScheduleDto> scheduleDtoList = mapToScheduleDtoList(newScheduleList);
+        return ResponseEntity.ok().body(scheduleDtoList);
     }
+
 
     public List<ScheduleDto> mapToScheduleDtoList(List<Schedule> scheduleList) {
         List<ScheduleDto> schedules = new ArrayList<>();
@@ -67,6 +68,7 @@ public class ScheduleController {
 
             ScheduleDto dto = ScheduleDto.builder()
                     .period(schedule.getPeriod())
+                    .maxNumber(schedule.getMaxNumber())
                     .scheduleDetails(scheduleDetails)
                     .build();
             schedules.add(dto);

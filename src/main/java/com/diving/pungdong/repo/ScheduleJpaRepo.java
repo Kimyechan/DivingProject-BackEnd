@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ScheduleJpaRepo extends JpaRepository<Schedule, Long> {
-    @Query("select s from Schedule s where s.lecture.id = :lectureId")
+
+    @Query("select s from Schedule s join fetch s.scheduleDetails where s.lecture.id = :lectureId")
     List<Schedule> findByLectureId(@Param("lectureId") Long lectureId);
 }

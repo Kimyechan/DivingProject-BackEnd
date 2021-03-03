@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -62,4 +64,24 @@ public class ScheduleService {
         return scheduleJpaRepo.findByLectureId(lectureId);
     }
 
+    public List<Schedule> filterListByCheckingPast(Long lectureId) {
+        List<Schedule> scheduleList = getByLectureId(lectureId);
+
+        List<Schedule> newScheduleList = new ArrayList<>();
+        for (Schedule schedule : scheduleList) {
+            boolean isPast = false;
+
+            for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
+                if (scheduleDetail.getDate().isBefore(LocalDate.now())) {
+                    isPast = true;
+                }
+            }
+
+            if (!isPast) {
+                newScheduleList.add(schedule);
+            }
+        }
+
+        return newScheduleList;
+    }
 }

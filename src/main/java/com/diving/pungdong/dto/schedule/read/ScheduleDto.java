@@ -11,5 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ScheduleDto {
     private Integer period;
+    private Integer maxNumber;
     private List<ScheduleDetailDto> scheduleDetails;
 }

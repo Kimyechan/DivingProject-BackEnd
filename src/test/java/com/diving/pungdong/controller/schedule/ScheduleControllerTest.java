@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.domain.schedule.ScheduleTime;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
 import com.diving.pungdong.dto.schedule.create.ScheduleDetailReq;
 import com.diving.pungdong.service.AccountService;
@@ -176,7 +177,7 @@ class ScheduleControllerTest {
 
         List<Schedule> schedules = createSchedules();
 
-        given(scheduleService.getByLectureId(lectureId)).willReturn(schedules);
+        given(scheduleService.filterListByCheckingPast(lectureId)).willReturn(schedules);
 
         mockMvc.perform(get("/schedule")
                 .param("lectureId", String.valueOf(lectureId)))
@@ -198,6 +199,7 @@ class ScheduleControllerTest {
         List<Schedule> schedules = new ArrayList<>();
         Schedule schedule = Schedule.builder()
                 .period(3)
+                .maxNumber(10)
                 .build();
 
         Location location = Location.builder()
@@ -206,25 +208,36 @@ class ScheduleControllerTest {
                 .address("상세 주소")
                 .build();
 
-        List<ScheduleDetail> scheduleDetails = createScheduleDetails(location);
+        List<ScheduleDetail> scheduleDetails = createScheduleDetails(location, schedule.getPeriod());
 
         schedule.setScheduleDetails(scheduleDetails);
         schedules.add(schedule);
         return schedules;
     }
 
-    public List<ScheduleDetail> createScheduleDetails(Location location) {
+    public List<ScheduleDetail> createScheduleDetails(Location location, Integer period) {
         List<ScheduleDetail> scheduleDetails = new ArrayList<>();
-
-        for (int i = 0; i < 3; i++) {
+        List<ScheduleTime> scheduleTimes = createScheduleTimes();
+        for (int i = 0; i < period; i++) {
             ScheduleDetail scheduleDetail = ScheduleDetail.builder()
                     .date(LocalDate.of(2021, 3, 1).plusDays(i))
-                    .startTimes(List.of(LocalTime.of(13, 0), LocalTime.of(15, 0)))
+                    .scheduleTimes(scheduleTimes)
                     .lectureTime(LocalTime.of(1, 30))
                     .location(location)
                     .build();
             scheduleDetails.add(scheduleDetail);
         }
         return scheduleDetails;
+    }
+
+    public List<ScheduleTime> createScheduleTimes() {
+        List<ScheduleTime> scheduleTimes = new ArrayList<>();
+        ScheduleTime scheduleTime = ScheduleTime.builder()
+                .startTime(LocalTime.of(13, 0))
+                .currentNumber(5)
+                .build();
+
+        scheduleTimes.add(scheduleTime);
+        return scheduleTimes;
     }
 }
