@@ -47,6 +47,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -182,17 +184,27 @@ class ScheduleControllerTest {
         mockMvc.perform(get("/schedule")
                 .param("lectureId", String.valueOf(lectureId)))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        //                                fieldWithPath("schedules").description("강의 일정 리스트"),
-//                                fieldWithPath("schedules[].period").description("강의 총 진행 날짜 수"),
-//                                fieldWithPath("schedules[].scheduleDetails[]").description("각 강의 날짜 상세 내용"),
-//                                fieldWithPath("schedules[].scheduleDetails[].date").description("강의 진행 날짜"),
-//                                fieldWithPath("schedules[].scheduleDetails[].startTimes[]").description("해당 날짜 강의 가능 시간 리스트"),
-//                                fieldWithPath("schedules[].scheduleDetails[].lectureTime").description("한 강의 당 진행시간"),
-//                                fieldWithPath("schedules[].scheduleDetails[].location.latitude").description("강의 진행 장소 위도"),
-//                                fieldWithPath("schedules[].scheduleDetails[].location.longitude").description("강의 진행 장소 경도"),
-//                                fieldWithPath("schedules[].scheduleDetails[].location.address").description("강의 진행 장소 상세주소"),
+                .andExpect(status().isOk())
+                .andDo(document("schedule-read",
+                        requestParameters(
+                                parameterWithName("lectureId").description("강의 식별자 값")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.scheduleDtoList[].period").description("총 강의 회차"),
+                                fieldWithPath("_embedded.scheduleDtoList[].maxNumber").description("강의 최대 인원"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].date").description("강의 날짜"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].startTime").description("강의 시작 시간"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].currentNumber").description("현재 신청한 인원 수"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].lectureTime").description("강의 진행 시간"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.latitude").description("강의 장소 위도"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.longitude").description("강의 장소 경도"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.address").description("강의 장소 주소"),
+                                fieldWithPath("_links.self.href").description("해당 API URL")
+                        )
+                ));
     }
 
     public List<Schedule> createSchedules() {

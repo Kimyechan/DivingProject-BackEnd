@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.schedule.read.ScheduleTimeDto;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -56,7 +57,10 @@ public class ScheduleController {
         List<Schedule> newScheduleList = scheduleService.filterListByCheckingPast(lectureId);
 
         List<ScheduleDto> scheduleDtoList = mapToScheduleDtoList(newScheduleList);
-        return ResponseEntity.ok().body(scheduleDtoList);
+
+        CollectionModel<ScheduleDto> model = CollectionModel.of(scheduleDtoList);
+        model.add(linkTo(methodOn(ScheduleController.class).read(lectureId)).withSelfRel());
+        return ResponseEntity.ok().body(model);
     }
 
 
