@@ -149,3 +149,7 @@ operation::get-lecture-by-region[]
 [[resoucre-schedule-create]]
 === 강의 일정 생성
 operation::schedule-create[]
+
+[[resource-schedule-read]]
+=== 강의 일정 목록 읽기
+operation::schedule-read[]
