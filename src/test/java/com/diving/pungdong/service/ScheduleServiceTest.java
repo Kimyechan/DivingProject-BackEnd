@@ -84,27 +84,21 @@ class ScheduleServiceTest {
     @Test
     @DisplayName("강의 예약 인원 수가 가득 찾는지 체크 - 가득 안 참")
     public void isReservationFullFalse() {
-        Long scheduleId = 1L;
         Schedule schedule = createScheduleForReservation();
         List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(13, 0));
 
-        doReturn(schedule).when(scheduleService).getScheduleById(scheduleId);
-
-        Boolean result = scheduleService.isReservationFull(scheduleId, reservationDateDtoList);
+        Boolean result = scheduleService.isReservationFull(schedule, reservationDateDtoList);
 
         assertFalse(result);
     }
 
     @Test
-    @DisplayName("강의 예약 인원 수가 가득 찾는지 체크 - 가득 ")
+    @DisplayName("강의 예약 인원 수가 가득 찾는지 체크 - 가득 참")
     public void isReservationFullTrue() {
-        Long scheduleId = 1L;
         Schedule schedule = createScheduleForReservation();
         List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(15, 0));
 
-        doReturn(schedule).when(scheduleService).getScheduleById(scheduleId);
-
-        Boolean result = scheduleService.isReservationFull(scheduleId, reservationDateDtoList);
+        Boolean result = scheduleService.isReservationFull(schedule, reservationDateDtoList);
 
         assertTrue(result);
     }

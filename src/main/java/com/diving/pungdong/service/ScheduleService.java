@@ -87,8 +87,7 @@ public class ScheduleService {
         return newScheduleList;
     }
 
-    public Boolean isReservationFull(Long scheduleId, List<ReservationDateDto> reservationDateList) {
-        Schedule schedule = getScheduleById(scheduleId);
+    public Boolean isReservationFull(Schedule schedule, List<ReservationDateDto> reservationDateList) {
         ReservationDateDto reservationDateDto = reservationDateList.get(0);
 
         for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {

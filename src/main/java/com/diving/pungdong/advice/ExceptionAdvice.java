@@ -82,6 +82,12 @@ public class ExceptionAdvice {
         return responseService.getFailResult(Integer.parseInt(getMessage("resourceNotFound.code")), getMessage("resourceNotFound.msg"));
     }
 
+    @ExceptionHandler(ReservationFullException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CommonResult reservationFull(ReservationFullException e) {
+        return responseService.getFailResult(Integer.parseInt(getMessage("reservationFull.code")), getMessage("reservationFull.msg"));
+    }
+
 //    @ExceptionHandler(Exception.class)
 //    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 //    protected CommonResult defaultException(HttpServletRequest request, Exception e) {

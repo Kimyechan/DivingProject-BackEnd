@@ -1,5 +1,7 @@
 package com.diving.pungdong.domain.reservation;
 
+import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,4 +23,10 @@ public class Reservation {
     @ElementCollection
     private List<String> equipmentList;
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Schedule schedule;
 }

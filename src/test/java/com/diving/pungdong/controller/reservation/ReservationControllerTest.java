@@ -5,6 +5,8 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.service.AccountService;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -61,6 +64,9 @@ class ReservationControllerTest {
 
     @MockBean
     private ScheduleService scheduleService;
+
+    @MockBean
+    private ReservationService reservationService;
 
     public Account createAccount() {
         Account account = Account.builder()
@@ -91,35 +97,47 @@ class ReservationControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.INSTRUCTOR));
 
-        List<String> equipmentList = new ArrayList<>();
-        equipmentList.add("오리발");
-        equipmentList.add("슈트");
+        List<String> equipmentList = createEquipmentNameList();
 
-        List<ReservationDateDto> reservationDateDtoList = new ArrayList<>();
-        ReservationDateDto reservationDateDto = ReservationDateDto.builder()
-                .date(LocalDate.of(2021, 4, 20))
-                .time(LocalTime.of(14, 0))
-                .build();
-        reservationDateDtoList.add(reservationDateDto);
+        List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList();
 
-        ReservationCreateReq reservationCreateReq = ReservationCreateReq.builder()
+        ReservationCreateReq req = ReservationCreateReq.builder()
                 .scheduleId(1L)
                 .description("발 사이즈 260, 옷 사이즈 L")
                 .equipmentList(equipmentList)
                 .reservationDateList(reservationDateDtoList)
                 .build();
 
-        given(scheduleService.isReservationFull(
-                reservationCreateReq.getScheduleId(), reservationCreateReq.getReservationDateList())).willReturn(false);
+        Reservation reservation = Reservation.builder()
+                .schedule(Schedule.builder().id(1L).build())
+                .account(account)
+                .build();
+
+        given(reservationService.makeReservation(any(), any())).willReturn(reservation);
 
         mockMvc.perform(post("/reservation")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(reservationCreateReq)))
+                .content(objectMapper.writeValueAsString(req)))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
+    public List<ReservationDateDto> createReservationDateDtoList() {
+        List<ReservationDateDto> reservationDateDtoList = new ArrayList<>();
+        ReservationDateDto reservationDateDto = ReservationDateDto.builder()
+                .date(LocalDate.of(2021, 4, 20))
+                .time(LocalTime.of(14, 0))
+                .build();
+        reservationDateDtoList.add(reservationDateDto);
+        return reservationDateDtoList;
+    }
 
+    public List<String> createEquipmentNameList() {
+        List<String> equipmentList = new ArrayList<>();
+        equipmentList.add("오리발");
+        equipmentList.add("슈트");
+        return equipmentList;
+    }
 }
