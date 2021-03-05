@@ -1,9 +1,11 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.domain.schedule.ScheduleTime;
+import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
 import com.diving.pungdong.dto.schedule.create.ScheduleDetailReq;
 import com.diving.pungdong.repo.ScheduleDetailJpaRepo;
@@ -83,5 +85,26 @@ public class ScheduleService {
         }
 
         return newScheduleList;
+    }
+
+    public Boolean isReservationFull(Long scheduleId, List<ReservationDateDto> reservationDateList) {
+        Schedule schedule = getScheduleById(scheduleId);
+        ReservationDateDto reservationDateDto = reservationDateList.get(0);
+
+        for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
+            if (reservationDateDto.getDate().equals(scheduleDetail.getDate())) {
+                for (ScheduleTime scheduleTime : scheduleDetail.getScheduleTimes()) {
+                    if (scheduleTime.getStartTime().equals(reservationDateDto.getTime()) && scheduleTime.getCurrentNumber() >= schedule.getMaxNumber()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public Schedule getScheduleById(Long scheduleId) {
+        return scheduleJpaRepo.findById(scheduleId).orElseThrow(ResourceNotFoundException::new);
     }
 }

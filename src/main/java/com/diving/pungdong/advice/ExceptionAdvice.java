@@ -25,55 +25,61 @@ public class ExceptionAdvice {
     @ExceptionHandler(ForbiddenTokenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     protected CommonResult invalidToken(ForbiddenTokenException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("forbiddenToken.code")), getMessage("forbiddenToken.msg"));
+        return responseService.getFailResult(Integer.parseInt(getMessage("forbiddenToken.code")), getMessage("forbiddenToken.msg"));
     }
 
     @ExceptionHandler(ExpiredAccessTokenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     protected CommonResult expiredAccessToken(ExpiredAccessTokenException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("expiredAccessToken.code")), getMessage("expiredAccessToken.msg"));
+        return responseService.getFailResult(Integer.parseInt(getMessage("expiredAccessToken.code")), getMessage("expiredAccessToken.msg"));
     }
 
     @ExceptionHandler(ExpiredRefreshTokenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     protected CommonResult expiredRefreshToken(ExpiredRefreshTokenException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("expiredRefreshToken.code")), getMessage("expiredRefreshToken.msg"));
+        return responseService.getFailResult(Integer.parseInt(getMessage("expiredRefreshToken.code")), getMessage("expiredRefreshToken.msg"));
     }
 
     @ExceptionHandler(SignInInputException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResult signInInputException(SignInInputException e){
-        return responseService.getFailResult(Integer.valueOf(getMessage("signInInputException.code")), getMessage("signInInputException.msg"));
+        return responseService.getFailResult(Integer.parseInt(getMessage("signInInputException.code")), getMessage("signInInputException.msg"));
     }
 
     @ExceptionHandler(CUserNotFoundException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResult userNotFound(HttpServletRequest request, CUserNotFoundException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("userNotFound.code")), getMessage("userNotFound.msg"));
+        return responseService.getFailResult(Integer.parseInt(getMessage("userNotFound.code")), getMessage("userNotFound.msg"));
     }
 
     @ExceptionHandler(CEmailSigninFailedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResult emailSigninFailed(HttpServletRequest request, CEmailSigninFailedException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("emailSigninFailed.code")), getMessage("emailSigninFailed.msg"));
+        return responseService.getFailResult(Integer.parseInt(getMessage("emailSigninFailed.code")), getMessage("emailSigninFailed.msg"));
     }
 
     @ExceptionHandler(CAuthenticationEntryPointException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public CommonResult authenticationEntryPointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("entryPointException.code")), getMessage("entryPointException.msg"));
+        return responseService.getFailResult(Integer.parseInt(getMessage("entryPointException.code")), getMessage("entryPointException.msg"));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public CommonResult AccessDeniedException(HttpServletRequest request, AccessDeniedException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("accessDenied.code")), getMessage("accessDenied.msg"));
+    public CommonResult accessDeniedException(HttpServletRequest request, AccessDeniedException e) {
+        return responseService.getFailResult(Integer.parseInt(getMessage("accessDenied.code")), getMessage("accessDenied.msg"));
     }
 
     @ExceptionHandler(NoPermissionsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public CommonResult NoPermissions(HttpServletRequest request, NoPermissionsException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("noPermissions.code")), getMessage("noPermissions.msg"));
+    public CommonResult noPermissions(HttpServletRequest request, NoPermissionsException e) {
+        return responseService.getFailResult(Integer.parseInt(getMessage("noPermissions.code")), getMessage("noPermissions.msg"));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CommonResult resourceNotFound(ResourceNotFoundException e) {
+        return responseService.getFailResult(Integer.parseInt(getMessage("resourceNotFound.code")), getMessage("resourceNotFound.msg"));
     }
 
 //    @ExceptionHandler(Exception.class)
