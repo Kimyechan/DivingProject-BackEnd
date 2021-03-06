@@ -1,12 +1,20 @@
 package com.diving.pungdong.domain.payment;
 
+import lombok.*;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Payment {
-
     @Id @GeneratedValue
-    Long id;
+    private Long id;
+
+    private Integer cost;
 }

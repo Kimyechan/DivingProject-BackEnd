@@ -1,9 +1,11 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.domain.schedule.ScheduleTime;
+import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
 import com.diving.pungdong.dto.schedule.create.ScheduleDetailReq;
 import com.diving.pungdong.repo.ScheduleDetailJpaRepo;
@@ -83,5 +85,42 @@ public class ScheduleService {
         }
 
         return newScheduleList;
+    }
+
+    public Boolean isReservationFull(Schedule schedule, List<ReservationDateDto> reservationDateList) {
+        ReservationDateDto reservationDateDto = reservationDateList.get(0);
+
+        for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
+            if (reservationDateDto.getDate().equals(scheduleDetail.getDate())) {
+                for (ScheduleTime scheduleTime : scheduleDetail.getScheduleTimes()) {
+                    if (scheduleTime.getStartTime().equals(reservationDateDto.getTime()) && scheduleTime.getCurrentNumber() >= schedule.getMaxNumber()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public Boolean checkValidReservationDate(List<ScheduleDetail> scheduleDetails, List<ReservationDateDto> reservationDateList) {
+        Integer correctCount = 0;
+        for (ReservationDateDto datetime : reservationDateList) {
+            exit_for:
+            for (ScheduleDetail scheduleDetail : scheduleDetails) {
+                for (ScheduleTime scheduleTime : scheduleDetail.getScheduleTimes()) {
+                    if (scheduleDetail.getDate().equals(datetime.getDate()) && scheduleTime.getStartTime().equals(datetime.getTime())) {
+                        correctCount += 1;
+                        break exit_for;
+                    }
+                }
+            }
+        }
+
+        return correctCount.equals(scheduleDetails.size());
+    }
+
+    public Schedule getScheduleById(Long scheduleId) {
+        return scheduleJpaRepo.findById(scheduleId).orElseThrow(ResourceNotFoundException::new);
     }
 }
