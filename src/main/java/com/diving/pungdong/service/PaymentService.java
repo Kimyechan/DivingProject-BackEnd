@@ -3,8 +3,6 @@ package com.diving.pungdong.service;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.payment.Payment;
-import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.repo.PaymentJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

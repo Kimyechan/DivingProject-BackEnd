@@ -109,6 +109,7 @@ class ReservationControllerTest {
                 .build();
 
         Reservation reservation = Reservation.builder()
+                .id(1L)
                 .schedule(Schedule.builder().id(1L).build())
                 .account(account)
                 .build();
@@ -121,7 +122,7 @@ class ReservationControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(req)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     public List<ReservationDateDto> createReservationDateDtoList() {

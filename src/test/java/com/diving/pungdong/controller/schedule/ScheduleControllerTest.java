@@ -193,6 +193,7 @@ class ScheduleControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleId").description("해당 일정 식별자 값"),
                                 fieldWithPath("_embedded.scheduleDtoList[].period").description("총 강의 회차"),
                                 fieldWithPath("_embedded.scheduleDtoList[].maxNumber").description("강의 최대 인원"),
                                 fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].date").description("강의 날짜"),

@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class ScheduleDto {
+    private Long scheduleId;
     private Integer period;
     private Integer maxNumber;
     private List<ScheduleDetailDto> scheduleDetails;

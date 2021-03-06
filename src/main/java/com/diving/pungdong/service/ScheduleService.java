@@ -103,6 +103,23 @@ public class ScheduleService {
         return false;
     }
 
+    public Boolean checkValidReservationDate(List<ScheduleDetail> scheduleDetails, List<ReservationDateDto> reservationDateList) {
+        Integer correctCount = 0;
+        for (ReservationDateDto datetime : reservationDateList) {
+            exit_for:
+            for (ScheduleDetail scheduleDetail : scheduleDetails) {
+                for (ScheduleTime scheduleTime : scheduleDetail.getScheduleTimes()) {
+                    if (scheduleDetail.getDate().isEqual(datetime.getDate()) && scheduleTime.getStartTime().equals(datetime.getTime())) {
+                        correctCount += 1;
+                        break exit_for;
+                    }
+                }
+            }
+        }
+
+        return correctCount.equals(scheduleDetails.size());
+    }
+
     public Schedule getScheduleById(Long scheduleId) {
         return scheduleJpaRepo.findById(scheduleId).orElseThrow(ResourceNotFoundException::new);
     }

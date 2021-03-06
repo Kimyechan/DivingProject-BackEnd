@@ -146,5 +146,27 @@ class ScheduleServiceTest {
         return schedule;
     }
 
+    @Test
+    @DisplayName("일치하는 강의 날짜만 요청 하였는 지 체크 - 성공")
+    public void checkValidReservationDateSuccess() {
+        Schedule schedule = createScheduleForReservation();
+        List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(13, 0));
+
+        Boolean result = scheduleService.checkValidReservationDate(schedule.getScheduleDetails(), reservationDateDtoList);
+
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("일치하는 강의 날짜만 요청 하였는 지 체크 - 실패")
+    public void checkValidReservationDateFail() {
+        Schedule schedule = createScheduleForReservation();
+        List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(16, 0));
+
+        Boolean result = scheduleService.checkValidReservationDate(schedule.getScheduleDetails(), reservationDateDtoList);
+
+        assertFalse(result);
+    }
+
 
 }

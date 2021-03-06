@@ -71,6 +71,7 @@ public class ScheduleController {
             List<ScheduleDetailDto> scheduleDetails = mapToScheduleDetailDtoList(schedule);
 
             ScheduleDto dto = ScheduleDto.builder()
+                    .scheduleId(schedule.getId())
                     .period(schedule.getPeriod())
                     .maxNumber(schedule.getMaxNumber())
                     .scheduleDetails(scheduleDetails)
