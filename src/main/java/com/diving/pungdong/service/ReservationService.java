@@ -29,7 +29,7 @@ public class ReservationService {
 
     public Reservation makeReservation(Account account, ReservationCreateReq req) {
         Schedule schedule = scheduleService.getScheduleById(req.getScheduleId());
-        if (scheduleService.checkValidReservationDate(schedule.getScheduleDetails(), req.getReservationDateList())) {
+        if (!scheduleService.checkValidReservationDate(schedule.getScheduleDetails(), req.getReservationDateList())) {
             throw new BadRequestException();
         }
 

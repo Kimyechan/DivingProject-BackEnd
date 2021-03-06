@@ -109,7 +109,7 @@ public class ScheduleService {
             exit_for:
             for (ScheduleDetail scheduleDetail : scheduleDetails) {
                 for (ScheduleTime scheduleTime : scheduleDetail.getScheduleTimes()) {
-                    if (scheduleDetail.getDate().isEqual(datetime.getDate()) && scheduleTime.getStartTime().equals(datetime.getTime())) {
+                    if (scheduleDetail.getDate().equals(datetime.getDate()) && scheduleTime.getStartTime().equals(datetime.getTime())) {
                         correctCount += 1;
                         break exit_for;
                     }
