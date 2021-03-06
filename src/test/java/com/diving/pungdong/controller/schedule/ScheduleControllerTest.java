@@ -122,7 +122,7 @@ class ScheduleControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(document("schedule-create",
                         requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
                                 headerWithName("Authorization").description("access token 값"),
                                 headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
                         ),
@@ -193,6 +193,7 @@ class ScheduleControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleId").description("해당 일정 식별자 값"),
                                 fieldWithPath("_embedded.scheduleDtoList[].period").description("총 강의 회차"),
                                 fieldWithPath("_embedded.scheduleDtoList[].maxNumber").description("강의 최대 인원"),
                                 fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].date").description("강의 날짜"),
