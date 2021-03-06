@@ -153,3 +153,10 @@ operation::schedule-create[]
 [[resource-schedule-read]]
 === 강의 일정 목록 읽기
 operation::schedule-read[]
+
+[[resource-reservation]]
+== 강의 예약
+
+[[resource-reservation-create]]
+== 강의 예약하기
+operation::reservation-create[]

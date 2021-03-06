@@ -122,7 +122,7 @@ class ScheduleControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(document("schedule-create",
                         requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
                                 headerWithName("Authorization").description("access token 값"),
                                 headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
                         ),

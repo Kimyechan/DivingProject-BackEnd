@@ -39,6 +39,9 @@ import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -122,7 +125,30 @@ class ReservationControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(req)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(document("reservation-create",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestFields(
+                                fieldWithPath("scheduleId").description("강의 일정 식별자 값"),
+                                fieldWithPath("reservationDateList[].date").description("예약 날짜"),
+                                fieldWithPath("reservationDateList[].time").description("예약 시간"),
+                                fieldWithPath("equipmentList[]").description("대여 장비 이름 리스트"),
+                                fieldWithPath("description").description("대여 장비 관련 사이즈 정보 및 요청 사항")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("reservationId").description("강의 예약 식별자"),
+                                fieldWithPath("scheduleId").description("강의 예약 일정 식별자"),
+                                fieldWithPath("accountId").description("예약 수강생 식별자"),
+                                fieldWithPath("_links.self.href").description("해당 API URL")
+                        )
+                ));
     }
 
     public List<ReservationDateDto> createReservationDateDtoList() {
