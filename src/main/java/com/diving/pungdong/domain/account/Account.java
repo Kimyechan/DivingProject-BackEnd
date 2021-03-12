@@ -33,13 +33,14 @@ public class Account {
     @Enumerated(EnumType.STRING)
     Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "student")
-    private List<InstructorStudent> instructorList;
+//    @OneToMany(mappedBy = "student")
+//    private List<InstructorStudent> instructorList;
 
     private String phoneNumber;
 
     private String groupName;
 
+    @Lob
     private String description;
 
     @Column(columnDefinition = "integer default 0")
@@ -48,6 +49,6 @@ public class Account {
     @OneToMany(mappedBy = "instructor")
     private List<InstructorImage> instructorImages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "instructor")
-    private List<InstructorStudent> studentList = new ArrayList<>();
+//    @OneToMany(mappedBy = "instructor")
+//    private List<InstructorStudent> studentList = new ArrayList<>();
 }
