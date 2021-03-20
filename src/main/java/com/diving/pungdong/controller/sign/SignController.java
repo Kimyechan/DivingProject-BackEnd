@@ -97,6 +97,7 @@ public class SignController {
             throw new SignInInputException();
         }
 
+        accountService.checkDuplicationOfEmail(signUpReq.getEmail());
         signUpReq.setPassword(passwordEncoder.encode(signUpReq.getPassword()));
 
         Account student = modelMapper.map(signUpReq, Account.class);
