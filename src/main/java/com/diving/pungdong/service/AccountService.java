@@ -2,6 +2,7 @@ package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.CUserNotFoundException;
+import com.diving.pungdong.advice.exception.EmailDuplicationException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,5 +80,12 @@ public class AccountService implements UserDetailsService {
         instructorImageService.uploadInstructorImages(email, certificates, updateAccount, "certificate", InstructorImgCategory.CERTIFICATE);
 
         return updateAccount;
+    }
+
+    public void checkDuplicationOfEmail(String email) {
+        Optional<Account> account = accountJpaRepo.findByEmail(email);
+        if (account.isPresent()) {
+            throw new EmailDuplicationException();
+        }
     }
 }
