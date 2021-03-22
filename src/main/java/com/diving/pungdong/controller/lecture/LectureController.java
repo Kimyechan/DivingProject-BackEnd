@@ -6,17 +6,13 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
-import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
 import com.diving.pungdong.dto.lecture.create.CreateLectureRes;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
-import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
-import com.diving.pungdong.dto.schedule.read.ScheduleDto;
-import com.diving.pungdong.dto.lecture.search.LectureByRegionReq;
-import com.diving.pungdong.dto.lecture.search.LectureByRegionRes;
+import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
+import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateRes;
 import com.diving.pungdong.service.AccountService;
@@ -59,27 +55,9 @@ public class LectureController {
                                         @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {
         Account instructor = accountService.findAccountByEmail(authentication.getName());
 
-        Lecture lecture = Lecture.builder()
-                .title(createLectureReq.getTitle())
-                .description(createLectureReq.getDescription())
-                .classKind(createLectureReq.getClassKind())
-                .groupName(createLectureReq.getGroupName())
-                .certificateKind(createLectureReq.getCertificateKind())
-                .price(createLectureReq.getPrice())
-                .region(createLectureReq.getRegion())
-                .instructor(instructor)
-                .build();
-
+        Lecture lecture = mapToLecture(createLectureReq, instructor);
         String email = authentication.getName();
-
-        List<Equipment> equipmentList = new ArrayList<>();
-        for (EquipmentDto equipmentDto : createLectureReq.getEquipmentList()) {
-            Equipment equipment = Equipment.builder()
-                    .name(equipmentDto.getName())
-                    .price(equipmentDto.getPrice())
-                    .build();
-            equipmentList.add(equipment);
-        }
+        List<Equipment> equipmentList = mapToEquipmentList(createLectureReq);
 
         Lecture savedLecture = lectureService.createLecture(email, fileList, lecture, equipmentList);
 
@@ -92,6 +70,31 @@ public class LectureController {
         model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
         return ResponseEntity.created(selfLink.toUri()).body(model);
+    }
+
+    public List<Equipment> mapToEquipmentList(CreateLectureReq createLectureReq) {
+        List<Equipment> equipmentList = new ArrayList<>();
+        for (EquipmentDto equipmentDto : createLectureReq.getEquipmentList()) {
+            Equipment equipment = Equipment.builder()
+                    .name(equipmentDto.getName())
+                    .price(equipmentDto.getPrice())
+                    .build();
+            equipmentList.add(equipment);
+        }
+        return equipmentList;
+    }
+
+    public Lecture mapToLecture(CreateLectureReq createLectureReq, Account instructor) {
+        return Lecture.builder()
+                .title(createLectureReq.getTitle())
+                .description(createLectureReq.getDescription())
+                .classKind(createLectureReq.getClassKind())
+                .groupName(createLectureReq.getGroupName())
+                .certificateKind(createLectureReq.getCertificateKind())
+                .price(createLectureReq.getPrice())
+                .region(createLectureReq.getRegion())
+                .instructor(instructor)
+                .build();
     }
 
     @PostMapping("/update")
@@ -179,35 +182,48 @@ public class LectureController {
         return lectureDetail;
     }
 
-    // ToDo: 겅색 필터 추가
-    @GetMapping("/list/region")
-    public ResponseEntity<PagedModel<EntityModel<LectureByRegionRes>>> getListByRegion(LectureByRegionReq lectureByRegionReq,
-                                                                                       Pageable pageable,
-                                                                                       PagedResourcesAssembler<LectureByRegionRes> assembler
-                                                                            ) {
-        Page<Lecture> lectures = lectureService.getListByRegion(lectureByRegionReq.getRegion(), pageable);
-        List<LectureByRegionRes> lectureByRegionRes = new ArrayList<>();
-        for (Lecture lecture : lectures.getContent()) {
-            List<String> imageURLs = new ArrayList<>();
-            for (LectureImage image : lecture.getLectureImages()) {
-                imageURLs.add(image.getFileURI());
-            }
-            LectureByRegionRes res = LectureByRegionRes.builder()
-                    .id(lecture.getId())
-                    .title(lecture.getTitle())
-                    .classKind(lecture.getClassKind())
-                    .groupName(lecture.getGroupName())
-                    .certificateKind(lecture.getCertificateKind())
-                    .price(lecture.getPrice())
-                    .region(lecture.getRegion())
-                    .imageURL(imageURLs)
-                    .build();
-            lectureByRegionRes.add(res);
-        }
+    @GetMapping("/list")
+    public ResponseEntity<?> searchList(@RequestBody SearchCondition searchCondition,
+                                        Pageable pageable,
+                                        PagedResourcesAssembler<LectureSearchResult> assembler){
+        Page<Lecture> lecturePage = lectureService.searchListByCondition(searchCondition, pageable);
 
-        Page<LectureByRegionRes> result = new PageImpl<>(lectureByRegionRes, pageable, lectures.getTotalElements());
-        PagedModel<EntityModel<LectureByRegionRes>> model = assembler.toModel(result);
+        List<LectureSearchResult> lectureSearchResults = mapToLectureSearchResults(lecturePage);
+
+        Page<LectureSearchResult> result = new PageImpl<>(lectureSearchResults, pageable, lecturePage.getTotalElements());
+        PagedModel<EntityModel<LectureSearchResult>> model = assembler.toModel(result);
         return ResponseEntity.ok().body(model);
+    }
+
+    public List<LectureSearchResult> mapToLectureSearchResults(Page<Lecture> lecturePage) {
+        List<LectureSearchResult> lectureSearchResults = new ArrayList<>();
+        for (Lecture lecture : lecturePage.getContent()) {
+            List<String> imageURLs = mapToLectureImageUrls(lecture);
+            LectureSearchResult lectureSearchResult = mapToLectureSearchResult(lecture, imageURLs);
+            lectureSearchResults.add(lectureSearchResult);
+        }
+        return lectureSearchResults;
+    }
+
+    public LectureSearchResult mapToLectureSearchResult(Lecture lecture, List<String> imageURLs) {
+        return LectureSearchResult.builder()
+                .id(lecture.getId())
+                .title(lecture.getTitle())
+                .classKind(lecture.getClassKind())
+                .groupName(lecture.getGroupName())
+                .certificateKind(lecture.getCertificateKind())
+                .price(lecture.getPrice())
+                .region(lecture.getRegion())
+                .imageURL(imageURLs)
+                .build();
+    }
+
+    public List<String> mapToLectureImageUrls(Lecture lecture) {
+        List<String> imageURLs = new ArrayList<>();
+        for (LectureImage image : lecture.getLectureImages()) {
+            imageURLs.add(image.getFileURI());
+        }
+        return imageURLs;
     }
 
     @PostMapping("/upload")

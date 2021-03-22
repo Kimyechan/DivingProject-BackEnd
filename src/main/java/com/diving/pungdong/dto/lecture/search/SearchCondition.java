@@ -1,15 +1,16 @@
 package com.diving.pungdong.dto.lecture.search;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class LectureByRegionReq {
-    @NotEmpty
+@AllArgsConstructor
+@Builder
+public class SearchCondition {
+    private String certificateKind;
     private String region;
+    private CostCondition costCondition;
 }

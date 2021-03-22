@@ -6,7 +6,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
-import com.diving.pungdong.repo.LectureJpaRepo;
+import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,15 +42,12 @@ class LectureServiceTest {
     private S3Uploader s3Uploader;
 
     @Mock
-    private SwimmingPoolService swimmingPoolService;
-
-    @Mock
     private EquipmentService equipmentService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService, swimmingPoolService);
+        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService);
     }
 
     @Test

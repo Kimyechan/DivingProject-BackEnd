@@ -14,6 +14,8 @@ import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
+import com.diving.pungdong.dto.lecture.search.CostCondition;
+import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
 import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -55,8 +57,7 @@ import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -444,44 +445,53 @@ class LectureControllerTest {
     }
 
     @Test
-    @DisplayName("지역별 강의 목록")
-    public void getLectureListByRegion() throws Exception {
-        Account account = createAccount();
-        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-        String region = "서울";
-        Pageable pageable = PageRequest.of(1, 5);
-        given(lectureService.getListByRegion(region, pageable)).willReturn(createLectureList(pageable));
+    @DisplayName("강의 리스트 조건 검색")
+    public void searchList() throws Exception {
+        CostCondition costCondition = CostCondition.builder()
+                .min(10000)
+                .max(50000)
+                .build();
 
-        mockMvc.perform(get("/lecture/list/region")
-                .param("region", region)
+        SearchCondition searchCondition = SearchCondition.builder()
+                .certificateKind("LEVEL1")
+                .region("서울")
+                .costCondition(costCondition)
+                .build();
+
+        Pageable pageable = PageRequest.of(1, 5);
+        Page<Lecture> lecturePage = createLecturePage(pageable);
+        given(lectureService.searchListByCondition(searchCondition, pageable)).willReturn(lecturePage);
+
+        mockMvc.perform(get("/lecture/list")
                 .param("page", String.valueOf(pageable.getPageNumber()))
                 .param("size", String.valueOf(pageable.getPageSize()))
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .header("IsRefreshToken", "false"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(searchCondition)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andDo(document("get-lecture-by-region",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("accessToken 값"),
-                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-                        ),
+                .andDo(document("get-lecture-by-condition",
                         requestParameters(
-                                parameterWithName("region").description("강의 지역"),
                                 parameterWithName("page").description("몇 번째 페이지"),
                                 parameterWithName("size").description("한 페이지당 크기")
+                        ),
+                        requestFields(
+                                fieldWithPath("certificateKind").description("자격증 종류"),
+                                fieldWithPath("region").description("강의 지역"),
+                                fieldWithPath("costCondition.max").description("강의료 최대 비용"),
+                                fieldWithPath("costCondition.min").description("강의료 최소 비용")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
                         ),
                         responseFields(
-                                fieldWithPath("_embedded.lectureByRegionResList[0].id").description("강의 식별자 ID"),
-                                fieldWithPath("_embedded.lectureByRegionResList[0].title").description("강의 제목"),
-                                fieldWithPath("_embedded.lectureByRegionResList[0].classKind").description("강의 유형"),
-                                fieldWithPath("_embedded.lectureByRegionResList[0].groupName").description("강의 유형"),
-                                fieldWithPath("_embedded.lectureByRegionResList[0].certificateKind").description("자격증 종류"),
-                                fieldWithPath("_embedded.lectureByRegionResList[0].price").description("강의 비용"),
-                                fieldWithPath("_embedded.lectureByRegionResList[0].region").description("강의 지역"),
-                                fieldWithPath("_embedded.lectureByRegionResList[0].imageURL").description("강의 이미지들"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].id").description("강의 식별자 ID"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].title").description("강의 제목"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].classKind").description("강의 유형"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].groupName").description("강의 유형"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].certificateKind").description("자격증 종류"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].price").description("강의 비용"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].region").description("강의 지역"),
+                                fieldWithPath("_embedded.lectureSearchResultList[0].imageURL").description("강의 이미지들"),
                                 fieldWithPath("_links.first.href").description("첫 번째 페이지 URL"),
                                 fieldWithPath("_links.prev.href").description("이전 번째 페이지 URL"),
                                 fieldWithPath("_links.self.href").description("현재 페이지 URL"),
@@ -495,7 +505,7 @@ class LectureControllerTest {
                 ));
     }
 
-    private Page<Lecture> createLectureList(Pageable pageable) {
+    private Page<Lecture> createLecturePage(Pageable pageable) {
         List<Lecture> lectureList = new ArrayList<>();
         for (long i = 0; i < 15; i++) {
             LectureImage lectureImage = LectureImage.builder()
@@ -515,8 +525,10 @@ class LectureControllerTest {
                     .build();
             lectureList.add(lecture);
         }
+
         long endIndex = (pageable.getOffset() + pageable.getPageSize()) > lectureList.size() ?
                 lectureList.size() : pageable.getOffset() + pageable.getPageSize();
+
         return new PageImpl<>(lectureList.subList((int) pageable.getOffset(), (int) endIndex), pageable, lectureList.size());
     }
 }
