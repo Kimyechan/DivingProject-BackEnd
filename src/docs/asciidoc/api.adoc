@@ -140,8 +140,8 @@ operation::delete-lecture[]
 operation::get-lecture-detail[]
 
 [[resource-lecture-get-by-region]]
-=== 지역별 강의 조회
-operation::get-lecture-by-region[]
+=== 조건별 강의 조회
+operation::get-lecture-by-condition[]
 
 [[resource-schedule]]
 == 강의 일정

@@ -84,7 +84,7 @@ public class LectureService {
         lectureJpaRepo.deleteById(id);
     }
 
-    public Page<Lecture> searchList(SearchCondition searchCondition, Pageable pageable) {
+    public Page<Lecture> searchListByCondition(SearchCondition searchCondition, Pageable pageable) {
         return lectureJpaRepo.searchListByCondition(searchCondition, pageable);
     }
 }
