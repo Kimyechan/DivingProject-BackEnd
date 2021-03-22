@@ -13,6 +13,7 @@ import com.diving.pungdong.dto.lecture.create.CreateLectureRes;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
+import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
 import com.diving.pungdong.dto.schedule.read.ScheduleDto;
 import com.diving.pungdong.dto.lecture.search.LectureByRegionReq;
@@ -61,7 +62,6 @@ public class LectureController {
 
         Lecture lecture = mapToLecture(createLectureReq, instructor);
         String email = authentication.getName();
-
         List<Equipment> equipmentList = mapToEquipmentList(createLectureReq);
 
         Lecture savedLecture = lectureService.createLecture(email, fileList, lecture, equipmentList);
@@ -187,7 +187,6 @@ public class LectureController {
         return lectureDetail;
     }
 
-    // ToDo: 겅색 필터 추가
     @GetMapping("/list/region")
     public ResponseEntity<PagedModel<EntityModel<LectureByRegionRes>>> getListByRegion(LectureByRegionReq lectureByRegionReq,
                                                                                        Pageable pageable,
@@ -216,6 +215,12 @@ public class LectureController {
         Page<LectureByRegionRes> result = new PageImpl<>(lectureByRegionRes, pageable, lectures.getTotalElements());
         PagedModel<EntityModel<LectureByRegionRes>> model = assembler.toModel(result);
         return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> searchList(@RequestBody SearchCondition searchCondition, Pageable pageable){
+        Page<Lecture> lectureList = lectureService.searchList(searchCondition, pageable);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/upload")

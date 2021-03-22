@@ -4,8 +4,9 @@ import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
+import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
-import com.diving.pungdong.repo.LectureJpaRepo;
+import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -81,5 +82,9 @@ public class LectureService {
 
     public void deleteLectureById(Long id) {
         lectureJpaRepo.deleteById(id);
+    }
+
+    public Page<Lecture> searchList(SearchCondition searchCondition, Pageable pageable) {
+        return lectureJpaRepo.searchListByCondition(searchCondition, pageable);
     }
 }

@@ -55,8 +55,7 @@ import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -441,6 +440,14 @@ class LectureControllerTest {
                         )
 
                 ));
+    }
+
+    @Test
+    @DisplayName("강의 리스트 조회")
+    public void searchList() throws Exception {
+        mockMvc.perform(get("/lecture/list"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -6,7 +6,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
-import com.diving.pungdong.repo.LectureJpaRepo;
+import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
