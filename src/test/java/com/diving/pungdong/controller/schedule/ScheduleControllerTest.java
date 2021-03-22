@@ -196,7 +196,9 @@ class ScheduleControllerTest {
                                 fieldWithPath("_embedded.scheduleDtoList[].scheduleId").description("해당 일정 식별자 값"),
                                 fieldWithPath("_embedded.scheduleDtoList[].period").description("총 강의 회차"),
                                 fieldWithPath("_embedded.scheduleDtoList[].maxNumber").description("강의 최대 인원"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleDetailId").description("상세 일정 식별자 값"),
                                 fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].date").description("강의 날짜"),
+                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].scheduleTimeId").description("강의 시간 식별자 값"),
                                 fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].startTime").description("강의 시작 시간"),
                                 fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].currentNumber").description("현재 신청한 인원 수"),
                                 fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].lectureTime").description("강의 진행 시간"),
@@ -211,6 +213,7 @@ class ScheduleControllerTest {
     public List<Schedule> createSchedules() {
         List<Schedule> schedules = new ArrayList<>();
         Schedule schedule = Schedule.builder()
+                .id(1L)
                 .period(3)
                 .maxNumber(10)
                 .build();
@@ -233,6 +236,7 @@ class ScheduleControllerTest {
         List<ScheduleTime> scheduleTimes = createScheduleTimes();
         for (int i = 0; i < period; i++) {
             ScheduleDetail scheduleDetail = ScheduleDetail.builder()
+                    .id(2L)
                     .date(LocalDate.of(2021, 3, 1).plusDays(i))
                     .scheduleTimes(scheduleTimes)
                     .lectureTime(LocalTime.of(1, 30))
@@ -246,6 +250,7 @@ class ScheduleControllerTest {
     public List<ScheduleTime> createScheduleTimes() {
         List<ScheduleTime> scheduleTimes = new ArrayList<>();
         ScheduleTime scheduleTime = ScheduleTime.builder()
+                .id(3L)
                 .startTime(LocalTime.of(13, 0))
                 .currentNumber(5)
                 .build();

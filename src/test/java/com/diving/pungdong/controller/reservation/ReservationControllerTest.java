@@ -136,11 +136,10 @@ class ReservationControllerTest {
                         ),
                         requestFields(
                                 fieldWithPath("scheduleId").description("강의 일정 식별자 값"),
+                                fieldWithPath("reservationDateList[].scheduleDetailId").description("강의 상세 정보 식별자 값"),
+                                fieldWithPath("reservationDateList[].scheduleTimeId").description("강의 시간 정보 식별자 값"),
                                 fieldWithPath("reservationDateList[].date").description("예약 날짜"),
                                 fieldWithPath("reservationDateList[].time").description("예약 시간"),
-                                fieldWithPath("reservationDateList[].location.latitude").description("강의 장소 위도"),
-                                fieldWithPath("reservationDateList[].location.longitude").description("강의 장소 경도"),
-                                fieldWithPath("reservationDateList[].location.address").description("강의 장소 주소"),
                                 fieldWithPath("equipmentList[]").description("대여 장비 이름 리스트"),
                                 fieldWithPath("description").description("대여 장비 관련 사이즈 정보 및 요청 사항")
                         ),
@@ -159,16 +158,9 @@ class ReservationControllerTest {
     public List<ReservationDateDto> createReservationDateDtoList() {
         List<ReservationDateDto> reservationDateDtoList = new ArrayList<>();
 
-        Location location = Location.builder()
-                .latitude(136.4356)
-                .longitude(36.8898)
-                .address("서울시 잠실 수영장")
-                .build();
-
         ReservationDateDto reservationDateDto = ReservationDateDto.builder()
                 .date(LocalDate.of(2021, 4, 20))
                 .time(LocalTime.of(14, 0))
-                .location(location)
                 .build();
         reservationDateDtoList.add(reservationDateDto);
         return reservationDateDtoList;
@@ -181,11 +173,11 @@ class ReservationControllerTest {
         return equipmentList;
     }
 
-    @Test
-    @DisplayName("수강생의 예약 리스트 검색")
-    public void searchReservationList() throws Exception {
-        mockMvc.perform(get("/reservation/list"))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    @DisplayName("수강생의 예약 리스트 검색")
+//    public void searchReservationList() throws Exception {
+//        mockMvc.perform(get("/reservation/list"))
+//                .andDo(print())
+//                .andExpect(status().isOk());
+//    }
 }

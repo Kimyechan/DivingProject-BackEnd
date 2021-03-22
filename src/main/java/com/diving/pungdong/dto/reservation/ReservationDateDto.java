@@ -14,7 +14,8 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 public class ReservationDateDto {
+    private Long scheduleDetailId;
+    private Long scheduleTimeId;
     private LocalDate date;
     private LocalTime time;
-    private Location location;
 }

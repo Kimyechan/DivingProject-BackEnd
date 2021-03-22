@@ -6,16 +6,11 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.domain.schedule.ScheduleDetail;
-import com.diving.pungdong.domain.schedule.ScheduleTime;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
-import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.repo.ReservationJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

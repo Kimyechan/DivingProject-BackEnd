@@ -89,6 +89,7 @@ public class ScheduleController {
             List<ScheduleTimeDto> scheduleTimeDtoList = mapToScheduleTimeDtoList(scheduleDetail.getScheduleTimes());
 
             ScheduleDetailDto detailDto = ScheduleDetailDto.builder()
+                    .scheduleDetailId(scheduleDetail.getId())
                     .date(scheduleDetail.getDate())
                     .scheduleTimeDtoList(scheduleTimeDtoList)
                     .lectureTime(scheduleDetail.getLectureTime())
@@ -105,6 +106,7 @@ public class ScheduleController {
 
         for (ScheduleTime scheduleTime : scheduleTimes) {
             ScheduleTimeDto scheduleTimeDto = ScheduleTimeDto.builder()
+                    .scheduleTimeId(scheduleTime.getId())
                     .startTime(scheduleTime.getStartTime())
                     .currentNumber(scheduleTime.getCurrentNumber())
                     .build();
