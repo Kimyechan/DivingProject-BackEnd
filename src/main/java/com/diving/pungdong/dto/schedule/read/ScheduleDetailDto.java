@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class ScheduleDetailDto {
+    private Long scheduleDetailId;
     private LocalDate date;
     private List<ScheduleTimeDto> scheduleTimeDtoList;
     private LocalTime lectureTime;
