@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,14 +25,9 @@ public class LectureService {
     private final LectureImageService lectureImageService;
     private final S3Uploader s3Uploader;
     private final EquipmentService equipmentService;
-    private final SwimmingPoolService swimmingPoolService;
 
     public Lecture saveLecture(Lecture lecture) {
         return lectureJpaRepo.save(lecture);
-    }
-
-    public Page<Lecture> getListByRegion(String region, @NotEmpty Pageable pageable) {
-        return lectureJpaRepo.findByRegion(region, pageable);
     }
 
     public Lecture createLecture(String email, List<MultipartFile> fileList, Lecture lecture, List<Equipment> equipmentList) throws IOException {

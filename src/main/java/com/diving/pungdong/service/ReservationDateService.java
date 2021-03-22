@@ -20,6 +20,7 @@ public class ReservationDateService {
             ReservationDate reservationDate = ReservationDate.builder()
                     .date(reservationDateDto.getDate())
                     .time(reservationDateDto.getTime())
+                    .location(reservationDateDto.getLocation())
                     .reservation(reservation)
                     .build();
             reservationDateJpaRepo.save(reservationDate);

@@ -42,15 +42,12 @@ class LectureServiceTest {
     private S3Uploader s3Uploader;
 
     @Mock
-    private SwimmingPoolService swimmingPoolService;
-
-    @Mock
     private EquipmentService equipmentService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService, swimmingPoolService);
+        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService);
     }
 
     @Test

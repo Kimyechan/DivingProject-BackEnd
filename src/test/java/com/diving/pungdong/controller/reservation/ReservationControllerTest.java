@@ -2,6 +2,7 @@ package com.diving.pungdong.controller.reservation;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
+import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
@@ -42,6 +43,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -136,6 +138,9 @@ class ReservationControllerTest {
                                 fieldWithPath("scheduleId").description("강의 일정 식별자 값"),
                                 fieldWithPath("reservationDateList[].date").description("예약 날짜"),
                                 fieldWithPath("reservationDateList[].time").description("예약 시간"),
+                                fieldWithPath("reservationDateList[].location.latitude").description("강의 장소 위도"),
+                                fieldWithPath("reservationDateList[].location.longitude").description("강의 장소 경도"),
+                                fieldWithPath("reservationDateList[].location.address").description("강의 장소 주소"),
                                 fieldWithPath("equipmentList[]").description("대여 장비 이름 리스트"),
                                 fieldWithPath("description").description("대여 장비 관련 사이즈 정보 및 요청 사항")
                         ),
@@ -153,9 +158,17 @@ class ReservationControllerTest {
 
     public List<ReservationDateDto> createReservationDateDtoList() {
         List<ReservationDateDto> reservationDateDtoList = new ArrayList<>();
+
+        Location location = Location.builder()
+                .latitude(136.4356)
+                .longitude(36.8898)
+                .address("서울시 잠실 수영장")
+                .build();
+
         ReservationDateDto reservationDateDto = ReservationDateDto.builder()
                 .date(LocalDate.of(2021, 4, 20))
                 .time(LocalTime.of(14, 0))
+                .location(location)
                 .build();
         reservationDateDtoList.add(reservationDateDto);
         return reservationDateDtoList;
@@ -166,5 +179,13 @@ class ReservationControllerTest {
         equipmentList.add("오리발");
         equipmentList.add("슈트");
         return equipmentList;
+    }
+
+    @Test
+    @DisplayName("수강생의 예약 리스트 검색")
+    public void searchReservationList() throws Exception {
+        mockMvc.perform(get("/reservation/list"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

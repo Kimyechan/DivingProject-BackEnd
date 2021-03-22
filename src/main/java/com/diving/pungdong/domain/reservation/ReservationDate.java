@@ -1,5 +1,6 @@
 package com.diving.pungdong.domain.reservation;
 
+import com.diving.pungdong.domain.Location;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,6 +18,9 @@ public class ReservationDate {
     private Long id;
     private LocalDate date;
     private LocalTime time;
+
+    @Embedded
+    private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Reservation reservation;

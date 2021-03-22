@@ -13,8 +13,6 @@ import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
-import com.diving.pungdong.dto.lecture.search.LectureByRegionReq;
-import com.diving.pungdong.dto.lecture.search.LectureByRegionRes;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateRes;
 import com.diving.pungdong.service.AccountService;
@@ -182,36 +180,6 @@ public class LectureController {
             lectureDetail.getEquipmentList().add(equipmentDto);
         }
         return lectureDetail;
-    }
-
-    @GetMapping("/list/region")
-    public ResponseEntity<PagedModel<EntityModel<LectureByRegionRes>>> getListByRegion(LectureByRegionReq lectureByRegionReq,
-                                                                                       Pageable pageable,
-                                                                                       PagedResourcesAssembler<LectureByRegionRes> assembler
-                                                                            ) {
-        Page<Lecture> lectures = lectureService.getListByRegion(lectureByRegionReq.getRegion(), pageable);
-        List<LectureByRegionRes> lectureByRegionRes = new ArrayList<>();
-        for (Lecture lecture : lectures.getContent()) {
-            List<String> imageURLs = new ArrayList<>();
-            for (LectureImage image : lecture.getLectureImages()) {
-                imageURLs.add(image.getFileURI());
-            }
-            LectureByRegionRes res = LectureByRegionRes.builder()
-                    .id(lecture.getId())
-                    .title(lecture.getTitle())
-                    .classKind(lecture.getClassKind())
-                    .groupName(lecture.getGroupName())
-                    .certificateKind(lecture.getCertificateKind())
-                    .price(lecture.getPrice())
-                    .region(lecture.getRegion())
-                    .imageURL(imageURLs)
-                    .build();
-            lectureByRegionRes.add(res);
-        }
-
-        Page<LectureByRegionRes> result = new PageImpl<>(lectureByRegionRes, pageable, lectures.getTotalElements());
-        PagedModel<EntityModel<LectureByRegionRes>> model = assembler.toModel(result);
-        return ResponseEntity.ok().body(model);
     }
 
     @GetMapping("/list")
