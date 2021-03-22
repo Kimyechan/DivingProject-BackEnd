@@ -1,6 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.4.1'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'org.asciidoctor.convert' version '1.5.9.2'
     id 'java'
 }
@@ -44,11 +45,13 @@ bootJar {
 dependencies {
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.querydsl:querydsl-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    compile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
     implementation 'org.modelmapper:modelmapper:2.3.2'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.1.RELEASE'
@@ -65,6 +68,23 @@ dependencies {
 test {
     outputs.dir snippetsDir
     useJUnitPlatform()
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+    main.java.srcDir querydslDir
+}
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
 }
 
 asciidoctor {

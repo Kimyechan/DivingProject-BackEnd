@@ -59,27 +59,10 @@ public class LectureController {
                                         @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {
         Account instructor = accountService.findAccountByEmail(authentication.getName());
 
-        Lecture lecture = Lecture.builder()
-                .title(createLectureReq.getTitle())
-                .description(createLectureReq.getDescription())
-                .classKind(createLectureReq.getClassKind())
-                .groupName(createLectureReq.getGroupName())
-                .certificateKind(createLectureReq.getCertificateKind())
-                .price(createLectureReq.getPrice())
-                .region(createLectureReq.getRegion())
-                .instructor(instructor)
-                .build();
-
+        Lecture lecture = mapToLecture(createLectureReq, instructor);
         String email = authentication.getName();
 
-        List<Equipment> equipmentList = new ArrayList<>();
-        for (EquipmentDto equipmentDto : createLectureReq.getEquipmentList()) {
-            Equipment equipment = Equipment.builder()
-                    .name(equipmentDto.getName())
-                    .price(equipmentDto.getPrice())
-                    .build();
-            equipmentList.add(equipment);
-        }
+        List<Equipment> equipmentList = mapToEquipmentList(createLectureReq);
 
         Lecture savedLecture = lectureService.createLecture(email, fileList, lecture, equipmentList);
 
@@ -92,6 +75,31 @@ public class LectureController {
         model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
         return ResponseEntity.created(selfLink.toUri()).body(model);
+    }
+
+    public List<Equipment> mapToEquipmentList(CreateLectureReq createLectureReq) {
+        List<Equipment> equipmentList = new ArrayList<>();
+        for (EquipmentDto equipmentDto : createLectureReq.getEquipmentList()) {
+            Equipment equipment = Equipment.builder()
+                    .name(equipmentDto.getName())
+                    .price(equipmentDto.getPrice())
+                    .build();
+            equipmentList.add(equipment);
+        }
+        return equipmentList;
+    }
+
+    public Lecture mapToLecture(CreateLectureReq createLectureReq, Account instructor) {
+        return Lecture.builder()
+                .title(createLectureReq.getTitle())
+                .description(createLectureReq.getDescription())
+                .classKind(createLectureReq.getClassKind())
+                .groupName(createLectureReq.getGroupName())
+                .certificateKind(createLectureReq.getCertificateKind())
+                .price(createLectureReq.getPrice())
+                .region(createLectureReq.getRegion())
+                .instructor(instructor)
+                .build();
     }
 
     @PostMapping("/update")
