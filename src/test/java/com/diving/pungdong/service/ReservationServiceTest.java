@@ -16,7 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.parameters.P;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -47,15 +50,12 @@ class ReservationServiceTest {
         Lecture lecture = Lecture.builder()
                 .title("강의 제목")
                 .build();
-
         ScheduleDetail scheduleDetail = ScheduleDetail.builder()
                 .build();
-
         Schedule schedule = Schedule.builder()
                 .lecture(lecture)
                 .scheduleDetails(List.of(scheduleDetail))
                 .build();
-
         Payment payment = Payment.builder()
                 .cost(100000)
                 .build();
@@ -68,13 +68,15 @@ class ReservationServiceTest {
                 .build();
 
         reservationList.add(reservation);
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Reservation> reservationPage = new PageImpl<>(reservationList, pageable, reservationList.size());
 
         given(accountService.findAccountByEmail(email)).willReturn(account);
-        doReturn(reservationList).when(reservationService).findReservationListByAccount(account);
+        doReturn(reservationPage).when(reservationService).findReservationListByAccount(account, pageable);
 
-        List<ReservationSubInfo> reservationSubInfoList = reservationService.findMyReservationList(email);
+        Page<ReservationSubInfo> reservationSubInfoList = reservationService.findMyReservationList(email, pageable);
 
-        ReservationSubInfo reservationSubInfo = reservationSubInfoList.get(0);
+        ReservationSubInfo reservationSubInfo = reservationSubInfoList.getContent().get(0);
         assertThat(reservationSubInfo.getTotalCost()).isEqualTo(payment.getCost());
         assertThat(reservationSubInfo.getDateOfReservation()).isEqualTo(reservation.getDateOfReservation());
         assertThat(reservationSubInfo.getIsMultipleCourse()).isFalse();

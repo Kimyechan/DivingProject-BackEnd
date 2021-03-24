@@ -8,8 +8,12 @@ import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -50,9 +54,13 @@ public class ReservationController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getList(Authentication authentication) {
+    public ResponseEntity<?> getList(Authentication authentication,
+                                     Pageable pageable,
+                                     PagedResourcesAssembler<ReservationSubInfo> assembler) {
         String email = authentication.getName();
-        List<ReservationSubInfo> reservationSubInfoList = reservationService.findMyReservationList(email);
-        return ResponseEntity.ok().build();
+        Page<ReservationSubInfo> reservationSubInfoPage = reservationService.findMyReservationList(email, pageable);
+
+        PagedModel<EntityModel<ReservationSubInfo>> models = assembler.toModel(reservationSubInfoPage);
+        return ResponseEntity.ok().body(models);
     }
 }

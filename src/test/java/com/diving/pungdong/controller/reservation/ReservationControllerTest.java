@@ -10,6 +10,7 @@ import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationDateDto;
+import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ReservationService;
 import com.diving.pungdong.service.ScheduleService;
@@ -22,6 +23,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
@@ -176,11 +181,25 @@ class ReservationControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
 
-//        given(reservationService.findMyReservationList(account.getEmail())).willReturn();
+        List<ReservationSubInfo> reservationSubInfoList = new ArrayList<>();
+        ReservationSubInfo reservationSubInfo = ReservationSubInfo.builder()
+                .lectureTitle("프리 다이빙 강의 1")
+                .isMultipleCourse(false)
+                .totalCost(100000)
+                .dateOfReservation(LocalDate.of(2021, 3, 4))
+                .build();
+        reservationSubInfoList.add(reservationSubInfo);
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<ReservationSubInfo> reservationSubInfoPage = new PageImpl<>(reservationSubInfoList, pageable, reservationSubInfoList.size());
+
+        given(reservationService.findMyReservationList(account.getEmail(), pageable)).willReturn(reservationSubInfoPage);
+
         mockMvc.perform(get("/reservation/list")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize())))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

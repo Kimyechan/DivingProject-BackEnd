@@ -10,6 +10,9 @@ import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.repo.ReservationJpaRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,11 +65,13 @@ public class ReservationService {
         return reservationJpaRepo.save(reservation);
     }
 
-    public List<ReservationSubInfo> findMyReservationList(String email) {
+    public Page<ReservationSubInfo> findMyReservationList(String email, Pageable pageable) {
         Account account = accountService.findAccountByEmail(email);
-        List<Reservation> reservationList = findReservationListByAccount(account);
+        Page<Reservation> reservationList = findReservationListByAccount(account, pageable);
 
-        return mapToReservationSubInfoList(reservationList);
+        List<ReservationSubInfo> reservationSubInfoList =  mapToReservationSubInfoList(reservationList.getContent());
+
+        return new PageImpl<>(reservationSubInfoList, pageable, reservationList.getSize());
     }
 
     public List<ReservationSubInfo> mapToReservationSubInfoList(List<Reservation> reservationList) {
@@ -90,7 +95,7 @@ public class ReservationService {
                 .build();
     }
 
-    public List<Reservation> findReservationListByAccount(Account account) {
-        return reservationJpaRepo.findByAccount(account);
+    public Page<Reservation> findReservationListByAccount(Account account, Pageable pageable) {
+        return reservationJpaRepo.findByAccount(account, pageable);
     }
 }
