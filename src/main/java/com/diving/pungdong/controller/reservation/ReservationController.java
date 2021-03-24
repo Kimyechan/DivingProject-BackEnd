@@ -4,6 +4,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationCreateRes;
+import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,9 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -47,5 +47,12 @@ public class ReservationController {
                 .accountId(reservation.getAccount().getId())
                 .scheduleId(reservation.getSchedule().getId())
                 .build();
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getList(Authentication authentication) {
+        String email = authentication.getName();
+        List<ReservationSubInfo> reservationSubInfoList = reservationService.findMyReservationList(email);
+        return ResponseEntity.ok().build();
     }
 }

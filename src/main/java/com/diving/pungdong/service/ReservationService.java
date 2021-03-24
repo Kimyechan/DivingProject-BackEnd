@@ -7,10 +7,15 @@ import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
+import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.repo.ReservationJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +26,7 @@ public class ReservationService {
     private final ScheduleDetailService scheduleDetailService;
     private final ReservationDateService reservationDateService;
     private final PaymentService paymentService;
+    private final AccountService accountService;
 
     public Reservation makeReservation(Account account, ReservationCreateReq req) {
         Schedule schedule = scheduleService.getScheduleById(req.getScheduleId());
@@ -50,8 +56,41 @@ public class ReservationService {
                 .payment(payment)
                 .equipmentList(req.getEquipmentList())
                 .description(req.getDescription())
+                .dateOfReservation(LocalDate.now())
                 .build();
 
         return reservationJpaRepo.save(reservation);
+    }
+
+    public List<ReservationSubInfo> findMyReservationList(String email) {
+        Account account = accountService.findAccountByEmail(email);
+        List<Reservation> reservationList = findReservationListByAccount(account);
+
+        return mapToReservationSubInfoList(reservationList);
+    }
+
+    public List<ReservationSubInfo> mapToReservationSubInfoList(List<Reservation> reservationList) {
+        List<ReservationSubInfo> reservationSubInfoList = new ArrayList<>();
+        for (Reservation reservation : reservationList) {
+            ReservationSubInfo reservationSubInfo = mapToReservationSubInfo(reservation);
+
+            reservationSubInfoList.add(reservationSubInfo);
+        }
+        return reservationSubInfoList;
+    }
+
+    public ReservationSubInfo mapToReservationSubInfo(Reservation reservation) {
+        Schedule schedule = reservation.getSchedule();
+
+        return ReservationSubInfo.builder()
+                .lectureTitle(schedule.getLecture().getTitle())
+                .isMultipleCourse(schedule.getScheduleDetails().size() > 1)
+                .dateOfReservation(reservation.getDateOfReservation())
+                .totalCost(reservation.getPayment().getCost())
+                .build();
+    }
+
+    public List<Reservation> findReservationListByAccount(Account account) {
+        return reservationJpaRepo.findByAccount(account);
     }
 }

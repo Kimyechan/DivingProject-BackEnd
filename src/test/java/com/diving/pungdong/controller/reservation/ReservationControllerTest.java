@@ -68,9 +68,6 @@ class ReservationControllerTest {
     private AccountService accountService;
 
     @MockBean
-    private ScheduleService scheduleService;
-
-    @MockBean
     private ReservationService reservationService;
 
     public Account createAccount() {
@@ -100,7 +97,7 @@ class ReservationControllerTest {
     @DisplayName("강의 예약")
     public void createReservation() throws Exception {
         Account account = createAccount();
-        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.INSTRUCTOR));
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
 
         List<String> equipmentList = createEquipmentNameList();
 
@@ -173,11 +170,18 @@ class ReservationControllerTest {
         return equipmentList;
     }
 
-//    @Test
-//    @DisplayName("수강생의 예약 리스트 검색")
-//    public void searchReservationList() throws Exception {
-//        mockMvc.perform(get("/reservation/list"))
-//                .andDo(print())
-//                .andExpect(status().isOk());
-//    }
+    @Test
+    @DisplayName("수강생의 예약 리스트 검색")
+    public void searchReservationList() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+//        given(reservationService.findMyReservationList(account.getEmail())).willReturn();
+        mockMvc.perform(get("/reservation/list")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
 }
