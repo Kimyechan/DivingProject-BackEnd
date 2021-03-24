@@ -6,6 +6,7 @@ import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,8 @@ public class Reservation {
 
     @ElementCollection
     private List<String> equipmentList;
+
+    private LocalDate dateOfReservation;
 
     private String description;
 
