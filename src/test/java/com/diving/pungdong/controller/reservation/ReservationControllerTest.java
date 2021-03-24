@@ -7,7 +7,9 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
@@ -48,8 +50,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -163,6 +164,8 @@ class ReservationControllerTest {
         List<ReservationDateDto> reservationDateDtoList = new ArrayList<>();
 
         ReservationDateDto reservationDateDto = ReservationDateDto.builder()
+                .scheduleDetailId(1L)
+                .scheduleTimeId(1L)
                 .date(LocalDate.of(2021, 4, 20))
                 .time(LocalTime.of(14, 0))
                 .build();
@@ -226,7 +229,44 @@ class ReservationControllerTest {
                                 fieldWithPath("page.totalElements").description("전체 요소 갯수"),
                                 fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
                                 fieldWithPath("page.number").description("현재 페이지 번호")
-                        )
+                        ),
+                        pathParameters()
                 ));
+    }
+
+    @Test
+    @DisplayName("예약 상세 조회")
+    public void getReservationDetail() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        Long reservationId = 1L;
+
+        Location location = Location.builder()
+                .latitude(36.568)
+                .longitude(137.546)
+                .address("서울시 잠실 수영장")
+                .build();
+
+        ReservationDate reservationDate = ReservationDate.builder()
+                .date(LocalDate.of(2021, 3, 4))
+                .time(LocalTime.of(18, 0))
+                .scheduleDetail(ScheduleDetail.builder().location(location).build())
+                .build();
+
+        Reservation reservation = Reservation.builder()
+                .account(account)
+                .reservationDateList(List.of(reservationDate))
+                .equipmentList(List.of("오리발", "슈트"))
+                .description("오리발 270, 슈트 L")
+                .build();
+
+        given(reservationService.getDetailById(reservationId)).willReturn(reservation);
+        mockMvc.perform(get("/reservation/" + reservationId)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

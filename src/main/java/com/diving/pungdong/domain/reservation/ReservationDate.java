@@ -22,9 +22,6 @@ public class ReservationDate {
     private LocalDate date;
     private LocalTime time;
 
-    @Embedded
-    private Location location;
-
     @OneToOne(fetch = FetchType.LAZY)
     private ScheduleDetail scheduleDetail;
 

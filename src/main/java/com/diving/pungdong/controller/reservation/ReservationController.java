@@ -2,9 +2,8 @@ package com.diving.pungdong.controller.reservation;
 
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
-import com.diving.pungdong.dto.reservation.ReservationCreateReq;
-import com.diving.pungdong.dto.reservation.ReservationCreateRes;
-import com.diving.pungdong.dto.reservation.ReservationSubInfo;
+import com.diving.pungdong.domain.reservation.ReservationDate;
+import com.diving.pungdong.dto.reservation.*;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.NoPermissionException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -62,6 +63,49 @@ public class ReservationController {
 
         PagedModel<EntityModel<ReservationSubInfo>> models = assembler.toModel(reservationSubInfoPage);
         return ResponseEntity.ok().body(models);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getDetail(Authentication authentication, @PathVariable("id") Long id) {
+        Reservation reservation = reservationService.getDetailById(id);
+        reservationService.checkRightForReservation(authentication.getName(), reservation);
+
+        ReservationDetail reservationDetail = mapToReservationDetail(reservation);
+
+        EntityModel<ReservationDetail> model = EntityModel.of(reservationDetail);
+        model.add(linkTo(methodOn(ReservationController.class).getDetail(authentication, id)).withSelfRel());
+
+        return ResponseEntity.ok().body(model);
+    }
+
+    private ReservationDetail mapToReservationDetail(Reservation reservation) {
+        List<ReservationDate> reservationDates = reservation.getReservationDateList();
+        List<ReservationSchedule> reservationSchedules = mapToReservationSchedules(reservationDates);
+
+        return ReservationDetail.builder()
+                .reservationScheduleList(reservationSchedules)
+                .equipmentNameList(reservation.getEquipmentList())
+                .description(reservation.getDescription())
+                .build();
+    }
+
+    private List<ReservationSchedule> mapToReservationSchedules(List<ReservationDate> reservationDates) {
+        List<ReservationSchedule> reservationSchedules = new ArrayList<>();
+
+        for (ReservationDate reservationDate : reservationDates) {
+            ReservationSchedule reservationSchedule = mapToReservationSchedule(reservationDate);
+            reservationSchedules.add(reservationSchedule);
+        }
+
+        return reservationSchedules;
+    }
+
+    private ReservationSchedule mapToReservationSchedule(ReservationDate reservationDate) {
+        return ReservationSchedule.builder()
+                .date(reservationDate.getDate())
+                .time(reservationDate.getTime())
+                .location(reservationDate.getScheduleDetail().getLocation())
+                .build();
     }
 
 }

@@ -1,7 +1,9 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
+import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.advice.exception.ReservationFullException;
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
@@ -98,5 +100,15 @@ public class ReservationService {
 
     public Page<Reservation> findReservationListByAccount(Account account, Pageable pageable) {
         return reservationJpaRepo.findByAccount(account, pageable);
+    }
+
+    public Reservation getDetailById(Long id) {
+        return reservationJpaRepo.findById(id).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    public void checkRightForReservation(String emailOfToken, Reservation reservation) {
+        if (!emailOfToken.equals(reservation.getAccount().getEmail())) {
+            throw new NoPermissionsException();
+        }
     }
 }
