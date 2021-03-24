@@ -48,6 +48,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -201,6 +203,28 @@ class ReservationControllerTest {
                 .param("page", String.valueOf(pageable.getPageNumber()))
                 .param("size", String.valueOf(pageable.getPageSize())))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("reservation-get-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("한 페이지당 사이즈")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.reservationSubInfoList[].lectureTitle").description("예약 강의 제목"),
+                                fieldWithPath("_embedded.reservationSubInfoList[].totalCost").description("예약 비용"),
+                                fieldWithPath("_embedded.reservationSubInfoList[].isMultipleCourse").description("다회차 인지 아닌지의 여부"),
+                                fieldWithPath("_embedded.reservationSubInfoList[].dateOfReservation").description("예약 날짜"),
+                                fieldWithPath("_links.self.href").description("해당 API URL"),
+                                fieldWithPath("page.size").description("한 페이지당 크기"),
+                                fieldWithPath("page.totalElements").description("전체 요소 갯수"),
+                                fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                fieldWithPath("page.number").description("현재 페이지 번호")
+                        )
+                ));
     }
 }
