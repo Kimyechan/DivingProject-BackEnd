@@ -63,4 +63,5 @@ public class ReservationController {
         PagedModel<EntityModel<ReservationSubInfo>> models = assembler.toModel(reservationSubInfoPage);
         return ResponseEntity.ok().body(models);
     }
+
 }

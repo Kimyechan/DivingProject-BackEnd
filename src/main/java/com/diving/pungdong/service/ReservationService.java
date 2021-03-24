@@ -88,6 +88,7 @@ public class ReservationService {
         Schedule schedule = reservation.getSchedule();
 
         return ReservationSubInfo.builder()
+                .reservationId(reservation.getId())
                 .lectureTitle(schedule.getLecture().getTitle())
                 .isMultipleCourse(schedule.getScheduleDetails().size() > 1)
                 .dateOfReservation(reservation.getDateOfReservation())

@@ -185,6 +185,7 @@ class ReservationControllerTest {
 
         List<ReservationSubInfo> reservationSubInfoList = new ArrayList<>();
         ReservationSubInfo reservationSubInfo = ReservationSubInfo.builder()
+                .reservationId(1L)
                 .lectureTitle("프리 다이빙 강의 1")
                 .isMultipleCourse(false)
                 .totalCost(100000)
@@ -215,6 +216,7 @@ class ReservationControllerTest {
                                 parameterWithName("size").description("한 페이지당 사이즈")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.reservationSubInfoList[].reservationId").description("예약 식별자 값"),
                                 fieldWithPath("_embedded.reservationSubInfoList[].lectureTitle").description("예약 강의 제목"),
                                 fieldWithPath("_embedded.reservationSubInfoList[].totalCost").description("예약 비용"),
                                 fieldWithPath("_embedded.reservationSubInfoList[].isMultipleCourse").description("다회차 인지 아닌지의 여부"),
