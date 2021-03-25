@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -261,6 +262,7 @@ class ReservationControllerTest {
                 .build();
 
         given(reservationService.getDetailById(reservationId)).willReturn(reservation);
+
         mockMvc.perform(RestDocumentationRequestBuilders.get("/reservation/{id}", reservationId)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false")
@@ -285,6 +287,41 @@ class ReservationControllerTest {
                                 fieldWithPath("equipmentNameList[]").description("대여 장비 이름"),
                                 fieldWithPath("description").description("대여 장비 사이즈 및 요청사항"),
                                 fieldWithPath("_links.self.href").description("해당 API URL")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("강의 예약 취소")
+    public void cancelReservation() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+        Long reservationId = 1L;
+
+        Reservation reservation = Reservation.builder()
+                .id(reservationId)
+                .build();
+
+        given(reservationService.getDetailById(reservationId)).willReturn(reservation);
+
+        mockMvc.perform(delete("/reservation/{id}", reservationId)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("reservation-delete",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        pathParameters(
+                                parameterWithName("id").description("예약 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("reservationCancelId").description("취소된 예약 식별자 값"),
+                                fieldWithPath("success").description("예약취소 성공 여부")
                         )
                 ));
     }
