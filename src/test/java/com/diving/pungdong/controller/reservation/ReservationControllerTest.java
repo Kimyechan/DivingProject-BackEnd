@@ -15,7 +15,6 @@ import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ReservationService;
-import com.diving.pungdong.service.ScheduleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -229,8 +229,7 @@ class ReservationControllerTest {
                                 fieldWithPath("page.totalElements").description("전체 요소 갯수"),
                                 fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
                                 fieldWithPath("page.number").description("현재 페이지 번호")
-                        ),
-                        pathParameters()
+                        )
                 ));
     }
 
@@ -262,11 +261,31 @@ class ReservationControllerTest {
                 .build();
 
         given(reservationService.getDetailById(reservationId)).willReturn(reservation);
-        mockMvc.perform(get("/reservation/" + reservationId)
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/reservation/{id}", reservationId)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("reservation-get-detail",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        pathParameters(
+                                parameterWithName("id").description("예약 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("reservationScheduleList[].date").description("강의 날짜"),
+                                fieldWithPath("reservationScheduleList[].time").description("강의 시간"),
+                                fieldWithPath("reservationScheduleList[].location.latitude").description("강의 위치 위도"),
+                                fieldWithPath("reservationScheduleList[].location.longitude").description("강의 위치 경도"),
+                                fieldWithPath("reservationScheduleList[].location.address").description("강의 위치 주소"),
+                                fieldWithPath("equipmentNameList[]").description("대여 장비 이름"),
+                                fieldWithPath("description").description("대여 장비 사이즈 및 요청사항"),
+                                fieldWithPath("_links.self.href").description("해당 API URL")
+                        )
+                ));
     }
 }

@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.NoPermissionException;
 import java.util.ArrayList;
 import java.util.List;
 
