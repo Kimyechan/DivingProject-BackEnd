@@ -7,13 +7,14 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.ReservationService;
-import com.diving.pungdong.service.ScheduleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -48,8 +50,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -163,6 +164,8 @@ class ReservationControllerTest {
         List<ReservationDateDto> reservationDateDtoList = new ArrayList<>();
 
         ReservationDateDto reservationDateDto = ReservationDateDto.builder()
+                .scheduleDetailId(1L)
+                .scheduleTimeId(1L)
                 .date(LocalDate.of(2021, 4, 20))
                 .time(LocalTime.of(14, 0))
                 .build();
@@ -185,6 +188,7 @@ class ReservationControllerTest {
 
         List<ReservationSubInfo> reservationSubInfoList = new ArrayList<>();
         ReservationSubInfo reservationSubInfo = ReservationSubInfo.builder()
+                .reservationId(1L)
                 .lectureTitle("프리 다이빙 강의 1")
                 .isMultipleCourse(false)
                 .totalCost(100000)
@@ -215,6 +219,7 @@ class ReservationControllerTest {
                                 parameterWithName("size").description("한 페이지당 사이즈")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.reservationSubInfoList[].reservationId").description("예약 식별자 값"),
                                 fieldWithPath("_embedded.reservationSubInfoList[].lectureTitle").description("예약 강의 제목"),
                                 fieldWithPath("_embedded.reservationSubInfoList[].totalCost").description("예약 비용"),
                                 fieldWithPath("_embedded.reservationSubInfoList[].isMultipleCourse").description("다회차 인지 아닌지의 여부"),
@@ -224,6 +229,62 @@ class ReservationControllerTest {
                                 fieldWithPath("page.totalElements").description("전체 요소 갯수"),
                                 fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
                                 fieldWithPath("page.number").description("현재 페이지 번호")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("예약 상세 조회")
+    public void getReservationDetail() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        Long reservationId = 1L;
+
+        Location location = Location.builder()
+                .latitude(36.568)
+                .longitude(137.546)
+                .address("서울시 잠실 수영장")
+                .build();
+
+        ReservationDate reservationDate = ReservationDate.builder()
+                .date(LocalDate.of(2021, 3, 4))
+                .time(LocalTime.of(18, 0))
+                .scheduleDetail(ScheduleDetail.builder().location(location).build())
+                .build();
+
+        Reservation reservation = Reservation.builder()
+                .account(account)
+                .reservationDateList(List.of(reservationDate))
+                .equipmentList(List.of("오리발", "슈트"))
+                .description("오리발 270, 슈트 L")
+                .build();
+
+        given(reservationService.getDetailById(reservationId)).willReturn(reservation);
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/reservation/{id}", reservationId)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("reservation-get-detail",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        pathParameters(
+                                parameterWithName("id").description("예약 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("reservationScheduleList[].date").description("강의 날짜"),
+                                fieldWithPath("reservationScheduleList[].time").description("강의 시간"),
+                                fieldWithPath("reservationScheduleList[].location.latitude").description("강의 위치 위도"),
+                                fieldWithPath("reservationScheduleList[].location.longitude").description("강의 위치 경도"),
+                                fieldWithPath("reservationScheduleList[].location.address").description("강의 위치 주소"),
+                                fieldWithPath("equipmentNameList[]").description("대여 장비 이름"),
+                                fieldWithPath("description").description("대여 장비 사이즈 및 요청사항"),
+                                fieldWithPath("_links.self.href").description("해당 API URL")
                         )
                 ));
     }
