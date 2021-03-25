@@ -107,4 +107,23 @@ public class ReservationController {
                 .build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> cancel(Authentication authentication, @PathVariable("id") Long id) {
+        Reservation reservation = reservationService.getDetailById(id);
+        reservationService.checkRightForReservation(authentication.getName(), reservation);
+
+        reservationService.cancelReservation(id);
+
+        ReservationCancelRes reservationCancelRes = mapToReservationCancelRes(id);
+
+        return ResponseEntity.ok().body(reservationCancelRes);
+    }
+
+    public ReservationCancelRes mapToReservationCancelRes(Long id) {
+        return ReservationCancelRes.builder()
+                .reservationCancelId(id)
+                .success(true)
+                .build();
+    }
+
 }
