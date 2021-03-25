@@ -72,7 +72,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
-@Transactional
 class LectureControllerTest {
 
     @Autowired

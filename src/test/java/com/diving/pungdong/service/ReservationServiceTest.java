@@ -61,6 +61,7 @@ class ReservationServiceTest {
                 .build();
 
         Reservation reservation = Reservation.builder()
+                .id(1L)
                 .schedule(schedule)
                 .payment(payment)
                 .dateOfReservation(LocalDate.of(2021, 3, 4))

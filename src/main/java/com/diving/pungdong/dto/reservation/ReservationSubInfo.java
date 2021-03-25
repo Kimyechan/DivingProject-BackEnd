@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class ReservationSubInfo {
+    private Long reservationId;
     private String lectureTitle;
     private Integer totalCost;
     private Boolean isMultipleCourse;
