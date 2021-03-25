@@ -111,4 +111,8 @@ public class ReservationService {
             throw new NoPermissionsException();
         }
     }
+
+    public void cancelReservation(Long id) {
+        reservationJpaRepo.deleteById(id);
+    }
 }
