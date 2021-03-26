@@ -3,15 +3,13 @@ package com.diving.pungdong.controller.lecture;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
-import com.diving.pungdong.domain.Location;
+import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
-import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.search.CostCondition;
@@ -42,13 +40,9 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -57,7 +51,8 @@ import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -205,7 +200,7 @@ class LectureControllerTest {
                 .build();
 
         given(accountService.loadUserByUsername(String.valueOf(account.getId())))
-                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
+                .willReturn(new UserAccount(account));
 
         return account;
     }
@@ -529,5 +524,19 @@ class LectureControllerTest {
                 lectureList.size() : pageable.getOffset() + pageable.getPageSize();
 
         return new PageImpl<>(lectureList.subList((int) pageable.getOffset(), (int) endIndex), pageable, lectureList.size());
+    }
+
+    @Test
+    @DisplayName("강사 자신의 강의 목록 조회")
+    public void getLectureList() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        mockMvc.perform(get("/lecture/manage/list")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
