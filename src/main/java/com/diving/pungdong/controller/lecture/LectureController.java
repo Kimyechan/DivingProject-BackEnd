@@ -13,6 +13,7 @@ import com.diving.pungdong.dto.lecture.create.CreateLectureRes;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
+import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -230,9 +231,13 @@ public class LectureController {
     }
 
     @GetMapping("/manage/list")
-    public ResponseEntity<?> manageList(@CurrentUser Account account, Pageable pageable) {
+    public ResponseEntity<?> manageList(@CurrentUser Account account,
+                                        Pageable pageable,
+                                        PagedResourcesAssembler<LectureInfo> assembler) {
+        Page<LectureInfo> lectureInfoPage = lectureService.getMyLectureInfoList(account, pageable);
 
-        return ResponseEntity.ok().build();
+        PagedModel<EntityModel<LectureInfo>> model = assembler.toModel(lectureInfoPage);
+        return ResponseEntity.ok().body(model);
     }
 
     @PostMapping("/upload")
