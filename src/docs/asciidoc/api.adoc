@@ -143,6 +143,10 @@ operation::get-lecture-detail[]
 === 조건별 강의 조회
 operation::get-lecture-by-condition[]
 
+[[resource-lecture-get-instructor-own-list]]
+=== 강사 자신의 강의 리스트 조회
+operation::lecture-get-list-per-instructor[]
+
 [[resource-schedule]]
 == 강의 일정
 
