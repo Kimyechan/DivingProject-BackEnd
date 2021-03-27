@@ -2,6 +2,8 @@ package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.S3Uploader;
+import com.diving.pungdong.config.security.CurrentUser;
+import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -11,6 +13,7 @@ import com.diving.pungdong.dto.lecture.create.CreateLectureRes;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
+import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -30,6 +33,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -224,6 +228,16 @@ public class LectureController {
             imageURLs.add(image.getFileURI());
         }
         return imageURLs;
+    }
+
+    @GetMapping("/manage/list")
+    public ResponseEntity<?> manageList(@CurrentUser Account account,
+                                        Pageable pageable,
+                                        PagedResourcesAssembler<LectureInfo> assembler) {
+        Page<LectureInfo> lectureInfoPage = lectureService.getMyLectureInfoList(account, pageable);
+
+        PagedModel<EntityModel<LectureInfo>> model = assembler.toModel(lectureInfoPage);
+        return ResponseEntity.ok().body(model);
     }
 
     @PostMapping("/upload")

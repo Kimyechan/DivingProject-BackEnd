@@ -5,6 +5,8 @@ import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,7 +123,6 @@ class LectureServiceTest {
     @Test
     @DisplayName("강의 수정")
     public void updateLecture() throws IOException {
-        Location location = new Location(10.0, 10.0, "detail Address");
         Lecture lecture = Lecture.builder()
                 .id(1L)
                 .title("강의1")
@@ -162,4 +164,48 @@ class LectureServiceTest {
 
         assertThat(returnLecture).isNotNull();
     }
+
+    @Test
+    @DisplayName("강의 일정중 14일 이내에 있는 강의 갯수 조회")
+    public void countUpcomingSchedule() {
+        List<Schedule> schedules = new ArrayList<>();
+
+        List<ScheduleDetail> scheduleDetails1 = createScheduleDetails(LocalDate.now());
+        Schedule schedule1 = Schedule.builder()
+                .scheduleDetails(scheduleDetails1)
+                .build();
+        schedules.add(schedule1);
+
+        List<ScheduleDetail> scheduleDetails2 = createScheduleDetails(LocalDate.now().plusDays(15));
+        Schedule schedule2 = Schedule.builder()
+                .scheduleDetails(scheduleDetails2)
+                .build();
+        schedules.add(schedule2);
+
+        Lecture lecture = Lecture.builder()
+                .schedules(schedules)
+                .build();
+
+        Integer upcomingScheduleCount = lectureService.countUpcomingSchedule(lecture);
+
+        assertThat(upcomingScheduleCount).isEqualTo(1);
+    }
+
+    public List<ScheduleDetail> createScheduleDetails(LocalDate startDate) {
+        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
+
+        ScheduleDetail scheduleDetail1 = ScheduleDetail.builder()
+                .date(startDate)
+                .build();
+
+        ScheduleDetail scheduleDetail2 = ScheduleDetail.builder()
+                .date(startDate.plusDays(14))
+                .build();
+
+        scheduleDetails.add(scheduleDetail1);
+        scheduleDetails.add(scheduleDetail2);
+
+        return scheduleDetails;
+    }
+
 }
