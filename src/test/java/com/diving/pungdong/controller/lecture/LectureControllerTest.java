@@ -12,6 +12,7 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
+import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.search.CostCondition;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
@@ -532,11 +533,35 @@ class LectureControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
+        Pageable pageable = PageRequest.of(1, 5);
+        Page<LectureInfo> lectureInfoPage = createLectureInfoPage(pageable);
+
+        given(lectureService.getMyLectureInfoList(account, pageable)).willReturn(lectureInfoPage);
+
         mockMvc.perform(get("/lecture/manage/list")
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false"))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    private Page<LectureInfo> createLectureInfoPage(Pageable pageable) {
+        List<LectureInfo> lectureInfoList = new ArrayList<>();
+
+        LectureInfo lectureInfo = LectureInfo.builder()
+                .title("프리 다이빙 세상")
+                .groupName("AIDA")
+                .certificateKind("LEVEL1")
+                .cost(100000)
+                .upcomingScheduleCount(5)
+                .isRentEquipment(true)
+                .build();
+
+        lectureInfoList.add(lectureInfo);
+
+        return new PageImpl<>(lectureInfoList, pageable, lectureInfoList.size());
     }
 }

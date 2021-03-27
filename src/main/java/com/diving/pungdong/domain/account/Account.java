@@ -33,9 +33,6 @@ public class Account {
     @Enumerated(EnumType.STRING)
     Set<Role> roles = new HashSet<>();
 
-//    @OneToMany(mappedBy = "student")
-//    private List<InstructorStudent> instructorList;
-
     private String phoneNumber;
 
     private String groupName;
@@ -48,7 +45,4 @@ public class Account {
 
     @OneToMany(mappedBy = "instructor")
     private List<InstructorImage> instructorImages = new ArrayList<>();
-
-//    @OneToMany(mappedBy = "instructor")
-//    private List<InstructorStudent> studentList = new ArrayList<>();
 }

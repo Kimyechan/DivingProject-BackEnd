@@ -230,7 +230,8 @@ public class LectureController {
     }
 
     @GetMapping("/manage/list")
-    public ResponseEntity<?> manageList(@CurrentUser Account account) {
+    public ResponseEntity<?> manageList(@CurrentUser Account account, Pageable pageable) {
+
         return ResponseEntity.ok().build();
     }
 
