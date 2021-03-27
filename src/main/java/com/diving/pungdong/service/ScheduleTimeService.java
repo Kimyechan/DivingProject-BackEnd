@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.schedule.ScheduleTime;
 import com.diving.pungdong.repo.ScheduleTimeJpaRepo;
 import lombok.RequiredArgsConstructor;
@@ -15,5 +16,9 @@ public class ScheduleTimeService {
     public ScheduleTime updatePlusCurrentNumber(ScheduleTime scheduleTime) {
         scheduleTime.setCurrentNumber(scheduleTime.getCurrentNumber() + 1);
         return scheduleTimeJpaRepo.save(scheduleTime);
+    }
+
+    public ScheduleTime getScheduleTimeById(Long scheduleTimeId) {
+        return scheduleTimeJpaRepo.findById(scheduleTimeId).orElseThrow(ResourceNotFoundException::new);
     }
 }

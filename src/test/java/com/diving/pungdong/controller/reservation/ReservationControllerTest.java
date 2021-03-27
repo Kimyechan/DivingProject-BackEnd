@@ -2,6 +2,7 @@ package com.diving.pungdong.controller.reservation;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
+import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
@@ -12,8 +13,11 @@ import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationDateDto;
+import com.diving.pungdong.dto.reservation.ReservationInfo;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
+import com.diving.pungdong.dto.schedule.read.ScheduleTimeInfo;
 import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ReservationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -79,7 +84,10 @@ class ReservationControllerTest {
     @MockBean
     private ReservationService reservationService;
 
-    public Account createAccount() {
+    @MockBean
+    private LectureService lectureService;
+
+    public Account createAccount(Role role) {
         Account account = Account.builder()
                 .id(1L)
                 .email("yechan@gmail.com")
@@ -87,11 +95,11 @@ class ReservationControllerTest {
                 .userName("yechan")
                 .age(27)
                 .gender(Gender.MALE)
-                .roles(Set.of(Role.STUDENT))
+                .roles(Set.of(role))
                 .build();
 
         given(accountService.loadUserByUsername(String.valueOf(account.getId())))
-                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
+                .willReturn(new UserAccount(account));
 
         return account;
     }
@@ -105,7 +113,7 @@ class ReservationControllerTest {
     @Test
     @DisplayName("강의 예약")
     public void createReservation() throws Exception {
-        Account account = createAccount();
+        Account account = createAccount(Role.STUDENT);
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
 
         List<String> equipmentList = createEquipmentNameList();
@@ -184,7 +192,7 @@ class ReservationControllerTest {
     @Test
     @DisplayName("수강생의 예약 리스트 검색")
     public void searchReservationList() throws Exception {
-        Account account = createAccount();
+        Account account = createAccount(Role.STUDENT);
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
 
         List<ReservationSubInfo> reservationSubInfoList = new ArrayList<>();
@@ -237,7 +245,7 @@ class ReservationControllerTest {
     @Test
     @DisplayName("예약 상세 조회")
     public void getReservationDetail() throws Exception {
-        Account account = createAccount();
+        Account account = createAccount(Role.STUDENT);
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
 
         Long reservationId = 1L;
@@ -294,7 +302,7 @@ class ReservationControllerTest {
     @Test
     @DisplayName("강의 예약 취소")
     public void cancelReservation() throws Exception {
-        Account account = createAccount();
+        Account account = createAccount(Role.STUDENT);
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
         Long reservationId = 1L;
 
@@ -322,6 +330,52 @@ class ReservationControllerTest {
                         responseFields(
                                 fieldWithPath("reservationCancelId").description("취소된 예약 식별자 값"),
                                 fieldWithPath("success").description("예약취소 성공 여부")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("일정의 한 타임에 예약 정보 조회")
+    public void getReservationInfoForSchedule() throws Exception {
+        Account account = createAccount(Role.INSTRUCTOR);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.INSTRUCTOR));
+        ScheduleTimeInfo scheduleTimeInfo = ScheduleTimeInfo.builder()
+                .lectureId(1L)
+                .scheduleTimeId(1L)
+                .build();
+
+        ReservationInfo reservationInfo = ReservationInfo.builder()
+                .userName("홍길동")
+                .equipmentList(List.of("오리발", "슈트"))
+                .description("오리발 사이즈 260, 슈트 사이즈 L")
+                .build();
+        List<ReservationInfo> reservationInfos = new ArrayList<>();
+        reservationInfos.add(reservationInfo);
+
+        doNothing().when(lectureService).checkRightInstructor(account, scheduleTimeInfo.getLectureId());
+        given(reservationService.getReservationForSchedule(scheduleTimeInfo.getScheduleTimeId())).willReturn(reservationInfos);
+
+        mockMvc.perform(get("/reservation/students")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false")
+                .content(objectMapper.writeValueAsString(scheduleTimeInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("reservation-get-list-for-schedule",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestFields(
+                                fieldWithPath("lectureId").description("강의 정보 식별자 값"),
+                                fieldWithPath("scheduleTimeId").description("강의 시간 정보 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.reservationInfoList[].userName").description("예약한 수강생 이름"),
+                                fieldWithPath("_embedded.reservationInfoList[].equipmentList[]").description("예약한 수강생 대여 장비 목록"),
+                                fieldWithPath("_embedded.reservationInfoList[].description").description("예약한 수강생 대여 장비 사이즈 설명 및 요청사항")
                         )
                 ));
     }

@@ -1,15 +1,19 @@
 package com.diving.pungdong.controller.reservation;
 
+import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.dto.reservation.*;
+import com.diving.pungdong.dto.schedule.read.ScheduleTimeInfo;
 import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
@@ -19,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -30,6 +35,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class ReservationController {
     private final ReservationService reservationService;
     private final AccountService accountService;
+    private final LectureService lectureService;
 
     @PostMapping
     public ResponseEntity<?> create(Authentication authentication, @RequestBody ReservationCreateReq req) {
@@ -124,6 +130,17 @@ public class ReservationController {
                 .reservationCancelId(id)
                 .success(true)
                 .build();
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<?> getStudents(@CurrentUser Account account,
+                                         @RequestBody ScheduleTimeInfo scheduleTimeInfo) {
+        lectureService.checkRightInstructor(account, scheduleTimeInfo.getLectureId());
+        List<ReservationInfo> reservationInfos = reservationService.getReservationForSchedule(scheduleTimeInfo.getScheduleTimeId());
+
+        CollectionModel<ReservationInfo> models = CollectionModel.of(reservationInfos);
+
+        return ResponseEntity.ok().body(models);
     }
 
 }
