@@ -12,6 +12,7 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
+import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.search.CostCondition;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
@@ -532,11 +533,59 @@ class LectureControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<LectureInfo> lectureInfoPage = createLectureInfoPage(pageable);
+
+        given(lectureService.getMyLectureInfoList(account, pageable)).willReturn(lectureInfoPage);
+
         mockMvc.perform(get("/lecture/manage/list")
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header("IsRefreshToken", "false"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("lecture-get-list-per-instructor",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("몇 번째 페이지"),
+                                parameterWithName("size").description("한 페이지당 크기")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.lectureInfoList[].title").description("강의 제목"),
+                                fieldWithPath("_embedded.lectureInfoList[].groupName").description("소속 그룹"),
+                                fieldWithPath("_embedded.lectureInfoList[].certificateKind").description("자격증 종류"),
+                                fieldWithPath("_embedded.lectureInfoList[].cost").description("강의 비용"),
+                                fieldWithPath("_embedded.lectureInfoList[].isRentEquipment").description("장비 대여 여부"),
+                                fieldWithPath("_embedded.lectureInfoList[].upcomingScheduleCount").description("다가오는 일정의 수"),
+                                fieldWithPath("_links.self.href").description("현재 페이지 URL"),
+                                fieldWithPath("page.size").description("한 페이지당 크기"),
+                                fieldWithPath("page.totalElements").description("해당 지역 전체 강의 수"),
+                                fieldWithPath("page.totalPages").description("전체 페이지 수"),
+                                fieldWithPath("page.number").description("현재 페이지 번호")
+                        )
+                ));
+    }
+
+    private Page<LectureInfo> createLectureInfoPage(Pageable pageable) {
+        List<LectureInfo> lectureInfoList = new ArrayList<>();
+
+        LectureInfo lectureInfo = LectureInfo.builder()
+                .title("프리 다이빙 세상")
+                .groupName("AIDA")
+                .certificateKind("LEVEL1")
+                .cost(100000)
+                .upcomingScheduleCount(5)
+                .isRentEquipment(true)
+                .build();
+
+        lectureInfoList.add(lectureInfo);
+
+        return new PageImpl<>(lectureInfoList, pageable, lectureInfoList.size());
     }
 }

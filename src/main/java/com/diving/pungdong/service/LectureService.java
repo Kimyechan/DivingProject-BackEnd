@@ -1,20 +1,27 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.config.S3Uploader;
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
+import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -80,5 +87,53 @@ public class LectureService {
 
     public Page<Lecture> searchListByCondition(SearchCondition searchCondition, Pageable pageable) {
         return lectureJpaRepo.searchListByCondition(searchCondition, pageable);
+    }
+
+    public Page<LectureInfo> getMyLectureInfoList(Account instructor, Pageable pageable) {
+        Page<Lecture> lecturePage = lectureJpaRepo.findByInstructor(instructor, pageable);
+        List<Lecture> lectureList = lecturePage.getContent();
+
+        List<LectureInfo> lectureInfoList = mapToLectureInfoList(lectureList);
+
+        return new PageImpl<>(lectureInfoList, pageable, lecturePage.getTotalElements());
+    }
+
+    public List<LectureInfo> mapToLectureInfoList(List<Lecture> lectureList) {
+        List<LectureInfo> lectureInfoList = new ArrayList<>();
+
+        for (Lecture lecture : lectureList) {
+            Integer upcomingScheduleCount = countUpcomingSchedule(lecture);
+
+            LectureInfo lectureInfo = LectureInfo.builder()
+                    .title(lecture.getTitle())
+                    .groupName(lecture.getGroupName())
+                    .certificateKind(lecture.getCertificateKind())
+                    .cost(lecture.getPrice())
+                    .isRentEquipment(!lecture.getEquipmentList().isEmpty())
+                    .upcomingScheduleCount(upcomingScheduleCount)
+                    .build();
+
+            lectureInfoList.add(lectureInfo);
+        }
+
+        return lectureInfoList;
+    }
+
+    public Integer countUpcomingSchedule(Lecture lecture) {
+        Integer upcomingScheduleCount = 0;
+
+        for (Schedule schedule : lecture.getSchedules()) {
+            exitFor:
+            for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
+                LocalDate upcomingScheduleDate  = LocalDate.now().plusDays(14);
+                if (scheduleDetail.getDate().isAfter(LocalDate.now().minusDays(1))
+                        && scheduleDetail.getDate().isBefore(upcomingScheduleDate.plusDays(1))) {
+                    upcomingScheduleCount += 1;
+                    break exitFor;
+                }
+            }
+        }
+
+        return upcomingScheduleCount;
     }
 }
