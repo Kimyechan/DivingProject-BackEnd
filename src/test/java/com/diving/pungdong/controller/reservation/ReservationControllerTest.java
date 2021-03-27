@@ -361,6 +361,22 @@ class ReservationControllerTest {
                 .header("IsRefreshToken", "false")
                 .content(objectMapper.writeValueAsString(scheduleTimeInfo)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("reservation-get-list-for-schedule",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName("Authorization").description("access token 값"),
+                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                        ),
+                        requestFields(
+                                fieldWithPath("lectureId").description("강의 정보 식별자 값"),
+                                fieldWithPath("scheduleTimeId").description("강의 시간 정보 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.reservationInfoList[].userName").description("예약한 수강생 이름"),
+                                fieldWithPath("_embedded.reservationInfoList[].equipmentList[]").description("예약한 수강생 대여 장비 목록"),
+                                fieldWithPath("_embedded.reservationInfoList[].description").description("예약한 수강생 대여 장비 사이즈 설명 및 요청사항")
+                        )
+                ));
     }
 }
