@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class LectureInfo {
+    private Long lectureId;
     private String title;
     private String groupName;
     private String certificateKind;

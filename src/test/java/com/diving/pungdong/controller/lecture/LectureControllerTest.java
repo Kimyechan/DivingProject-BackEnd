@@ -557,6 +557,7 @@ class LectureControllerTest {
                                 parameterWithName("size").description("한 페이지당 크기")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.lectureInfoList[].lectureId").description("강의 식별자 값"),
                                 fieldWithPath("_embedded.lectureInfoList[].title").description("강의 제목"),
                                 fieldWithPath("_embedded.lectureInfoList[].groupName").description("소속 그룹"),
                                 fieldWithPath("_embedded.lectureInfoList[].certificateKind").description("자격증 종류"),

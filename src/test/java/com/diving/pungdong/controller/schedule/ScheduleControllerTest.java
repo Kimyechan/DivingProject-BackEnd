@@ -2,6 +2,7 @@ package com.diving.pungdong.controller.schedule;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
+import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
@@ -10,10 +11,13 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.domain.schedule.ScheduleTime;
+import com.diving.pungdong.dto.reservation.ReservationInfo;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateReq;
 import com.diving.pungdong.dto.schedule.create.ScheduleDetailReq;
+import com.diving.pungdong.dto.schedule.read.ScheduleTimeInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.ReservationService;
 import com.diving.pungdong.service.ScheduleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -76,6 +80,9 @@ class ScheduleControllerTest {
 
     @MockBean
     private LectureService lectureService;
+
+    @MockBean
+    private ReservationService reservationService;
 
     @Test
     @DisplayName("일정 등록")
@@ -161,7 +168,7 @@ class ScheduleControllerTest {
                 .build();
 
         given(accountService.loadUserByUsername(String.valueOf(account.getId())))
-                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
+                .willReturn(new UserAccount(account));
 
         return account;
     }
@@ -257,5 +264,34 @@ class ScheduleControllerTest {
 
         scheduleTimes.add(scheduleTime);
         return scheduleTimes;
+    }
+
+    @Test
+    @DisplayName("일정의 한 타임에 수강새 정보 조회")
+    public void getStudentInfo() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.INSTRUCTOR));
+        ScheduleTimeInfo scheduleTimeInfo = ScheduleTimeInfo.builder()
+                .lectureId(1L)
+                .scheduleTimeId(1L)
+                .build();
+
+        ReservationInfo reservationInfo = ReservationInfo.builder()
+                .userName("홍길동")
+                .equipmentList(List.of("오리발", "슈트"))
+                .description("오리발 사이즈 260, 슈트 사이즈 L")
+                .build();
+        List<ReservationInfo> reservationInfos = new ArrayList<>();
+        reservationInfos.add(reservationInfo);
+
+        given(reservationService.getReservationForSchedule(scheduleTimeInfo.getScheduleTimeId())).willReturn(reservationInfos);
+
+        mockMvc.perform(get("/schedule/students")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("IsRefreshToken", "false")
+                .content(objectMapper.writeValueAsString(scheduleTimeInfo)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

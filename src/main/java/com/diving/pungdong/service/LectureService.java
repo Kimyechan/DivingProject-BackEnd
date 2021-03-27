@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
@@ -105,6 +106,7 @@ public class LectureService {
             Integer upcomingScheduleCount = countUpcomingSchedule(lecture);
 
             LectureInfo lectureInfo = LectureInfo.builder()
+                    .lectureId(lecture.getId())
                     .title(lecture.getTitle())
                     .groupName(lecture.getGroupName())
                     .certificateKind(lecture.getCertificateKind())
@@ -135,5 +137,12 @@ public class LectureService {
         }
 
         return upcomingScheduleCount;
+    }
+
+    public void checkRightInstructor(Account account, Long lectureId) {
+        Lecture lecture = getLectureById(lectureId);
+        if (!account.getId().equals(lecture.getInstructor().getId())) {
+            throw new NoPermissionsException();
+        }
     }
 }

@@ -7,8 +7,11 @@ import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleTime;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
+import com.diving.pungdong.dto.reservation.ReservationInfo;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.repo.ReservationJpaRepo;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,7 @@ public class ReservationService {
     private final ReservationDateService reservationDateService;
     private final PaymentService paymentService;
     private final AccountService accountService;
+    private final ScheduleTimeService scheduleTimeService;
 
     public Reservation makeReservation(Account account, ReservationCreateReq req) {
         Schedule schedule = scheduleService.getScheduleById(req.getScheduleId());
@@ -114,5 +118,30 @@ public class ReservationService {
 
     public void cancelReservation(Long id) {
         reservationJpaRepo.deleteById(id);
+    }
+
+    public List<ReservationInfo> getReservationForSchedule(Long scheduleTimeId) {
+        ScheduleTime scheduleTime = scheduleTimeService.getScheduleTimeById(scheduleTimeId);
+        List<ReservationInfo> reservationInfos = mapToReservationInfos(scheduleTime);
+
+        return reservationInfos;
+    }
+
+    public List<ReservationInfo> mapToReservationInfos(ScheduleTime scheduleTime) {
+        List<ReservationInfo> reservationInfos = new ArrayList<>();
+
+        for (ReservationDate reservationDate : scheduleTime.getReservationDates()) {
+            Reservation reservation = reservationDate.getReservation();
+
+            ReservationInfo reservationInfo = ReservationInfo.builder()
+                    .userName(reservation.getAccount().getUserName())
+                    .equipmentList(reservation.getEquipmentList())
+                    .description(reservation.getDescription())
+                    .build();
+
+            reservationInfos.add(reservationInfo);
+        }
+
+        return reservationInfos;
     }
 }

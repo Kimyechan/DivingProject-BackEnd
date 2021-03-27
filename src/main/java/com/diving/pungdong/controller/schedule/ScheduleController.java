@@ -1,5 +1,7 @@
 package com.diving.pungdong.controller.schedule;
 
+import com.diving.pungdong.config.security.CurrentUser;
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
@@ -9,6 +11,7 @@ import com.diving.pungdong.dto.schedule.create.ScheduleCreateRes;
 import com.diving.pungdong.dto.schedule.read.ScheduleDetailDto;
 import com.diving.pungdong.dto.schedule.read.ScheduleDto;
 import com.diving.pungdong.dto.schedule.read.ScheduleTimeDto;
+import com.diving.pungdong.dto.schedule.read.ScheduleTimeInfo;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
@@ -114,5 +117,14 @@ public class ScheduleController {
         }
 
         return scheduleTimeDtoList;
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<?> getStudents(@CurrentUser Account account,
+                                         @RequestBody ScheduleTimeInfo scheduleTimeInfo) {
+        lectureService.checkRightInstructor(account, scheduleTimeInfo.getLectureId());
+
+
+        return ResponseEntity.ok().build();
     }
 }
