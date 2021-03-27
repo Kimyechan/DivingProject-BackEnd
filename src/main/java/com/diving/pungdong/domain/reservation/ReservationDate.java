@@ -1,7 +1,5 @@
 package com.diving.pungdong.domain.reservation;
 
-import com.diving.pungdong.domain.Location;
-import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.domain.schedule.ScheduleTime;
 import lombok.*;
@@ -22,10 +20,10 @@ public class ReservationDate {
     private LocalDate date;
     private LocalTime time;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private ScheduleDetail scheduleDetail;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private ScheduleTime scheduleTime;
 
     @ManyToOne(fetch = FetchType.LAZY)

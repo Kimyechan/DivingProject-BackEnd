@@ -176,3 +176,6 @@ operation::reservation-get-detail[]
 [[resource-reservation-delete]]
 == 나의 강의 예약 취소
 operation::reservation-delete[]
+
+[[resource-reservation-get-list-for-schedule]]
+operation::reservation-get-list-for-schedule[]
