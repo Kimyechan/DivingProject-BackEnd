@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SearchCondition {
+    private String groupName;
     private String certificateKind;
     private String region;
     private CostCondition costCondition;

@@ -115,8 +115,6 @@ class LectureControllerTest {
                 .groupName("AIDA")
                 .certificateKind("Level1")
                 .price(100000)
-                .period(4)
-                .studentCount(5)
                 .region("서울")
                 .equipmentList(equipmentList)
                 .build();
@@ -169,8 +167,6 @@ class LectureControllerTest {
                                 fieldWithPath("groupName").description("단체명"),
                                 fieldWithPath("certificateKind").description("자격증 종류"),
                                 fieldWithPath("price").description("강의 비용"),
-                                fieldWithPath("period").description("강의 기간"),
-                                fieldWithPath("studentCount").description("수강 인원 제한"),
                                 fieldWithPath("region").description("강의 지역"),
                                 fieldWithPath("equipmentList[0].name").description("대여 장비1 이름"),
                                 fieldWithPath("equipmentList[0].price").description("대여 장비1 가격")
@@ -204,12 +200,6 @@ class LectureControllerTest {
                 .willReturn(new UserAccount(account));
 
         return account;
-    }
-
-    private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
-        return roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
-                .collect(Collectors.toList());
     }
 
     @Test
@@ -448,6 +438,7 @@ class LectureControllerTest {
                 .build();
 
         SearchCondition searchCondition = SearchCondition.builder()
+                .groupName("AIDA")
                 .certificateKind("LEVEL1")
                 .region("서울")
                 .costCondition(costCondition)
@@ -457,7 +448,7 @@ class LectureControllerTest {
         Page<Lecture> lecturePage = createLecturePage(pageable);
         given(lectureService.searchListByCondition(searchCondition, pageable)).willReturn(lecturePage);
 
-        mockMvc.perform(get("/lecture/list")
+        mockMvc.perform(post("/lecture/list")
                 .param("page", String.valueOf(pageable.getPageNumber()))
                 .param("size", String.valueOf(pageable.getPageSize()))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -470,6 +461,7 @@ class LectureControllerTest {
                                 parameterWithName("size").description("한 페이지당 크기")
                         ),
                         requestFields(
+                                fieldWithPath("groupName").description("자격 단체 이름"),
                                 fieldWithPath("certificateKind").description("자격증 종류"),
                                 fieldWithPath("region").description("강의 지역"),
                                 fieldWithPath("costCondition.max").description("강의료 최대 비용"),
