@@ -50,6 +50,7 @@ class LectureJpaRepoTest {
     public void createLecture(String certificateKind, String region) {
         for (int i = 0; i < 15; i++) {
             Lecture lecture = Lecture.builder()
+                    .groupName("AIDA")
                     .title("강의")
                     .description("내용")
                     .classKind("스쿠버 다이빙")
@@ -70,6 +71,37 @@ class LectureJpaRepoTest {
                 lectureImageJpaReop.save(lectureImage);
             }
         }
+    }
+
+    @Test
+    @DisplayName("강의 리스트 조회 - 단체 종류")
+    public void searchListByGroupName() {
+        createLecture("LEVEL1", "서울");
+        SearchCondition searchCondition = SearchCondition.builder()
+                .groupName("AIDA")
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Lecture> lecturePage = lectureJpaRepo.searchListByCondition(searchCondition, pageable);
+
+        assertThat(lecturePage.getContent()).isNotEmpty();
+        for (Lecture lecture : lecturePage.getContent()) {
+            assertThat(lecture.getGroupName()).isEqualTo("AIDA");
+        }
+    }
+
+    @Test
+    @DisplayName("강의 리스트 조회 - 단체 종류")
+    public void searchListByGroupNameFail() {
+        createLecture("LEVEL1", "서울");
+        SearchCondition searchCondition = SearchCondition.builder()
+                .groupName("PADI")
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Lecture> lecturePage = lectureJpaRepo.searchListByCondition(searchCondition, pageable);
+
+        assertThat(lecturePage.getContent().size()).isEqualTo(0);
     }
 
     @Test

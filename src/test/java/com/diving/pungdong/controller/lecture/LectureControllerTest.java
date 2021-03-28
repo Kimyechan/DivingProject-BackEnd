@@ -202,12 +202,6 @@ class LectureControllerTest {
         return account;
     }
 
-    private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
-        return roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
-                .collect(Collectors.toList());
-    }
-
     @Test
     @DisplayName("강의 정보 수정")
     public void update() throws Exception {
@@ -444,6 +438,7 @@ class LectureControllerTest {
                 .build();
 
         SearchCondition searchCondition = SearchCondition.builder()
+                .groupName("AIDA")
                 .certificateKind("LEVEL1")
                 .region("서울")
                 .costCondition(costCondition)
@@ -466,6 +461,7 @@ class LectureControllerTest {
                                 parameterWithName("size").description("한 페이지당 크기")
                         ),
                         requestFields(
+                                fieldWithPath("groupName").description("자격 단체 이름"),
                                 fieldWithPath("certificateKind").description("자격증 종류"),
                                 fieldWithPath("region").description("강의 지역"),
                                 fieldWithPath("costCondition.max").description("강의료 최대 비용"),

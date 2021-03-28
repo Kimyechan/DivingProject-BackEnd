@@ -29,6 +29,7 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
                 .selectFrom(lecture)
                 .join(lecture.lectureImages, lectureImage).fetchJoin()
                 .where(
+                        groupNameEq(condition.getGroupName()),
                         certificateKindEq(condition.getCertificateKind()),
                         regionEq(condition.getRegion()),
                         costBetween(condition.getCostCondition()))
@@ -48,6 +49,10 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
                 .fetchCount();
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    private BooleanExpression groupNameEq(String groupName) {
+        return groupName == null ? null : lecture.groupName.eq(groupName);
     }
 
     private BooleanExpression certificateKindEq(String certificateKind) {
