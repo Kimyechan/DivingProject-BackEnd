@@ -457,7 +457,7 @@ class LectureControllerTest {
         Page<Lecture> lecturePage = createLecturePage(pageable);
         given(lectureService.searchListByCondition(searchCondition, pageable)).willReturn(lecturePage);
 
-        mockMvc.perform(get("/lecture/list")
+        mockMvc.perform(post("/lecture/list")
                 .param("page", String.valueOf(pageable.getPageNumber()))
                 .param("size", String.valueOf(pageable.getPageSize()))
                 .contentType(MediaType.APPLICATION_JSON)

@@ -186,7 +186,7 @@ public class LectureController {
         return lectureDetail;
     }
 
-    @GetMapping("/list")
+    @PostMapping("/list")
     public ResponseEntity<?> searchList(@RequestBody SearchCondition searchCondition,
                                         Pageable pageable,
                                         PagedResourcesAssembler<LectureSearchResult> assembler){
