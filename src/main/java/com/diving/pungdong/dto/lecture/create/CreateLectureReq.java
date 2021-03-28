@@ -21,8 +21,6 @@ public class CreateLectureReq {
     @NotEmpty private String certificateKind;
     @NotEmpty private String description;
     @NotEmpty private Integer price;
-    @NotEmpty private Integer period;
-    @NotEmpty private Integer studentCount;
     @NotEmpty private String region;
     private List<EquipmentDto> equipmentList = new ArrayList<>();
 }

@@ -115,8 +115,6 @@ class LectureControllerTest {
                 .groupName("AIDA")
                 .certificateKind("Level1")
                 .price(100000)
-                .period(4)
-                .studentCount(5)
                 .region("서울")
                 .equipmentList(equipmentList)
                 .build();
@@ -169,8 +167,6 @@ class LectureControllerTest {
                                 fieldWithPath("groupName").description("단체명"),
                                 fieldWithPath("certificateKind").description("자격증 종류"),
                                 fieldWithPath("price").description("강의 비용"),
-                                fieldWithPath("period").description("강의 기간"),
-                                fieldWithPath("studentCount").description("수강 인원 제한"),
                                 fieldWithPath("region").description("강의 지역"),
                                 fieldWithPath("equipmentList[0].name").description("대여 장비1 이름"),
                                 fieldWithPath("equipmentList[0].price").description("대여 장비1 가격")
