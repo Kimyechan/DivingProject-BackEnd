@@ -11,6 +11,7 @@ import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
 import com.diving.pungdong.service.InstructorImageService;
+import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.*;
 import org.apache.commons.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
@@ -48,13 +49,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping(value = "/sign", produces = MediaTypes.HAL_JSON_VALUE)
 public class SignController {
-
     private final AccountService accountService;
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
     private final RedisTemplate<String, String> redisTemplate;
+    private final AccountKafkaProducer producer;
 
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@RequestBody SignInReq signInReq) {
@@ -104,6 +105,7 @@ public class SignController {
         Account student = modelMapper.map(signUpReq, Account.class);
         student.setRoles(Set.of(Role.STUDENT));
         accountService.saveAccount(student);
+        producer.sendAccountInfo(String.valueOf(student.getId()), student.getPassword(), student.getRoles());
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq, result));
         URI createUri = selfLinkBuilder.toUri();
