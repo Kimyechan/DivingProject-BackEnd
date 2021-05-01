@@ -1,6 +1,7 @@
 package com.diving.pungdong.controller.reservation;
 
 import com.diving.pungdong.config.security.CurrentUser;
+import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.reservation.ReservationDate;
@@ -60,11 +61,10 @@ public class ReservationController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getList(Authentication authentication,
+    public ResponseEntity<?> getList(@CurrentUser Account account,
                                      Pageable pageable,
                                      PagedResourcesAssembler<ReservationSubInfo> assembler) {
-        String email = authentication.getName();
-        Page<ReservationSubInfo> reservationSubInfoPage = reservationService.findMyReservationList(email, pageable);
+        Page<ReservationSubInfo> reservationSubInfoPage = reservationService.findMyReservationList(account.getId(), pageable);
 
         PagedModel<EntityModel<ReservationSubInfo>> models = assembler.toModel(reservationSubInfoPage);
         return ResponseEntity.ok().body(models);

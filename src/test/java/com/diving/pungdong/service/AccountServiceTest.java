@@ -88,7 +88,7 @@ class AccountServiceTest {
         given(accountJpaRepo.findById(account.getId())).willReturn(java.util.Optional.of(account));
 
         UserDetails userDetails = accountService.loadUserByUsername(String.valueOf(account.getId()));
-        assertThat(userDetails.getUsername()).isEqualTo("yechan@gmail.com");
+        assertThat(userDetails.getUsername()).isEqualTo("1");
     }
 
     @Test

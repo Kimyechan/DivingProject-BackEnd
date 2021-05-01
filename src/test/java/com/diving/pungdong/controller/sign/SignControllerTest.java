@@ -7,7 +7,9 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +70,9 @@ class SignControllerTest {
 
     @MockBean
     AccountService accountService;
+
+    @MockBean
+    AuthService authService;
 
     public Account createAccount(Role role) {
         Account account = Account.builder()
@@ -143,10 +148,10 @@ class SignControllerTest {
                 .description("강사 소개")
                 .build();
 
-        MockMultipartFile profile1 = new MockMultipartFile("profile", "profile1.png", "image/*", "test data".getBytes());
-        MockMultipartFile profile2 = new MockMultipartFile("profile", "profile2.jpg", "image/*", "test data".getBytes());
-        MockMultipartFile certificate1 = new MockMultipartFile("certificate", "certificate1.jpg", "image/*", "test data".getBytes());
-        MockMultipartFile certificate2 = new MockMultipartFile("certificate", "certificate2.jpg", "image/*", "test data".getBytes());
+        MockMultipartFile profile1 = new MockMultipartFile("profile", "profile1.png", "image/png", "test data".getBytes());
+        MockMultipartFile profile2 = new MockMultipartFile("profile", "profile2.jpg", "image/png", "test data".getBytes());
+        MockMultipartFile certificate1 = new MockMultipartFile("certificate", "certificate1.jpg", "image/png", "test data".getBytes());
+        MockMultipartFile certificate2 = new MockMultipartFile("certificate", "certificate2.jpg", "image/png", "test data".getBytes());
         MockMultipartFile request =
                 new MockMultipartFile("request",
                         "request",
@@ -222,15 +227,29 @@ class SignControllerTest {
     public void signinSuccess() throws Exception {
         String email = "yechan@gmail.com";
         String password = "1234";
-        String encodedPassword = passwordEncoder.encode(password);
 
         SignInReq signInReq = new SignInReq(email, password);
 
         Account account = Account.builder()
-                .email(email)
-                .password(encodedPassword)
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password(passwordEncoder.encode(password))
+                .userName("yechan")
+                .age(27)
+                .gender(Gender.MALE)
+                .roles(Set.of(Role.STUDENT))
                 .build();
 
+        AuthToken authToken = AuthToken.builder()
+                .access_token("accessToken")
+                .refresh_token("refreshToken")
+                .token_type("tokenType")
+                .scope("read")
+                .expires_in(10000)
+                .jti("jti")
+                .build();
+
+        given(authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword())).willReturn(authToken);
         given(accountService.findAccountByEmail(signInReq.getEmail())).willReturn(account);
 
         mockMvc.perform(post("/sign/signin")
@@ -238,7 +257,7 @@ class SignControllerTest {
                 .content(objectMapper.writeValueAsString(signInReq)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("accessToken").exists())
+                .andExpect(jsonPath("access_token").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andDo(document("signIn",
                         requestHeaders(
@@ -252,8 +271,12 @@ class SignControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
                         ),
                         responseFields(
-                                fieldWithPath("accessToken").description("JWT 인증 토큰 값"),
-                                fieldWithPath("refreshToken").description("JWT Refresh Token 값"),
+                                fieldWithPath("access_token").description("JWT 인증 토큰 값"),
+                                fieldWithPath("refresh_token").description("JWT Refresh Token 값"),
+                                fieldWithPath("token_type").description("토큰 타입"),
+                                fieldWithPath("scope").description("토큰 권한 범위"),
+                                fieldWithPath("expires_in").description("유효 기간"),
+                                fieldWithPath("jti").description("JWT 토큰 식별자"),
                                 fieldWithPath("_links.self.href").description("해당 API 링크"),
                                 fieldWithPath("_links.profile.href").description("API 문서 링크")
                         )

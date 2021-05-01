@@ -1,8 +1,10 @@
 package com.diving.pungdong.dto.auth;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class AuthToken {
     private String access_token;
     private String token_type;

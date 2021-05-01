@@ -54,22 +54,21 @@ public class LectureController {
     private final S3Uploader s3Uploader;
 
     @PostMapping(value = "/create")
-    public ResponseEntity createLecture(Authentication authentication,
+    public ResponseEntity createLecture(@CurrentUser Account account,
                                         @RequestPart("request") CreateLectureReq createLectureReq,
                                         @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {
-        Account instructor = accountService.findAccountByEmail(authentication.getName());
+        Account instructor = accountService.findAccountByEmail(account.getEmail());
 
         Lecture lecture = mapToLecture(createLectureReq, instructor);
-        String email = authentication.getName();
         List<Equipment> equipmentList = mapToEquipmentList(createLectureReq);
 
-        Lecture savedLecture = lectureService.createLecture(email, fileList, lecture, equipmentList);
+        Lecture savedLecture = lectureService.createLecture(account.getEmail(), fileList, lecture, equipmentList);
 
         CreateLectureRes createLectureRes
                 = new CreateLectureRes(savedLecture.getId(), savedLecture.getTitle(), savedLecture.getInstructor().getUserName());
 
         EntityModel<CreateLectureRes> model = EntityModel.of(createLectureRes);
-        WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(authentication, createLectureReq, fileList));
+        WebMvcLinkBuilder selfLink = linkTo(methodOn(LectureController.class).createLecture(account, createLectureReq, fileList));
         model.add(selfLink.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
@@ -102,33 +101,31 @@ public class LectureController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<EntityModel<LectureUpdateRes>> updateLecture(Authentication authentication,
+    public ResponseEntity<EntityModel<LectureUpdateRes>> updateLecture(@CurrentUser Account account,
                                                                        @RequestPart("request") LectureUpdateInfo lectureUpdateInfo,
                                                                        @RequestPart("fileList") List<MultipartFile> addLectureImageFiles) throws IOException {
         Lecture lecture = lectureService.getLectureById(lectureUpdateInfo.getId());
-        String email = authentication.getName();
 
-        if (!lecture.getInstructor().getEmail().equals(email)) {
+        if (!lecture.getInstructor().getEmail().equals(account.getEmail())) {
             throw new NoPermissionsException();
         }
 
-        Lecture updatedLecture = lectureService.updateLectureTx(email, lectureUpdateInfo, addLectureImageFiles, lecture);
+        Lecture updatedLecture = lectureService.updateLectureTx(account.getEmail(), lectureUpdateInfo, addLectureImageFiles, lecture);
         LectureUpdateRes lectureUpdateRes = LectureUpdateRes.builder()
                 .id(updatedLecture.getId())
                 .title(updatedLecture.getTitle())
                 .build();
 
         EntityModel<LectureUpdateRes> model = EntityModel.of(lectureUpdateRes);
-        model.add(linkTo(methodOn(LectureController.class).updateLecture(authentication, lectureUpdateInfo, addLectureImageFiles)).withSelfRel());
+        model.add(linkTo(methodOn(LectureController.class).updateLecture(account, lectureUpdateInfo, addLectureImageFiles)).withSelfRel());
 
         return ResponseEntity.ok().body(model);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<EntityModel<LectureDeleteRes>> deleteLecture(Authentication authentication, @RequestParam("id") Long id) {
+    public ResponseEntity<EntityModel<LectureDeleteRes>> deleteLecture(@CurrentUser Account account, @RequestParam("id") Long id) {
         Lecture lecture = lectureService.getLectureById(id);
-        String email = authentication.getName();
-        if (!lecture.getInstructor().getEmail().equals(email)) {
+        if (!lecture.getInstructor().getEmail().equals(account.getEmail())) {
             throw new NoPermissionsException();
         }
 
@@ -139,7 +136,7 @@ public class LectureController {
                 .build();
 
         EntityModel<LectureDeleteRes> model = EntityModel.of(lectureDeleteRes);
-        model.add(linkTo(methodOn(LectureController.class).deleteLecture(authentication, id)).withSelfRel());
+        model.add(linkTo(methodOn(LectureController.class).deleteLecture(account, id)).withSelfRel());
 
         return ResponseEntity.ok().body(model);
     }
