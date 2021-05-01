@@ -23,7 +23,7 @@ import java.util.Set;
 @Component
 public class JwtTokenProvider {
 
-    @Value("spring.jwt.secret")
+    @Value("${spring.jwt.secret}")
     private String secretKey;
 
     private long tokenValidMilisecond = 1000L * 60 * 60;
@@ -36,7 +36,9 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(String userPk, Set<Role> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk);
+//        Claims claims = Jwts.claims().setSubject(userPk);
+        Claims claims = Jwts.claims();
+        claims.put("user_name", userPk);
         claims.put("roles", roles);
         Date date = new Date();
         return Jwts.builder()
@@ -48,7 +50,9 @@ public class JwtTokenProvider {
     }
 
     public String createRefreshToken(String userPk) {
-        Claims claims = Jwts.claims().setSubject(userPk);
+//        Claims claims = Jwts.claims().setSubject(userPk);
+        Claims claims = Jwts.claims();
+        claims.put("user_name", userPk);
         Date date = new Date();
         return Jwts.builder()
                 .setClaims(claims)
@@ -64,7 +68,8 @@ public class JwtTokenProvider {
     }
 
     public String getUserPk(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+//        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("user_name", String.class);
     }
 
     public String resolveToken(HttpServletRequest request) {

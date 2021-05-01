@@ -14,7 +14,7 @@ public class UserAccount extends User {
     private Account account;
 
     public UserAccount(Account account) {
-        super(account.getEmail(), account.getPassword(), authorities(account.getRoles()));
+        super(String.valueOf(account.getId()), account.getPassword(), authorities(account.getRoles()));
         this.account = account;
     }
 

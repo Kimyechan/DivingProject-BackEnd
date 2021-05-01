@@ -4,6 +4,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.support.converter.RecordMessageConverter;
+import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -29,4 +31,10 @@ public class PungdongApplication {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
+
+    @Bean
+    public RecordMessageConverter converter() {
+        return new StringJsonMessageConverter();
+    }
+
 }

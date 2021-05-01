@@ -7,20 +7,27 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.AuthService;
 import com.diving.pungdong.service.InstructorImageService;
+import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.*;
+import org.apache.commons.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,30 +49,25 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping(value = "/sign", produces = MediaTypes.HAL_JSON_VALUE)
 public class SignController {
-
     private final AccountService accountService;
+    private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
     private final RedisTemplate<String, String> redisTemplate;
-    private final S3Uploader s3Uploader;
-    private final InstructorImageService instructorImageService;
-
+    private final AccountKafkaProducer producer;
 
     @PostMapping("/signin")
-    public ResponseEntity signin(@RequestBody SignInReq signInReq) {
+    public ResponseEntity<?> signin(@RequestBody SignInReq signInReq) {
         Account account = accountService.findAccountByEmail(signInReq.getEmail());
         if (!passwordEncoder.matches(signInReq.getPassword(), account.getPassword())) {
             throw new CEmailSigninFailedException();
         }
 
-        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
-
-        SignInResponse signInResponse = new SignInResponse(accessToken, refreshToken);
+        AuthToken authToken = authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword());
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(signInReq));
-        EntityModel<SignInResponse> entityModel = EntityModel.of(signInResponse);
+        EntityModel<AuthToken> entityModel = EntityModel.of(authToken);
         entityModel.add(selfLinkBuilder.withSelfRel());
         entityModel.add(Link.of("/docs/api.html#resource-account-login").withRel("profile"));
 
@@ -103,6 +105,7 @@ public class SignController {
         Account student = modelMapper.map(signUpReq, Account.class);
         student.setRoles(Set.of(Role.STUDENT));
         accountService.saveAccount(student);
+        producer.sendAccountInfo(String.valueOf(student.getId()), student.getPassword(), student.getRoles());
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq, result));
         URI createUri = selfLinkBuilder.toUri();
@@ -141,9 +144,9 @@ public class SignController {
 
     @PostMapping("/addInstructorRole")
     public ResponseEntity<EntityModel<AddInstructorRoleRes>> changeToInstructor(Authentication authentication,
-                                             @RequestPart("request") AddInstructorRoleReq request,
-                                             @RequestPart("profile") List<MultipartFile> profiles,
-                                             @RequestPart("certificate") List<MultipartFile> certificates) throws IOException {
+                                                                                @RequestPart("request") AddInstructorRoleReq request,
+                                                                                @RequestPart("profile") List<MultipartFile> profiles,
+                                                                                @RequestPart("certificate") List<MultipartFile> certificates) throws IOException {
         Account updatedAccount = accountService.updateAccountToInstructor(authentication.getName(), request, profiles, certificates);
 
         AddInstructorRoleRes addInstructorRoleRes = AddInstructorRoleRes.builder()
@@ -231,7 +234,7 @@ public class SignController {
     static class LogoutRes {
         String message = "로그아웃이 완료됐습니다";
     }
-    /**
-     * TODO: 이메일 중복 검사
-     */
+/**
+ * TODO: 이메일 중복 검사
+ */
 }

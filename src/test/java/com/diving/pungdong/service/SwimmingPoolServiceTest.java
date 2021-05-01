@@ -27,7 +27,7 @@ class SwimmingPoolServiceTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         swimmingPoolService = new SwimmingPoolService(swimmingPoolJpaRepo);
     }
 
