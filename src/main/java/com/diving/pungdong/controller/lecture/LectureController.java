@@ -46,14 +46,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/lecture", produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping(value = "/lecture")
 public class LectureController {
 
     private final LectureService lectureService;
     private final AccountService accountService;
     private final S3Uploader s3Uploader;
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/create")
     public ResponseEntity createLecture(Authentication authentication,
                                         @RequestPart("request") CreateLectureReq createLectureReq,
                                         @RequestPart("fileList") List<MultipartFile> fileList) throws IOException {

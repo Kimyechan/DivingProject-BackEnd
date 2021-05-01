@@ -63,7 +63,7 @@ public class SignController {
             throw new CEmailSigninFailedException();
         }
 
-        AuthToken authToken = authService.getAuthToken(signInReq.getEmail(), signInReq.getPassword());
+        AuthToken authToken = authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword());
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(signInReq));
         EntityModel<AuthToken> entityModel = EntityModel.of(authToken);

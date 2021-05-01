@@ -49,7 +49,7 @@ class LectureServiceTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService);
     }
 
