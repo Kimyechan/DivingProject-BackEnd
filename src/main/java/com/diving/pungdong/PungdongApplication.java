@@ -13,7 +13,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class PungdongApplication {
 
     public static final String APPLICATION_LOCATIONS = "spring.config.location="
-            + "classpath:application.properties,"
+            + "classpath:application.yml,"
+            + "classpath:database.yml,"
+            + "classpath:kafka.yml,"
+            + "classpath:eureka.yml,"
+            + "/home/ubuntu/config/project/pungdong/database.yml,"
+            + "/home/ubuntu/config/project/pungdong/kafka.yml,"
+            + "/home/ubuntu/config/project/pungdong/eureka.yml,"
             + "classpath:aws.yml";
 
     public static void main(String[] args) {

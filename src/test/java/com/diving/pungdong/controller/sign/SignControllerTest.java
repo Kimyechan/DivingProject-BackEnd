@@ -10,6 +10,7 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
+import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,9 @@ class SignControllerTest {
 
     @MockBean
     AuthService authService;
+
+    @MockBean
+    AccountKafkaProducer producer;
 
     public Account createAccount(Role role) {
         Account account = Account.builder()

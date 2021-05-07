@@ -31,17 +31,6 @@ bootJar {
     }
 }
 
-//task copyDocument(type: Copy) {
-//    dependsOn asciidoctor
-//
-//    from file("build/asciidoc/html5/")
-//    into file("src/main/resources/static/docs")
-//}
-//
-//build {
-//    dependsOn copyDocument
-//}
-
 dependencies {
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -57,7 +46,7 @@ dependencies {
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.h2database:h2'

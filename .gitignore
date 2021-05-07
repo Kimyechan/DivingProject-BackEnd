@@ -36,3 +36,6 @@ out/
 
 ### VS Code ###
 .vscode/
+src/main/resources/database.yml
+src/main/resources/kafka.yml
+src/main/resources/eureka.yml

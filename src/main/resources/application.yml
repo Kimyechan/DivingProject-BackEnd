@@ -1,74 +1,41 @@
-#server:
-#  port: 8080
-#
-#spring:
-#  application:
-#    name: msa-legacy-service
-#
-#  datasource:
-#    username: yechan
-#    password: pass
-#    url: jdbc:postgresql://localhost:5432/diving
-#    driver-class-name: org.postgresql.Driver
-#
-#  jpa:
-#    properties:
-#      hibernate:
-#        jdbc:
-#          lob.non_contextual_creation: true
-#          hbm2ddl.auto: update
-#          format_sql: true
-#    show-sql: true
-#
-#  messages:
-#    basename: i18n/exception
-#    encoding: UTF-8
-#
-#  redis:
-#    host: localhost
-#    port: 6379
-#
-#  kafka:
-#    consumer:
-#      bootstrap-servers: localhost:9092
-#      group-id: group_id
-#      auto-offset-reset: earliest
-#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#    producer:
-#      bootstrap-servers: localhost:9092
-#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-#      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-#
-#  servlet:
-#    multipart:
-#      max-file-size: 50MB
-#      max-request-size=: 50MB
-#
-#logging:
-#  level:
-#    org.hibernate.SQL: INFO
-#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-#
-#
-#cloud:
-#  aws:
-#    s3:
-#      bucket: pungdong
-#  region:
-#    static: ap-northeast-2
-#  stack:
-#    auto: false
-#
-#eureka:
-#  client:
-#    serviceUrl:
-#      defaultZone: http://localhost:8761/eureka/
-#
-#security:
-#  oauth2:
-#    client:
-#      client-id: auth_id
-#      client-secret: auth_secret
-#
-#spring.jwt.secret: jwt_secret_key
+spring:
+  application:
+    name: msa-legacy-service
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        jdbc.lob.non_contextual_creation: true
+        hbm2ddl.auto: create
+        format_sql: true
+    show-sql: true
+
+  messages:
+    basename: i18n/exception
+    encoding: UTF-8
+
+  jwt.secret: jwt_secret_key
+
+  redis:
+    host: localhost
+    port: 6379
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: INFO
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+cloud.aws.s3.bucket: pungdong
+cloud.aws.region.static: ap-northeast-2
+cloud.aws.stack.auto: false
+
+spring.servlet.multipart.max-file-size: 50MB
+spring.servlet.multipart.max-request-size: 50MB
+
+security.oauth2.client.client-id: auth_id
+security.oauth2.client.client-secret: auth_secret
