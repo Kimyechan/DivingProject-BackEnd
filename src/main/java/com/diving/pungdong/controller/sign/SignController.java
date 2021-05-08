@@ -61,9 +61,7 @@ public class SignController {
 
     public ResponseEntity<?> signin(@RequestBody SignInReq signInReq) {
         Account account = accountService.findAccountByEmail(signInReq.getEmail());
-        if (!passwordEncoder.matches(signInReq.getPassword(), account.getPassword())) {
-            throw new CEmailSigninFailedException();
-        }
+        accountService.checkCorrectPassword(signInReq, account);
 
         AuthToken authToken = authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword());
 
@@ -78,7 +76,7 @@ public class SignController {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    static class SignInReq {
+    public static class SignInReq {
         @Email
         @NotEmpty
         String email;
