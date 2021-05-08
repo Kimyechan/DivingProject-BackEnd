@@ -6,7 +6,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         jdbc.lob.non_contextual_creation: true
-        hbm2ddl.auto: create
+        hbm2ddl.auto: update
         format_sql: true
     show-sql: true
 
@@ -15,10 +15,6 @@ spring:
     encoding: UTF-8
 
   jwt.secret: jwt_secret_key
-
-  redis:
-    host: localhost
-    port: 6379
 
 logging:
   level:
