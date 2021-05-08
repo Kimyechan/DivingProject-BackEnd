@@ -16,11 +16,9 @@ public class PungdongApplication {
             + "classpath:application.yml,"
             + "classpath:database.yml,"
             + "classpath:kafka.yml,"
-            + "classpath:eureka.yml,"
             + "classpath:redis.yml,"
             + "/home/ubuntu/config/project/pungdong/database.yml,"
             + "/home/ubuntu/config/project/pungdong/kafka.yml,"
-            + "/home/ubuntu/config/project/pungdong/eureka.yml,"
             + "/home/ubuntu/config/project/pungdong/redis.yml,"
             + "classpath:aws.yml";
 
