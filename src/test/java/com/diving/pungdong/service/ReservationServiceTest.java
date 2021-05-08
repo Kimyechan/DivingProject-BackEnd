@@ -72,10 +72,10 @@ class ReservationServiceTest {
         Pageable pageable = PageRequest.of(0, 5);
         Page<Reservation> reservationPage = new PageImpl<>(reservationList, pageable, reservationList.size());
 
-        given(accountService.findAccountByEmail(email)).willReturn(account);
+        given(accountService.findAccountById(account.getId())).willReturn(account);
         doReturn(reservationPage).when(reservationService).findReservationListByAccount(account, pageable);
 
-        Page<ReservationSubInfo> reservationSubInfoList = reservationService.findMyReservationList(email, pageable);
+        Page<ReservationSubInfo> reservationSubInfoList = reservationService.findMyReservationList(account.getId(), pageable);
 
         ReservationSubInfo reservationSubInfo = reservationSubInfoList.getContent().get(0);
         assertThat(reservationSubInfo.getTotalCost()).isEqualTo(payment.getCost());

@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: msa-legacy-service
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        jdbc.lob.non_contextual_creation: true
+        hbm2ddl.auto: update
+        format_sql: true
+    show-sql: true
+
+  messages:
+    basename: i18n/exception
+    encoding: UTF-8
+
+  jwt.secret: jwt_secret_key
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: INFO
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+cloud.aws.s3.bucket: pungdong
+cloud.aws.region.static: ap-northeast-2
+cloud.aws.stack.auto: false
+
+spring.servlet.multipart.max-file-size: 50MB
+spring.servlet.multipart.max-request-size: 50MB
+
+security.oauth2.client.client-id: auth_id
+security.oauth2.client.client-secret: auth_secret

@@ -207,7 +207,7 @@ class ReservationControllerTest {
         Pageable pageable = PageRequest.of(0, 5);
         Page<ReservationSubInfo> reservationSubInfoPage = new PageImpl<>(reservationSubInfoList, pageable, reservationSubInfoList.size());
 
-        given(reservationService.findMyReservationList(account.getEmail(), pageable)).willReturn(reservationSubInfoPage);
+        given(reservationService.findMyReservationList(account.getId(), pageable)).willReturn(reservationSubInfoPage);
 
         mockMvc.perform(get("/reservation/list")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)

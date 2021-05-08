@@ -71,8 +71,8 @@ public class ReservationService {
         return reservationJpaRepo.save(reservation);
     }
 
-    public Page<ReservationSubInfo> findMyReservationList(String email, Pageable pageable) {
-        Account account = accountService.findAccountByEmail(email);
+    public Page<ReservationSubInfo> findMyReservationList(Long id, Pageable pageable) {
+        Account account = accountService.findAccountById(id);
         Page<Reservation> reservationList = findReservationListByAccount(account, pageable);
 
         List<ReservationSubInfo> reservationSubInfoList =  mapToReservationSubInfoList(reservationList.getContent());

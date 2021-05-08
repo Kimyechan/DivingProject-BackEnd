@@ -119,8 +119,8 @@ class LectureControllerTest {
                 .equipmentList(equipmentList)
                 .build();
 
-        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
-        MockMultipartFile file2 = new MockMultipartFile("fileList", "test2.txt", "image/*", "test data".getBytes());
+        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/png", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("fileList", "test2.txt", "image/png", "test data".getBytes());
 
         MockMultipartFile request =
                 new MockMultipartFile("request",
@@ -250,8 +250,8 @@ class LectureControllerTest {
                 .equipmentList(List.of(Equipment.builder().name("장비1").price(5000).build()))
                 .build();
 
-        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
-        MockMultipartFile file2 = new MockMultipartFile("fileList", "test2.txt", "image/*", "test data".getBytes());
+        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/png", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("fileList", "test2.txt", "image/png", "test data".getBytes());
 
         MockMultipartFile request =
                 new MockMultipartFile("request",

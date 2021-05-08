@@ -39,7 +39,7 @@ class LectureImageServiceTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         lectureImageService = new LectureImageService(lectureImageJpaRepo, s3Uploader);
    }
 

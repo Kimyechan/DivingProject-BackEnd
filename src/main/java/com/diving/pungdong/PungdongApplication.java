@@ -4,6 +4,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.support.converter.RecordMessageConverter;
+import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -11,7 +13,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class PungdongApplication {
 
     public static final String APPLICATION_LOCATIONS = "spring.config.location="
-            + "classpath:application.properties,"
+            + "classpath:application.yml,"
+            + "classpath:database.yml,"
+            + "classpath:kafka.yml,"
+            + "classpath:eureka.yml,"
+            + "classpath:redis.yml,"
+            + "/home/ubuntu/config/project/pungdong/database.yml,"
+            + "/home/ubuntu/config/project/pungdong/kafka.yml,"
+            + "/home/ubuntu/config/project/pungdong/eureka.yml,"
+            + "/home/ubuntu/config/project/pungdong/redis.yml,"
             + "classpath:aws.yml";
 
     public static void main(String[] args) {
@@ -29,4 +39,10 @@ public class PungdongApplication {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
+
+    @Bean
+    public RecordMessageConverter converter() {
+        return new StringJsonMessageConverter();
+    }
+
 }
