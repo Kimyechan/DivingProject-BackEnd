@@ -41,19 +41,19 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(SignInInputException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult signInInputException(SignInInputException e){
         return responseService.getFailResult(Integer.parseInt(getMessage("signInInputException.code")), getMessage("signInInputException.msg"));
     }
 
     @ExceptionHandler(CUserNotFoundException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult userNotFound(HttpServletRequest request, CUserNotFoundException e) {
         return responseService.getFailResult(Integer.parseInt(getMessage("userNotFound.code")), getMessage("userNotFound.msg"));
     }
 
     @ExceptionHandler(CEmailSigninFailedException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult emailSigninFailed(HttpServletRequest request, CEmailSigninFailedException e) {
         return responseService.getFailResult(Integer.parseInt(getMessage("emailSigninFailed.code")), getMessage("emailSigninFailed.msg"));
     }
