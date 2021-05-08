@@ -4,6 +4,7 @@ import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.CUserNotFoundException;
 import com.diving.pungdong.advice.exception.EmailDuplicationException;
 import com.diving.pungdong.config.security.UserAccount;
+import com.diving.pungdong.controller.sign.SignController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
@@ -13,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.diving.pungdong.controller.sign.SignController.AddInstructorRoleReq;
+import static com.diving.pungdong.controller.sign.SignController.SignInReq;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class AccountService implements UserDetailsService {
     private final AccountJpaRepo accountJpaRepo;
     private final RedisTemplate<String, String> redisTemplate;
     private final InstructorImageService instructorImageService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
@@ -75,6 +79,12 @@ public class AccountService implements UserDetailsService {
         Optional<Account> account = accountJpaRepo.findByEmail(email);
         if (account.isPresent()) {
             throw new EmailDuplicationException();
+        }
+    }
+
+    public void checkCorrectPassword(SignInReq signInReq, Account account) {
+        if (!passwordEncoder.matches(signInReq.getPassword(), account.getPassword())) {
+            throw new CEmailSigninFailedException();
         }
     }
 }

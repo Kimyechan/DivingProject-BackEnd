@@ -37,9 +37,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.diving.pungdong.controller.sign.SignController.*;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -293,8 +293,7 @@ class SignControllerTest {
         String email = "yechan@gmail.com";
         String password = "1234";
 
-        given(accountService.findAccountByEmail(email)).willThrow(CEmailSigninFailedException.class);
-
+        doThrow(new CEmailSigninFailedException()).when(accountService).findAccountByEmail(email);
         mockMvc.perform(post("/sign/signin")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new SignInReq(email, password))))
@@ -317,6 +316,7 @@ class SignControllerTest {
                 .build();
 
         given(accountService.findAccountByEmail(email)).willReturn(account);
+        doThrow(new CEmailSigninFailedException()).when(accountService).checkCorrectPassword(any(), any());
 
         mockMvc.perform(post("/sign/signin")
                 .contentType(MediaType.APPLICATION_JSON)

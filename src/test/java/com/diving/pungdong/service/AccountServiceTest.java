@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,10 +43,13 @@ class AccountServiceTest {
     @Mock
     private InstructorImageService instructorImageService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        accountService = new AccountService(accountJpaRepo, redisTemplate, instructorImageService);
+        accountService = new AccountService(accountJpaRepo, redisTemplate, instructorImageService, passwordEncoder);
     }
 
     @Test
