@@ -3,9 +3,9 @@ os: linux
 
 files:
   - source: /
-    destination: /opt/kbnb
+    destination: /opt/pungdong-legacy
 permissions:
-  - object: /opt/kbnb/
+  - object: /opt/pungdong-legacy/
     owner: ubuntu
     group: ubuntu
     mode: 755
