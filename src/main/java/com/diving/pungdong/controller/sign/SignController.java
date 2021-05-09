@@ -58,7 +58,6 @@ public class SignController {
     private final AccountKafkaProducer producer;
 
     @PostMapping("/signin")
-
     public ResponseEntity<?> signin(@RequestBody SignInReq signInReq) {
         Account account = accountService.findAccountByEmail(signInReq.getEmail());
         accountService.checkCorrectPassword(signInReq, account);

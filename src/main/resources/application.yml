@@ -29,7 +29,7 @@ logging:
 eureka:
   client:
     service-url:
-      defaultZone: http://13.209.209.29:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
 
 cloud.aws.s3.bucket: pungdong
 cloud.aws.region.static: ap-northeast-2
