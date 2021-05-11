@@ -24,6 +24,9 @@ public class AuthService {
     @Value("${security.oauth2.client.client-secret}")
     private String clientSecret;
 
+    @Value("${authorization-server.host}")
+    private String host;
+
     public AuthToken getAuthToken(String email, String password) {
         String credentials = clientId + ":" + clientSecret;
         String encodedCredentials = new String(Base64.encodeBase64(credentials.getBytes()));
@@ -41,7 +44,7 @@ public class AuthService {
         params.add("password", password);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        ResponseEntity<AuthToken> response = restTemplate.postForEntity("http://localhost:8095/oauth/token", request, AuthToken.class);
+        ResponseEntity<AuthToken> response = restTemplate.postForEntity(host + "/oauth/token", request, AuthToken.class);
 
         return response.getBody();
     }

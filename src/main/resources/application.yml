@@ -43,3 +43,5 @@ spring.servlet.multipart.max-request-size: 50MB
 
 security.oauth2.client.client-id: auth_id
 security.oauth2.client.client-secret: auth_secret
+
+authorization-server.host: http://3.36.37.253:8095
