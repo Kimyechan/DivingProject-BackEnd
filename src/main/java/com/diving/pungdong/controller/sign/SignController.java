@@ -180,32 +180,32 @@ public class SignController {
         private Set<Role> roles;
     }
 
-    @GetMapping("/refresh")
-    public ResponseEntity refresh(HttpServletRequest request) {
-        String refreshToken = jwtTokenProvider.resolveToken(request);
-        Long id = Long.valueOf(jwtTokenProvider.getUserPk(refreshToken));
-
-        Account account = accountService.findAccountById(id);
-
-        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-        String newRefreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
-        RefreshRes refreshRes = new RefreshRes(newAccessToken, newRefreshToken);
-
-        EntityModel<RefreshRes> entity = EntityModel.of(refreshRes);
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).refresh(request));
-        entity.add(selfLinkBuilder.withSelfRel());
-        entity.add(Link.of("/docs/api.html#resource-account-tokenRefresh").withRel("profile"));
-
-        return ResponseEntity.ok().body(entity);
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    static class RefreshRes {
-        String accessToken;
-        String refreshToken;
-    }
+//    @GetMapping("/refresh")
+//    public ResponseEntity refresh(HttpServletRequest request) {
+//        String refreshToken = jwtTokenProvider.resolveToken(request);
+//        Long id = Long.valueOf(jwtTokenProvider.getUserPk(refreshToken));
+//
+//        Account account = accountService.findAccountById(id);
+//
+//        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+//        String newRefreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
+//        RefreshRes refreshRes = new RefreshRes(newAccessToken, newRefreshToken);
+//
+//        EntityModel<RefreshRes> entity = EntityModel.of(refreshRes);
+//        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).refresh(request));
+//        entity.add(selfLinkBuilder.withSelfRel());
+//        entity.add(Link.of("/docs/api.html#resource-account-tokenRefresh").withRel("profile"));
+//
+//        return ResponseEntity.ok().body(entity);
+//    }
+//
+//    @Data
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    static class RefreshRes {
+//        String accessToken;
+//        String refreshToken;
+//    }
 
     @PostMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
@@ -232,7 +232,4 @@ public class SignController {
     static class LogoutRes {
         String message = "로그아웃이 완료됐습니다";
     }
-/**
- * TODO: 이메일 중복 검사
- */
 }

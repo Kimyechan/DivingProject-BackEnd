@@ -1,5 +1,6 @@
 package com.diving.pungdong.dto.lecture.search;
 
+import com.diving.pungdong.domain.lecture.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +17,8 @@ public class LectureSearchResult {
     private Long id;
     private String title;
     private String classKind;
-    private String groupName;
-    private String certificateKind;
+    private Organization organization;
+    private String level;
     private Integer price;
     private String region;
     private List<String> imageURL = new ArrayList<>();

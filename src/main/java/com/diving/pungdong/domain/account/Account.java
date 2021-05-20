@@ -1,10 +1,10 @@
 package com.diving.pungdong.domain.account;
 
+import com.diving.pungdong.domain.LectureMark;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +43,9 @@ public class Account {
     @Column(columnDefinition = "integer default 0")
     private Long income;
 
-    @OneToMany(mappedBy = "instructor")
-    private List<InstructorImage> instructorImages = new ArrayList<>();
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
+    private List<InstructorImage> instructorImages;
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    private List<LectureMark> lectureMarks;
 }

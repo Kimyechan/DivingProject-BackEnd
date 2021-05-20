@@ -1,9 +1,9 @@
 package com.diving.pungdong.repo.lecture;
 
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.lecture.search.CostCondition;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -29,8 +29,8 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
                 .selectFrom(lecture)
                 .join(lecture.lectureImages, lectureImage).fetchJoin()
                 .where(
-                        groupNameEq(condition.getGroupName()),
-                        certificateKindEq(condition.getCertificateKind()),
+                        organizationEq(condition.getOrganization()),
+                        levelEq(condition.getLevel()),
                         regionEq(condition.getRegion()),
                         costBetween(condition.getCostCondition()))
                 .offset(pageable.getOffset())
@@ -41,7 +41,7 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
                 .selectFrom(lecture)
                 .join(lecture.lectureImages, lectureImage).fetchJoin()
                 .where(
-                        certificateKindEq(condition.getCertificateKind()),
+                        levelEq(condition.getLevel()),
                         regionEq(condition.getRegion()),
                         costBetween(condition.getCostCondition()))
                 .offset(pageable.getOffset())
@@ -51,12 +51,12 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
         return new PageImpl<>(content, pageable, total);
     }
 
-    private BooleanExpression groupNameEq(String groupName) {
-        return groupName == null ? null : lecture.groupName.eq(groupName);
+    private BooleanExpression organizationEq(Organization organization) {
+        return organization == null ? null : lecture.organization.eq(organization);
     }
 
-    private BooleanExpression certificateKindEq(String certificateKind) {
-        return certificateKind == null ? null : lecture.certificateKind.eq(certificateKind);
+    private BooleanExpression levelEq(String level) {
+        return level == null ? null : lecture.level.eq(level);
     }
 
     private BooleanExpression regionEq(String region) {

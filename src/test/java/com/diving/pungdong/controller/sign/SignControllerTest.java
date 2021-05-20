@@ -328,41 +328,41 @@ class SignControllerTest {
 //                .andExpect(jsonPath("code").value(-1001));
 //    }
 
-    @Test
-    @DisplayName("RefreshToken으로 재발급")
-    public void refresh() throws Exception {
-        Long id = 1L;
-        Account account = Account.builder()
-                .id(id)
-                .email("yechan@gmail.com")
-                .roles(Set.of(Role.INSTRUCTOR))
-                .build();
-
-        given(accountService.findAccountById(id)).willReturn(account);
-        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(id));
-
-        mockMvc.perform(get("/sign/refresh")
-                .header("Authorization", refreshToken)
-                .header("IsRefreshToken", "true"))
-                .andDo(print())
-                .andExpect(jsonPath("accessToken").exists())
-                .andExpect(jsonPath("refreshToken").exists())
-                .andDo(document("refresh",
-                        requestHeaders(
-                                headerWithName("Authorization").description("refresh token 값"),
-                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-                        ),
-                        responseHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
-                        ),
-                        responseFields(
-                                fieldWithPath("accessToken").description("재발급된 access token"),
-                                fieldWithPath("refreshToken").description("재발급된 refresh token"),
-                                fieldWithPath("_links.self.href").description("해당 API 링크"),
-                                fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
-                        )
-                ));
-    }
+//    @Test
+//    @DisplayName("RefreshToken으로 재발급")
+//    public void refresh() throws Exception {
+//        Long id = 1L;
+//        Account account = Account.builder()
+//                .id(id)
+//                .email("yechan@gmail.com")
+//                .roles(Set.of(Role.INSTRUCTOR))
+//                .build();
+//
+//        given(accountService.findAccountById(id)).willReturn(account);
+//        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(id));
+//
+//        mockMvc.perform(get("/sign/refresh")
+//                .header("Authorization", refreshToken)
+//                .header("IsRefreshToken", "true"))
+//                .andDo(print())
+//                .andExpect(jsonPath("accessToken").exists())
+//                .andExpect(jsonPath("refreshToken").exists())
+//                .andDo(document("refresh",
+//                        requestHeaders(
+//                                headerWithName("Authorization").description("refresh token 값"),
+//                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+//                        ),
+//                        responseHeaders(
+//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
+//                        ),
+//                        responseFields(
+//                                fieldWithPath("accessToken").description("재발급된 access token"),
+//                                fieldWithPath("refreshToken").description("재발급된 refresh token"),
+//                                fieldWithPath("_links.self.href").description("해당 API 링크"),
+//                                fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
+//                        )
+//                ));
+//    }
 
     @Test
     @DisplayName("로그아웃 성공")

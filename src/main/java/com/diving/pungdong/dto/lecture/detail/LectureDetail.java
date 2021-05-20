@@ -1,5 +1,6 @@
 package com.diving.pungdong.dto.lecture.detail;
 
+import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,8 +15,8 @@ public class LectureDetail {
     private Long id;
     private String title;
     private String classKind;
-    private String groupName;
-    private String certificateKind;
+    private Organization organization;
+    private String level;
     private String description;
     private Integer price;
     private Integer period;
