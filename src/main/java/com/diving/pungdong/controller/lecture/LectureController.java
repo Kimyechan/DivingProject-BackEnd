@@ -226,10 +226,12 @@ public class LectureController {
 
     @GetMapping("/new/list")
     public ResponseEntity<?> getNewLectures(@CurrentUser Account account,
-                                            Pageable pageable) {
-        Page<NewLectureInfo> lecturePage = lectureService.getNewLecturesInfo(account.getId(), pageable);
+                                            Pageable pageable,
+                                            PagedResourcesAssembler<NewLectureInfo> assembler) {
+        Page<NewLectureInfo> lecturePage = lectureService.getNewLecturesInfo(account, pageable);
 
-        return ResponseEntity.ok().body(null);
+        PagedModel<EntityModel<NewLectureInfo>> model = assembler.toModel(lecturePage);
+        return ResponseEntity.ok().body(model);
     }
 
     @GetMapping("/manage/list")

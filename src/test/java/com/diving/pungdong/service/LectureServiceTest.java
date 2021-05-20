@@ -221,7 +221,7 @@ class LectureServiceTest {
                 .build();
         lectureMarks.add(lectureMark);
 
-        boolean result = lectureService.isLectureMarked(1L, lectureMarks);
+        boolean result = lectureService.isLectureMarked(Account.builder().id(1L).build(), lectureMarks);
 
         assertTrue(result);
     }
@@ -236,7 +236,7 @@ class LectureServiceTest {
                 .build();
         lectureMarks.add(lectureMark);
 
-        boolean result = lectureService.isLectureMarked(1L, lectureMarks);
+        boolean result = lectureService.isLectureMarked(Account.builder().id(1L).build(), lectureMarks);
 
         assertFalse(result);
     }

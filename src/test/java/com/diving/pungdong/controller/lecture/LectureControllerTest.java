@@ -1,89 +1,91 @@
-//package com.diving.pungdong.controller.lecture;
-//
-//import com.diving.pungdong.config.RestDocsConfiguration;
-//import com.diving.pungdong.config.S3Uploader;
-//import com.diving.pungdong.config.security.JwtTokenProvider;
-//import com.diving.pungdong.config.security.UserAccount;
-//import com.diving.pungdong.domain.account.Account;
-//import com.diving.pungdong.domain.account.Gender;
-//import com.diving.pungdong.domain.account.Role;
-//import com.diving.pungdong.domain.equipment.Equipment;
-//import com.diving.pungdong.domain.lecture.Lecture;
-//import com.diving.pungdong.domain.lecture.LectureImage;
-//import com.diving.pungdong.domain.lecture.Organization;
-//import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
-//import com.diving.pungdong.dto.lecture.create.EquipmentDto;
-//import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
-//import com.diving.pungdong.dto.lecture.search.CostCondition;
-//import com.diving.pungdong.dto.lecture.search.SearchCondition;
-//import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
-//import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
-//import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
-//import com.diving.pungdong.service.AccountService;
-//import com.diving.pungdong.service.LectureImageService;
-//import com.diving.pungdong.service.LectureService;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.modelmapper.ModelMapper;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.context.annotation.Import;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.http.HttpHeaders;
-//import org.springframework.http.MediaType;
-//import org.springframework.mock.web.MockMultipartFile;
-//import org.springframework.test.context.ActiveProfiles;
-//import org.springframework.test.web.servlet.MockMvc;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Set;
-//
-//import static org.mockito.ArgumentMatchers.*;
-//import static org.mockito.BDDMockito.given;
-//import static org.mockito.Mockito.times;
-//import static org.mockito.Mockito.verify;
-//import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-//import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-//import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-//import static org.springframework.restdocs.request.RequestDocumentation.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//@SpringBootTest
-//@AutoConfigureMockMvc
-//@ActiveProfiles("test")
-//@AutoConfigureRestDocs
-//@Import(RestDocsConfiguration.class)
-//class LectureControllerTest {
-//
-//    @Autowired
-//    MockMvc mockMvc;
-//    @Autowired
-//    ObjectMapper objectMapper;
-//    @Autowired
-//    JwtTokenProvider jwtTokenProvider;
-//    @Autowired
-//    ModelMapper modelMapper;
-//    @MockBean
-//    AccountService accountService;
-//    @MockBean
-//    LectureService lectureService;
-//    @MockBean
-//    LectureImageService lectureImageService;
-//    @MockBean
-//    S3Uploader s3Uploader;
-//
-//    @Test
+package com.diving.pungdong.controller.lecture;
+
+import com.diving.pungdong.config.RestDocsConfiguration;
+import com.diving.pungdong.config.S3Uploader;
+import com.diving.pungdong.config.security.JwtTokenProvider;
+import com.diving.pungdong.config.security.UserAccount;
+import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.account.Gender;
+import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.equipment.Equipment;
+import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.LectureImage;
+import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
+import com.diving.pungdong.dto.lecture.create.EquipmentDto;
+import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
+import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
+import com.diving.pungdong.dto.lecture.search.CostCondition;
+import com.diving.pungdong.dto.lecture.search.SearchCondition;
+import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
+import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
+import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.LectureImageService;
+import com.diving.pungdong.service.LectureService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@AutoConfigureRestDocs
+@Import(RestDocsConfiguration.class)
+class LectureControllerTest {
+
+    @Autowired
+    MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    ModelMapper modelMapper;
+    @MockBean
+    AccountService accountService;
+    @MockBean
+    LectureService lectureService;
+    @MockBean
+    LectureImageService lectureImageService;
+    @MockBean
+    S3Uploader s3Uploader;
+
+    //    @Test
 //    @DisplayName("강의 개설")
 //    public void createLecture() throws Exception {
 //        Account account = createAccount();
@@ -179,22 +181,22 @@
 //                ));
 //    }
 //
-//    public Account createAccount() {
-//        Account account = Account.builder()
-//                .id(1L)
-//                .email("yechan@gmail.com")
-//                .password("1234")
-//                .userName("yechan")
-//                .age(27)
-//                .gender(Gender.MALE)
-//                .roles(Set.of(Role.INSTRUCTOR))
-//                .build();
-//
-//        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
-//                .willReturn(new UserAccount(account));
-//
-//        return account;
-//    }
+    public Account createAccount() {
+        Account account = Account.builder()
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password("1234")
+                .userName("yechan")
+                .age(27)
+                .gender(Gender.MALE)
+                .roles(Set.of(Role.STUDENT, Role.INSTRUCTOR))
+                .build();
+
+        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
+                .willReturn(new UserAccount(account));
+
+        return account;
+    }
 //
 //    @Test
 //    @DisplayName("강의 정보 수정")
@@ -486,15 +488,6 @@
 //                ));
 //    }
 //
-//    @Test
-//    @DisplayName("신규 강의 목록 조회")
-//    public void getNewLectures() throws Exception {
-//
-//        mockMvc.perform(get("/lecture/new/list"))
-//                .andDo(print())
-//                .andExpect(status().isOk());
-//    }
-//
 //    private Page<Lecture> createLecturePage(Pageable pageable) {
 //        List<Lecture> lectureList = new ArrayList<>();
 //        for (long i = 0; i < 15; i++) {
@@ -584,4 +577,37 @@
 //
 //        return new PageImpl<>(lectureInfoList, pageable, lectureInfoList.size());
 //    }
-//}
+
+    @Test
+    @DisplayName("신규 강의 목록 조회")
+    public void getNewLectures() throws Exception {
+        Pageable pageable = PageRequest.of(0, 2);
+
+        List<NewLectureInfo> lectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            NewLectureInfo newLectureInfo = NewLectureInfo.builder()
+                    .id((long) i)
+                    .title("title" + i)
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(10)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .isMarked(false)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .build();
+            lectureInfos.add(newLectureInfo);
+        }
+        Page<NewLectureInfo> newLectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+
+        given(lectureService.getNewLecturesInfo(any(), any())).willReturn(newLectureInfoPage);
+
+        mockMvc.perform(
+                get("/lecture/new/list")
+                        .param("page", String.valueOf(pageable.getPageNumber()))
+                        .param("size", String.valueOf(pageable.getPageSize())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+}

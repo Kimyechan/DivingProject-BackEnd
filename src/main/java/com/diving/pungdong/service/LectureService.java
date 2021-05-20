@@ -148,19 +148,19 @@ public class LectureService {
         }
     }
 
-    public Page<NewLectureInfo> getNewLecturesInfo(Long accountId, Pageable pageable) {
+    public Page<NewLectureInfo> getNewLecturesInfo(Account account, Pageable pageable) {
         LocalDate pastDate = LocalDate.now().minusDays(15);
         Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDate, pageable);
 
-        List<NewLectureInfo> newLectureInfos = mapToNewLectureInfos(accountId, lecturePage);
+        List<NewLectureInfo> newLectureInfos = mapToNewLectureInfos(account, lecturePage);
 
         return new PageImpl<>(newLectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
     }
 
-    public List<NewLectureInfo> mapToNewLectureInfos(Long accountId, Page<Lecture> lecturePage) {
+    public List<NewLectureInfo> mapToNewLectureInfos(Account account, Page<Lecture> lecturePage) {
         List<NewLectureInfo> newLectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
-            boolean isMarked = isLectureMarked(accountId, lecture.getLectureMarks());
+            boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
             List<String> equipmentNames = new ArrayList<>();
             for (Equipment equipment : lecture.getEquipmentList()) {
                 equipmentNames.add(equipment.getName());
@@ -184,10 +184,14 @@ public class LectureService {
         return newLectureInfos;
     }
 
-    public boolean isLectureMarked(Long accountId, List<LectureMark> lectureMarks) {
+    public boolean isLectureMarked(Account account, List<LectureMark> lectureMarks) {
+        if (account == null) {
+            return false;
+        }
+
         boolean isMarked = false;
         for (LectureMark lectureMark : lectureMarks) {
-            if (lectureMark.getAccount().getId().equals(accountId)) {
+            if (lectureMark.getAccount().getId().equals(account.getId())) {
                 isMarked = true;
                 break;
             }
