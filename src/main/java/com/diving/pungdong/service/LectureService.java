@@ -145,4 +145,10 @@ public class LectureService {
             throw new NoPermissionsException();
         }
     }
+
+    public Page<Lecture> getNewLectures(Pageable pageable) {
+        LocalDate pastDate = LocalDate.now().minusDays(14);
+        Page<Lecture> lecturePage = lectureJpaRepo.findFromPastDate(pastDate, pageable);
+        return null;
+    }
 }

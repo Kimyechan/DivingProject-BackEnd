@@ -4,8 +4,10 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,7 @@ import java.util.List;
 @ToString(exclude = {"instructor", "equipmentList", "lectureImages"})
 public class Lecture {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -34,6 +36,8 @@ public class Lecture {
     private Integer price;
 
     private String region;
+
+    private LocalDate registrationDate;
 
     @Builder.Default
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

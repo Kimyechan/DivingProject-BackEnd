@@ -6,23 +6,31 @@ import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lecture.search.CostCondition;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
+import org.hibernate.Hibernate;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 @DataJpaTest
 class LectureJpaRepoTest {
+    @Autowired
+    private TestEntityManager em;
+
     @Autowired
     private LectureJpaRepo lectureJpaRepo;
 
@@ -227,5 +235,55 @@ class LectureJpaRepoTest {
         for (Lecture lecture : lecturePage.getContent()) {
             assertThat(lecture.getPrice()).isBetween(costCondition.getMin(), costCondition.getMax());
         }
+    }
+
+    @Test
+    @DisplayName("14일 전부터 오늘까지 생성된 강의 목록 조회 - method name query 사용")
+    public void getLecturesPrevious14() {
+        saveLecturePerDate(LocalDate.now());
+        saveLecturePerDate(LocalDate.now().minusDays(14));
+        saveLecturePerDate(LocalDate.now().minusDays(15));
+
+        LocalDate prevDate = LocalDate.now().minusDays(15);
+        Pageable pageable = PageRequest.of(0, 20);
+
+        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(prevDate, pageable);
+
+        assertThat(lecturePage.getContent().size()).isEqualTo(10);
+    }
+
+    @Test
+    @DisplayName("14일 전부터 오늘까지 생성된 강의 목록 조회 - query 직접 작성 사용")
+    public void getLecturesPrevious14Test() {
+        saveLecturePerDate(LocalDate.now());
+        saveLecturePerDate(LocalDate.now().minusDays(14));
+        saveLecturePerDate(LocalDate.now().minusDays(15));
+
+        LocalDate prevDate = LocalDate.now().minusDays(15);
+        Pageable pageable = PageRequest.of(0, 20);
+
+        Page<Lecture> lecturePage = lectureJpaRepo.findFromPastDate(prevDate, pageable);
+
+        assertThat(lecturePage.getContent().size()).isEqualTo(10);
+    }
+
+    public void saveLecturePerDate(LocalDate date) {
+        for (int i = 0; i < 5; i++) {
+            Lecture lecture = Lecture.builder()
+                    .registrationDate(date)
+                    .build();
+            Lecture savedLecture = em.persist(lecture);
+
+            for (int j = 0; j < 5; j++) {
+                LectureImage lectureImage = LectureImage.builder()
+                        .fileURI("Uri" + j)
+                        .lecture(savedLecture)
+                        .build();
+                em.persist(lectureImage);
+            }
+        }
+
+        em.flush();
+        em.clear();
     }
 }

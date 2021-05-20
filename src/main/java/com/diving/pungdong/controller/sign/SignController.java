@@ -232,7 +232,4 @@ public class SignController {
     static class LogoutRes {
         String message = "로그아웃이 완료됐습니다";
     }
-/**
- * TODO: 이메일 중복 검사
- */
 }

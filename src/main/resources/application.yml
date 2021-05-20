@@ -4,6 +4,7 @@ spring:
   jpa:
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         jdbc.lob.non_contextual_creation: true
         hbm2ddl.auto: update

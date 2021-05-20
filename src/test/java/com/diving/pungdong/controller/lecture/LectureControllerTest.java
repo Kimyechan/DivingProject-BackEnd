@@ -21,7 +21,6 @@ import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
-import com.diving.pungdong.service.SwimmingPoolService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,16 +38,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -78,8 +73,6 @@ class LectureControllerTest {
     JwtTokenProvider jwtTokenProvider;
     @Autowired
     ModelMapper modelMapper;
-    @MockBean
-    SwimmingPoolService swimmingPoolService;
     @MockBean
     AccountService accountService;
     @MockBean
@@ -490,6 +483,15 @@ class LectureControllerTest {
                                 fieldWithPath("page.number").description("현재 페이지 번호")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("신규 강의 목록 조회")
+    public void getNewLectures() throws Exception {
+
+        mockMvc.perform(get("/lecture/new/list"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     private Page<Lecture> createLecturePage(Pageable pageable) {
