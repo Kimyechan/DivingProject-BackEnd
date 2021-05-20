@@ -3,7 +3,6 @@ package com.diving.pungdong.controller.lecture;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.CurrentUser;
-import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -14,6 +13,7 @@ import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
+import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -27,13 +27,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,8 +89,8 @@ public class LectureController {
                 .title(createLectureReq.getTitle())
                 .description(createLectureReq.getDescription())
                 .classKind(createLectureReq.getClassKind())
-                .groupName(createLectureReq.getGroupName())
-                .certificateKind(createLectureReq.getCertificateKind())
+                .organization(createLectureReq.getOrganization())
+                .level(createLectureReq.getLevel())
                 .price(createLectureReq.getPrice())
                 .region(createLectureReq.getRegion())
                 .instructor(instructor)
@@ -158,8 +155,8 @@ public class LectureController {
                 .id(lecture.getId())
                 .title(lecture.getTitle())
                 .classKind(lecture.getClassKind())
-                .groupName(lecture.getGroupName())
-                .certificateKind(lecture.getCertificateKind())
+                .organization(lecture.getOrganization())
+                .level(lecture.getLevel())
                 .description(lecture.getDescription())
                 .price(lecture.getPrice())
                 .region(lecture.getRegion())
@@ -211,8 +208,8 @@ public class LectureController {
                 .id(lecture.getId())
                 .title(lecture.getTitle())
                 .classKind(lecture.getClassKind())
-                .groupName(lecture.getGroupName())
-                .certificateKind(lecture.getCertificateKind())
+                .organization(lecture.getOrganization())
+                .level(lecture.getLevel())
                 .price(lecture.getPrice())
                 .region(lecture.getRegion())
                 .imageURL(imageURLs)
@@ -225,6 +222,16 @@ public class LectureController {
             imageURLs.add(image.getFileURI());
         }
         return imageURLs;
+    }
+
+    @GetMapping("/new/list")
+    public ResponseEntity<?> getNewLectures(@CurrentUser Account account,
+                                            Pageable pageable,
+                                            PagedResourcesAssembler<NewLectureInfo> assembler) {
+        Page<NewLectureInfo> lecturePage = lectureService.getNewLecturesInfo(account, pageable);
+
+        PagedModel<EntityModel<NewLectureInfo>> model = assembler.toModel(lecturePage);
+        return ResponseEntity.ok().body(model);
     }
 
     @GetMapping("/manage/list")
