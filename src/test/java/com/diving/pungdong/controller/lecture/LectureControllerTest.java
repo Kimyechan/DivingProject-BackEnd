@@ -581,6 +581,9 @@ class LectureControllerTest {
     @Test
     @DisplayName("신규 강의 목록 조회")
     public void getNewLectures() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
         Pageable pageable = PageRequest.of(0, 2);
 
         List<NewLectureInfo> lectureInfos = new ArrayList<>();
@@ -606,8 +609,43 @@ class LectureControllerTest {
         mockMvc.perform(
                 get("/lecture/new/list")
                         .param("page", String.valueOf(pageable.getPageNumber()))
-                        .param("size", String.valueOf(pageable.getPageSize())))
+                        .param("size", String.valueOf(pageable.getPageSize()))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .header("IsRefreshToken", "false"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-get-new-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.newLectureInfoList[].id").description("신규 강의 식별자 값"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].title").description("신규 강의 제"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].organization").description("신규 강의 자격증 단체 이"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].level").description("신규 강의 자격증 레벨"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].region").description("신규 강의 지역명"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].maxNumber").description("신규 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].maxNumber").description("신규 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].lectureTime").description("신규 강의 총 강의 시간"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].isMarked").description("신규 강의 찜 여부"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].price").description("신규 강의 강의 비용"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].imageUrl").description("신규 강의 대표 이미지"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].equipmentNames[]").description("신규 강의 대여 장비 목"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
     }
 }

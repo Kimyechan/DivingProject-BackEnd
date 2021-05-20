@@ -1,5 +1,6 @@
 package com.diving.pungdong.dto.lecture.search;
 
+import com.diving.pungdong.domain.lecture.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SearchCondition {
-    private String groupName;
-    private String certificateKind;
+    private Organization organization;
+    private String level;
     private String region;
     private CostCondition costCondition;
 }
