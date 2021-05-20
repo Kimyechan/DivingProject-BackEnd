@@ -1,14 +1,14 @@
 package com.diving.pungdong.domain.lecture;
 
+import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -27,9 +27,10 @@ public class Lecture {
 
     private String classKind;
 
-    private String groupName;
+    @Enumerated(EnumType.STRING)
+    private Organization organization;
 
-    private String certificateKind;
+    private String level;
 
     private String description;
 
@@ -39,17 +40,22 @@ public class Lecture {
 
     private LocalDate registrationDate;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<LectureImage> lectureImages = new ArrayList<>();
+    private Integer maxNumber;
 
-    @Builder.Default
+    private LocalTime lectureTime;
+
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Equipment> equipmentList = new ArrayList<>();
+    private List<LectureImage> lectureImages;
+
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Equipment> equipmentList;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account instructor;
 
-    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Schedule> schedules;
+
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<LectureMark> lectureMarks;
 }

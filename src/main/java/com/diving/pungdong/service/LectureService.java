@@ -2,6 +2,7 @@ package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.S3Uploader;
+import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -9,6 +10,7 @@ import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
+import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
@@ -65,8 +67,8 @@ public class LectureService {
     public Lecture updateLecture(LectureUpdateInfo lectureUpdateInfo, Lecture lecture) {
         lecture.setTitle(lectureUpdateInfo.getTitle());
         lecture.setClassKind(lectureUpdateInfo.getClassKind());
-        lecture.setGroupName(lectureUpdateInfo.getGroupName());
-        lecture.setCertificateKind(lectureUpdateInfo.getCertificateKind());
+        lecture.setOrganization(lectureUpdateInfo.getOrganization());
+        lecture.setLevel(lectureUpdateInfo.getLevel());
         lecture.setDescription(lectureUpdateInfo.getDescription());
         lecture.setPrice(lectureUpdateInfo.getPrice());
         lecture.setRegion(lectureUpdateInfo.getRegion());
@@ -108,8 +110,8 @@ public class LectureService {
             LectureInfo lectureInfo = LectureInfo.builder()
                     .lectureId(lecture.getId())
                     .title(lecture.getTitle())
-                    .groupName(lecture.getGroupName())
-                    .certificateKind(lecture.getCertificateKind())
+                    .organization(lecture.getOrganization())
+                    .level(lecture.getLevel())
                     .cost(lecture.getPrice())
                     .isRentEquipment(!lecture.getEquipmentList().isEmpty())
                     .upcomingScheduleCount(upcomingScheduleCount)
@@ -146,9 +148,50 @@ public class LectureService {
         }
     }
 
-    public Page<Lecture> getNewLectures(Pageable pageable) {
-        LocalDate pastDate = LocalDate.now().minusDays(14);
-        Page<Lecture> lecturePage = lectureJpaRepo.findFromPastDate(pastDate, pageable);
-        return null;
+    public Page<NewLectureInfo> getNewLecturesInfo(Long accountId, Pageable pageable) {
+        LocalDate pastDate = LocalDate.now().minusDays(15);
+        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDate, pageable);
+
+        List<NewLectureInfo> newLectureInfos = mapToNewLectureInfos(accountId, lecturePage);
+
+        return new PageImpl<>(newLectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
+    }
+
+    public List<NewLectureInfo> mapToNewLectureInfos(Long accountId, Page<Lecture> lecturePage) {
+        List<NewLectureInfo> newLectureInfos = new ArrayList<>();
+        for (Lecture lecture : lecturePage.getContent()) {
+            boolean isMarked = isLectureMarked(accountId, lecture.getLectureMarks());
+            List<String> equipmentNames = new ArrayList<>();
+            for (Equipment equipment : lecture.getEquipmentList()) {
+                equipmentNames.add(equipment.getName());
+            }
+
+            NewLectureInfo newLectureInfo = NewLectureInfo.builder()
+                    .id(lecture.getId())
+                    .title(lecture.getTitle())
+                    .organization(lecture.getOrganization())
+                    .level(lecture.getLevel())
+                    .region(lecture.getRegion())
+                    .maxNumber(lecture.getMaxNumber())
+                    .lectureTime(lecture.getLectureTime())
+                    .imageUrl(lecture.getLectureImages().get(0).getFileURI())
+                    .isMarked(isMarked)
+                    .equipmentNames(equipmentNames)
+                    .build();
+
+            newLectureInfos.add(newLectureInfo);
+        }
+        return newLectureInfos;
+    }
+
+    public boolean isLectureMarked(Long accountId, List<LectureMark> lectureMarks) {
+        boolean isMarked = false;
+        for (LectureMark lectureMark : lectureMarks) {
+            if (lectureMark.getAccount().getId().equals(accountId)) {
+                isMarked = true;
+                break;
+            }
+        }
+        return isMarked;
     }
 }

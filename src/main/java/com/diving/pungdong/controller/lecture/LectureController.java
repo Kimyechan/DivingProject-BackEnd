@@ -13,6 +13,7 @@ import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
+import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -88,8 +89,8 @@ public class LectureController {
                 .title(createLectureReq.getTitle())
                 .description(createLectureReq.getDescription())
                 .classKind(createLectureReq.getClassKind())
-                .groupName(createLectureReq.getGroupName())
-                .certificateKind(createLectureReq.getCertificateKind())
+                .organization(createLectureReq.getOrganization())
+                .level(createLectureReq.getLevel())
                 .price(createLectureReq.getPrice())
                 .region(createLectureReq.getRegion())
                 .instructor(instructor)
@@ -154,8 +155,8 @@ public class LectureController {
                 .id(lecture.getId())
                 .title(lecture.getTitle())
                 .classKind(lecture.getClassKind())
-                .groupName(lecture.getGroupName())
-                .certificateKind(lecture.getCertificateKind())
+                .organization(lecture.getOrganization())
+                .level(lecture.getLevel())
                 .description(lecture.getDescription())
                 .price(lecture.getPrice())
                 .region(lecture.getRegion())
@@ -207,8 +208,8 @@ public class LectureController {
                 .id(lecture.getId())
                 .title(lecture.getTitle())
                 .classKind(lecture.getClassKind())
-                .groupName(lecture.getGroupName())
-                .certificateKind(lecture.getCertificateKind())
+                .organization(lecture.getOrganization())
+                .level(lecture.getLevel())
                 .price(lecture.getPrice())
                 .region(lecture.getRegion())
                 .imageURL(imageURLs)
@@ -224,8 +225,10 @@ public class LectureController {
     }
 
     @GetMapping("/new/list")
-    public ResponseEntity<?> getNewLectures(Pageable pageable) {
-        Page<Lecture> lecturePage = lectureService.getNewLectures(pageable);
+    public ResponseEntity<?> getNewLectures(@CurrentUser Account account,
+                                            Pageable pageable) {
+        Page<NewLectureInfo> lecturePage = lectureService.getNewLecturesInfo(account.getId(), pageable);
+
         return ResponseEntity.ok().body(null);
     }
 

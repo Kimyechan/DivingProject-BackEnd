@@ -1,5 +1,6 @@
 package com.diving.pungdong.dto.lecture.create;
 
+import com.diving.pungdong.domain.lecture.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +18,8 @@ public class CreateLectureReq {
     @NotEmpty
     private String title;
     @NotEmpty private String classKind;
-    @NotEmpty private String groupName;
-    @NotEmpty private String certificateKind;
+    @NotEmpty private Organization organization;
+    @NotEmpty private String level;
     @NotEmpty private String description;
     @NotEmpty private Integer price;
     @NotEmpty private String region;
