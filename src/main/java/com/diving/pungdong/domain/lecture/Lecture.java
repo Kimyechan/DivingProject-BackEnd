@@ -3,6 +3,7 @@ package com.diving.pungdong.domain.lecture;
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
+import com.diving.pungdong.domain.review.Review;
 import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
 
@@ -44,6 +45,10 @@ public class Lecture {
 
     private LocalTime lectureTime;
 
+    private Float reviewTotalAvg;
+
+    private Integer reviewCount;
+
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<LectureImage> lectureImages;
 
@@ -58,4 +63,7 @@ public class Lecture {
 
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<LectureMark> lectureMarks;
+
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Review> reviews;
 }

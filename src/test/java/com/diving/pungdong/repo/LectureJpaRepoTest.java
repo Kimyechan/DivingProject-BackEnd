@@ -288,4 +288,46 @@ class LectureJpaRepoTest {
         em.flush();
         em.clear();
     }
+
+    @Test
+    @DisplayName("후기 갯수가 많은 순으로 인기 강의 목록 조회")
+    public void findPopularLecturesOrderByReviewCount() {
+        saveLectureWithReviewCount();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Lecture> lecturePage = lectureJpaRepo.findPopularLectures(pageable);
+
+        List<Lecture> lectures = lecturePage.getContent();
+        assertThat(lectures.get(0).getReviewCount()).isEqualTo(4);
+    }
+
+    public void saveLectureWithReviewCount(){
+        for (int i = 0; i < 5; i++) {
+            Lecture lecture = Lecture.builder()
+                    .reviewCount(i)
+                    .reviewTotalAvg(2.5f)
+                    .build();
+            em.persist(lecture);
+        }
+    }
+
+    @Test
+    @DisplayName("후기 갯수가 동일할 때 후기 총 평점이 높은 순으로 인기 강의 목록 조회")
+    public void findPopularLecturesOrderByReviewTotalAvg() {
+        saveLectureWithReviewTotalAvg();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Lecture> lecturePage = lectureJpaRepo.findPopularLectures(pageable);
+
+        List<Lecture> lectures = lecturePage.getContent();
+        assertThat(lectures.get(0).getReviewTotalAvg()).isEqualTo(4f);
+    }
+
+    public void saveLectureWithReviewTotalAvg(){
+        for (int i = 0; i < 5; i++) {
+            Lecture lecture = Lecture.builder()
+                    .reviewCount(10)
+                    .reviewTotalAvg((float) i)
+                    .build();
+            em.persist(lecture);
+        }
+    }
 }
