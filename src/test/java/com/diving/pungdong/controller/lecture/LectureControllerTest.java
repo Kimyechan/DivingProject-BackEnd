@@ -7,19 +7,9 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.domain.equipment.Equipment;
-import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.lecture.Organization;
-import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
-import com.diving.pungdong.dto.lecture.create.EquipmentDto;
-import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
+import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
-import com.diving.pungdong.dto.lecture.search.CostCondition;
-import com.diving.pungdong.dto.lecture.search.SearchCondition;
-import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
-import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
-import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -39,7 +29,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,7 +39,6 @@ import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -620,7 +608,7 @@ class LectureControllerTest {
                                 "lecture-get-new-list",
                                 requestHeaders(
                                         headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
                                 ),
                                 requestParameters(
                                         parameterWithName("page").description("몇 번째 페이지"),
@@ -628,7 +616,7 @@ class LectureControllerTest {
                                 ),
                                 responseFields(
                                         fieldWithPath("_embedded.newLectureInfoList[].id").description("신규 강의 식별자 값"),
-                                        fieldWithPath("_embedded.newLectureInfoList[].title").description("신규 강의 제"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].title").description("신규 강의 제목"),
                                         fieldWithPath("_embedded.newLectureInfoList[].organization").description("신규 강의 자격증 단체 이"),
                                         fieldWithPath("_embedded.newLectureInfoList[].level").description("신규 강의 자격증 레벨"),
                                         fieldWithPath("_embedded.newLectureInfoList[].region").description("신규 강의 지역명"),
@@ -638,7 +626,80 @@ class LectureControllerTest {
                                         fieldWithPath("_embedded.newLectureInfoList[].isMarked").description("신규 강의 찜 여부"),
                                         fieldWithPath("_embedded.newLectureInfoList[].price").description("신규 강의 강의 비용"),
                                         fieldWithPath("_embedded.newLectureInfoList[].imageUrl").description("신규 강의 대표 이미지"),
-                                        fieldWithPath("_embedded.newLectureInfoList[].equipmentNames[]").description("신규 강의 대여 장비 목"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].equipmentNames[]").description("신규 강의 대여 장비 목록"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("인기 강의 목록 조회")
+    public void getPopularLectures() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Pageable pageable = PageRequest.of(0, 2);
+
+        List<PopularLectureInfo> lectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            PopularLectureInfo popularLectureInfo = PopularLectureInfo.builder()
+                    .id((long) i)
+                    .title("title" + i)
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(10)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .isMarked(false)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .starAvg(4.5f)
+                    .reviewCount(100)
+                    .build();
+            lectureInfos.add(popularLectureInfo);
+        }
+        Page<PopularLectureInfo> newLectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+
+        given(lectureService.getPopularLecturesInfo(account, pageable)).willReturn(newLectureInfoPage);
+
+        mockMvc.perform(get("/lecture/popular/list")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-get-popular-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.popularLectureInfoList[].id").description("인기 강의 식별자 값"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].title").description("인기 강의 제목"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].level").description("인기 강의 자격증 레벨"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].isMarked").description("인기 강의 찜 여부"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].price").description("인기 강의 강의 비용"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].imageUrl").description("인기 강의 대표 이미지"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].equipmentNames[]").description("인기 강의 대여 장비 목록"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].starAvg").description("인기 강의 리뷰 종합 평점"),
+                                        fieldWithPath("_embedded.popularLectureInfoList[].reviewCount").description("인기 강의 리뷰 갯수"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("page.size").description("한 페이지 당 사이즈"),
                                         fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),

@@ -14,6 +14,7 @@ import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
+import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -231,6 +232,16 @@ public class LectureController {
         Page<NewLectureInfo> lecturePage = lectureService.getNewLecturesInfo(account, pageable);
 
         PagedModel<EntityModel<NewLectureInfo>> model = assembler.toModel(lecturePage);
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/popular/list")
+    public ResponseEntity<?> getPopularLectures(@CurrentUser Account account,
+                                                Pageable pageable,
+                                                PagedResourcesAssembler<PopularLectureInfo> assembler) {
+        Page<PopularLectureInfo> lectureInfoPage = lectureService.getPopularLecturesInfo(account, pageable);
+
+        PagedModel<EntityModel<PopularLectureInfo>> model = assembler.toModel(lectureInfoPage);
         return ResponseEntity.ok().body(model);
     }
 

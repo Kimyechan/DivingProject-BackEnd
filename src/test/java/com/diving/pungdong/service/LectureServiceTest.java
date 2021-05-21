@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -237,6 +241,21 @@ class LectureServiceTest {
         lectureMarks.add(lectureMark);
 
         boolean result = lectureService.isLectureMarked(Account.builder().id(1L).build(), lectureMarks);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("비회원 일 때 찜 해제")
+    public void markFalseWhenNotMember() {
+        List<LectureMark> lectureMarks = new ArrayList<>();
+        LectureMark lectureMark = LectureMark.builder()
+                .account(Account.builder().id(2L).build())
+                .lecture(Lecture.builder().id(1L).build())
+                .build();
+        lectureMarks.add(lectureMark);
+
+        boolean result = lectureService.isLectureMarked(null, lectureMarks);
 
         assertFalse(result);
     }
