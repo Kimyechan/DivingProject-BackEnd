@@ -608,7 +608,7 @@ class LectureControllerTest {
                                 "lecture-get-new-list",
                                 requestHeaders(
                                         headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
                                 ),
                                 requestParameters(
                                         parameterWithName("page").description("몇 번째 페이지"),
@@ -616,7 +616,7 @@ class LectureControllerTest {
                                 ),
                                 responseFields(
                                         fieldWithPath("_embedded.newLectureInfoList[].id").description("신규 강의 식별자 값"),
-                                        fieldWithPath("_embedded.newLectureInfoList[].title").description("신규 강의 제"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].title").description("신규 강의 제목"),
                                         fieldWithPath("_embedded.newLectureInfoList[].organization").description("신규 강의 자격증 단체 이"),
                                         fieldWithPath("_embedded.newLectureInfoList[].level").description("신규 강의 자격증 레벨"),
                                         fieldWithPath("_embedded.newLectureInfoList[].region").description("신규 강의 지역명"),
