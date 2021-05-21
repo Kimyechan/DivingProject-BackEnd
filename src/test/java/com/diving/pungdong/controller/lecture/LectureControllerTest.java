@@ -7,19 +7,9 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.domain.equipment.Equipment;
-import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.lecture.Organization;
-import com.diving.pungdong.dto.lecture.create.CreateLectureReq;
-import com.diving.pungdong.dto.lecture.create.EquipmentDto;
-import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
+import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
-import com.diving.pungdong.dto.lecture.search.CostCondition;
-import com.diving.pungdong.dto.lecture.search.SearchCondition;
-import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
-import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
-import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -39,7 +29,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,7 +39,6 @@ import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -647,5 +635,44 @@ class LectureControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("인기 강의 목록 조회")
+    public void getPopularLectures() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Pageable pageable = PageRequest.of(0, 2);
+
+        List<PopularLectureInfo> lectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            PopularLectureInfo popularLectureInfo = PopularLectureInfo.builder()
+                    .id((long) i)
+                    .title("title" + i)
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(10)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .isMarked(false)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .starAvg(4.5f)
+                    .reviewCount(100)
+                    .build();
+            lectureInfos.add(popularLectureInfo);
+        }
+        Page<PopularLectureInfo> newLectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+
+        given(lectureService.getPopularLecturesInfo(account, pageable)).willReturn(newLectureInfoPage);
+
+        mockMvc.perform(get("/lecture/popular/list")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize())))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

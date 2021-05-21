@@ -234,6 +234,13 @@ public class LectureController {
         return ResponseEntity.ok().body(model);
     }
 
+    @GetMapping("/popular/list")
+    public ResponseEntity<?> getPopularLectures(@CurrentUser Account account,
+                                                Pageable pageable,
+                                                PagedResourcesAssembler<Lecture> assembler) {
+        return null;
+    }
+
     @GetMapping("/manage/list")
     public ResponseEntity<?> manageList(@CurrentUser Account account,
                                         Pageable pageable,

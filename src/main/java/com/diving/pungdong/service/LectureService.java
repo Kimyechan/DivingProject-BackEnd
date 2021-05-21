@@ -11,6 +11,7 @@ import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
+import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
@@ -197,5 +198,9 @@ public class LectureService {
             }
         }
         return isMarked;
+    }
+
+    public Page<PopularLectureInfo> getPopularLecturesInfo(Account account, Pageable pageable) {
+        return null;
     }
 }
