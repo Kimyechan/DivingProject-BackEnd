@@ -182,6 +182,7 @@ public class LectureService {
 
             newLectureInfos.add(newLectureInfo);
         }
+
         return newLectureInfos;
     }
 
@@ -201,6 +202,39 @@ public class LectureService {
     }
 
     public Page<PopularLectureInfo> getPopularLecturesInfo(Account account, Pageable pageable) {
-        return null;
+        Page<Lecture> lecturePage = lectureJpaRepo.findPopularLectures(pageable);
+        List<PopularLectureInfo> popularLectureInfos = mapToPopularLectureInfos(account, lecturePage);
+
+        return new PageImpl<>(popularLectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
+    }
+
+    public List<PopularLectureInfo> mapToPopularLectureInfos(Account account, Page<Lecture> lecturePage) {
+        List<PopularLectureInfo> popularLectureInfos = new ArrayList<>();
+        for (Lecture lecture : lecturePage.getContent()) {
+            boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
+            List<String> equipmentNames = new ArrayList<>();
+            for (Equipment equipment : lecture.getEquipmentList()) {
+                equipmentNames.add(equipment.getName());
+            }
+
+            PopularLectureInfo popularLectureInfo = PopularLectureInfo.builder()
+                    .id(lecture.getId())
+                    .title(lecture.getTitle())
+                    .organization(lecture.getOrganization())
+                    .level(lecture.getLevel())
+                    .region(lecture.getRegion())
+                    .maxNumber(lecture.getMaxNumber())
+                    .lectureTime(lecture.getLectureTime())
+                    .imageUrl(lecture.getLectureImages().get(0).getFileURI())
+                    .reviewCount(lecture.getReviewCount())
+                    .starAvg(lecture.getReviewTotalAvg())
+                    .isMarked(isMarked)
+                    .equipmentNames(equipmentNames)
+                    .build();
+
+            popularLectureInfos.add(popularLectureInfo);
+        }
+
+        return popularLectureInfos;
     }
 }

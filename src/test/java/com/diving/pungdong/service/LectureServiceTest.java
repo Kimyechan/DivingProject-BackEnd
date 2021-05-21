@@ -245,4 +245,19 @@ class LectureServiceTest {
         assertFalse(result);
     }
 
+    @Test
+    @DisplayName("비회원 일 때 찜 해제")
+    public void markFalseWhenNotMember() {
+        List<LectureMark> lectureMarks = new ArrayList<>();
+        LectureMark lectureMark = LectureMark.builder()
+                .account(Account.builder().id(2L).build())
+                .lecture(Lecture.builder().id(1L).build())
+                .build();
+        lectureMarks.add(lectureMark);
+
+        boolean result = lectureService.isLectureMarked(null, lectureMarks);
+
+        assertFalse(result);
+    }
+
 }
