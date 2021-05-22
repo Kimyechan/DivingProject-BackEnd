@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.LectureMark;
@@ -17,6 +18,8 @@ import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,17 +28,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class LectureService {
     private final LectureJpaRepo lectureJpaRepo;
     private final LectureImageService lectureImageService;
@@ -67,7 +66,7 @@ public class LectureService {
     }
 
     public Lecture getLectureById(Long id) {
-        return lectureJpaRepo.findById(id).orElse(new Lecture());
+        return lectureJpaRepo.findById(id).orElseThrow(BadRequestException::new);
     }
 
     public Lecture updateLecture(LectureUpdateInfo lectureUpdateInfo, Lecture lecture) {
@@ -206,6 +205,7 @@ public class LectureService {
         return isMarked;
     }
 
+    @Transactional(readOnly = true)
     public Page<PopularLectureInfo> getPopularLecturesInfo(Account account, Pageable pageable) {
         Page<Lecture> lecturePage = lectureJpaRepo.findPopularLectures(pageable);
         List<PopularLectureInfo> popularLectureInfos = mapToPopularLectureInfos(account, lecturePage);
@@ -213,6 +213,7 @@ public class LectureService {
         return new PageImpl<>(popularLectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
     }
 
+    @Transactional(readOnly = true)
     public List<PopularLectureInfo> mapToPopularLectureInfos(Account account, Page<Lecture> lecturePage) {
         List<PopularLectureInfo> popularLectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
@@ -243,6 +244,7 @@ public class LectureService {
         return popularLectureInfos;
     }
 
+    @Transactional
     public LectureCreateResult createLecture(Account account, LectureCreateInfo lectureCreateInfo) {
         Lecture lecture = Lecture.builder()
                 .instructor(account)
@@ -262,5 +264,14 @@ public class LectureService {
         return LectureCreateResult.builder()
                 .lectureId(savedLecture.getId())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public void checkLectureCreator(Account account, Long lectureId) {
+        Lecture lecture = getLectureById(lectureId);
+
+        if (!lecture.getInstructor().getId().equals(account.getId())) {
+            throw new BadRequestException();
+        }
     }
 }

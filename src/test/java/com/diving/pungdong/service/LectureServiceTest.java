@@ -1,28 +1,26 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
-import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.mock.web.MockMultipartFile;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -30,16 +28,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class LectureServiceTest {
+    @InjectMocks
+    @Spy
     private LectureService lectureService;
 
     @Mock
@@ -53,12 +52,6 @@ class LectureServiceTest {
 
     @Mock
     private EquipmentService equipmentService;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        lectureService = new LectureService(lectureJpaRepo, lectureImageService, s3Uploader, equipmentService);
-    }
 
     @Test
     @DisplayName("강의 생성")
@@ -260,4 +253,37 @@ class LectureServiceTest {
         assertFalse(result);
     }
 
+    @Test
+    @DisplayName("해당 강의 생성자 인지 확인 - 생성자와 불일치")
+    public void checkLectureCreatorFail() {
+        Long lectureId = 1L;
+        Account account = Account.builder()
+                .id(2L)
+                .build();
+
+        Lecture lecture = Lecture.builder()
+                .instructor(Account.builder().id(1L).build())
+                .build();
+
+        doReturn(lecture).when(lectureService).getLectureById(lectureId);
+
+        assertThrows(BadRequestException.class, () -> lectureService.checkLectureCreator(account, lectureId));
+    }
+
+    @Test
+    @DisplayName("해당 강의 생성자 인지 확인 - 생성자와 일치")
+    public void checkLectureCreatorSuccess() {
+        Long lectureId = 1L;
+        Account account = Account.builder()
+                .id(2L)
+                .build();
+
+        Lecture lecture = Lecture.builder()
+                .instructor(Account.builder().id(2L).build())
+                .build();
+
+        doReturn(lecture).when(lectureService).getLectureById(lectureId);
+
+        assertDoesNotThrow(() -> lectureService.checkLectureCreator(account, lectureId));
+    }
 }
