@@ -3,13 +3,11 @@ package com.diving.pungdong.dto.lecture.create;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class EquipmentDto {
-    private String name;
-    private Integer price;
+public class LectureCreateResult {
+    private Long lectureId;
+
 }
