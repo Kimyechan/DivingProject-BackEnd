@@ -620,7 +620,32 @@ class LectureControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(lectureCreateInfo)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-create",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("title").description("강의 제목"),
+                                        fieldWithPath("region").description("강의 지역"),
+                                        fieldWithPath("classKind").description("강의 종류"),
+                                        fieldWithPath("organization").description("자격증 단체"),
+                                        fieldWithPath("level").description("강의 자격증 레벨"),
+                                        fieldWithPath("description").description("강의 설명"),
+                                        fieldWithPath("price").description("강의 비용"),
+                                        fieldWithPath("maxNumber").description("강의 최대 인원수"),
+                                        fieldWithPath("lectureTime").description("강의 총 소요 시간")
+                                ),
+                                responseFields(
+                                        fieldWithPath("lectureId").description("생성된 강의 식별자 값"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
     }
 
     @Test
