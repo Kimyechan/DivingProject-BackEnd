@@ -125,7 +125,7 @@ operation::logout[]
 
 [[resource-lecture-create]]
 === 강의 생성
-operation::create-lecture[]
+operation::lecture-create[]
 
 [[resource-lecture-update]]
 === 강의 수정

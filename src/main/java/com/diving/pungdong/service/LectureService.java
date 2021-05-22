@@ -9,6 +9,8 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
+import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
@@ -23,8 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,7 +135,7 @@ public class LectureService {
         for (Schedule schedule : lecture.getSchedules()) {
             exitFor:
             for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
-                LocalDate upcomingScheduleDate  = LocalDate.now().plusDays(14);
+                LocalDate upcomingScheduleDate = LocalDate.now().plusDays(14);
                 if (scheduleDetail.getDate().isAfter(LocalDate.now().minusDays(1))
                         && scheduleDetail.getDate().isBefore(upcomingScheduleDate.plusDays(1))) {
                     upcomingScheduleCount += 1;
@@ -236,5 +241,26 @@ public class LectureService {
         }
 
         return popularLectureInfos;
+    }
+
+    public LectureCreateResult createLecture(Account account, LectureCreateInfo lectureCreateInfo) {
+        Lecture lecture = Lecture.builder()
+                .instructor(account)
+                .title(lectureCreateInfo.getTitle())
+                .region(lectureCreateInfo.getRegion())
+                .classKind(lectureCreateInfo.getClassKind())
+                .organization(lectureCreateInfo.getOrganization())
+                .level(lectureCreateInfo.getLevel())
+                .description(lectureCreateInfo.getDescription())
+                .price(lectureCreateInfo.getPrice())
+                .maxNumber(lectureCreateInfo.getMaxNumber())
+                .lectureTime(lectureCreateInfo.getLectureTime())
+                .build();
+
+        Lecture savedLecture = lectureJpaRepo.save(lecture);
+
+        return LectureCreateResult.builder()
+                .lectureId(savedLecture.getId())
+                .build();
     }
 }

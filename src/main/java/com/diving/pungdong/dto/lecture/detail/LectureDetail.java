@@ -1,7 +1,7 @@
 package com.diving.pungdong.dto.lecture.detail;
 
 import com.diving.pungdong.domain.lecture.Organization;
-import com.diving.pungdong.dto.lecture.create.EquipmentDto;
+//import com.diving.pungdong.dto.lecture.create.EquipmentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,5 +24,5 @@ public class LectureDetail {
     private String region;
     private Long instructorId;
     private List<String> lectureUrlList;
-    private List<EquipmentDto> equipmentList;
+//    private List<EquipmentDto> equipmentList;
 }

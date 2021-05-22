@@ -8,6 +8,8 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
+import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
 import com.diving.pungdong.service.AccountService;
@@ -46,16 +48,14 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
-@Import(RestDocsConfiguration.class)
+@Import({RestDocsConfiguration.class})
 class LectureControllerTest {
-
     @Autowired
     MockMvc mockMvc;
     @Autowired
@@ -565,6 +565,88 @@ class LectureControllerTest {
 //
 //        return new PageImpl<>(lectureInfoList, pageable, lectureInfoList.size());
 //    }
+
+    @Test
+    @DisplayName("강의 개설하기 실패 - 정보 기입 누락")
+    public void createLectureBadRequest() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureCreateInfo lectureCreateInfo = LectureCreateInfo.builder()
+                .title("프리 다이빙 강의")
+                .classKind("프리 다이빙")
+                .organization(Organization.AIDA)
+                .level("Level1")
+                .description("프리 다이빙 Level1 자격증을 쉽게 가져가세요")
+                .price(100000)
+                .maxNumber(5)
+                .region("서울")
+                .build();
+
+        mockMvc.perform(post("/lecture/create")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(lectureCreateInfo)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("강의 개설하기")
+    public void createLecture() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureCreateInfo lectureCreateInfo = LectureCreateInfo.builder()
+                .title("프리 다이빙 강의")
+                .classKind("프리 다이빙")
+                .organization(Organization.AIDA)
+                .level("Level1")
+                .description("프리 다이빙 Level1 자격증을 쉽게 가져가세요")
+                .price(100000)
+                .maxNumber(5)
+                .region("서울")
+                .lectureTime(LocalTime.of(2, 30))
+                .build();
+
+        LectureCreateResult result = LectureCreateResult.builder()
+                .lectureId(1L)
+                .build();
+
+        given(lectureService.createLecture(account, lectureCreateInfo)).willReturn(result);
+
+        mockMvc.perform(post("/lecture/create")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(lectureCreateInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-create",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("title").description("강의 제목"),
+                                        fieldWithPath("region").description("강의 지역"),
+                                        fieldWithPath("classKind").description("강의 종류"),
+                                        fieldWithPath("organization").description("자격증 단체"),
+                                        fieldWithPath("level").description("강의 자격증 레벨"),
+                                        fieldWithPath("description").description("강의 설명"),
+                                        fieldWithPath("price").description("강의 비용"),
+                                        fieldWithPath("maxNumber").description("강의 최대 인원수"),
+                                        fieldWithPath("lectureTime").description("강의 총 소요 시간")
+                                ),
+                                responseFields(
+                                        fieldWithPath("lectureId").description("생성된 강의 식별자 값"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
 
     @Test
     @DisplayName("신규 강의 목록 조회")
