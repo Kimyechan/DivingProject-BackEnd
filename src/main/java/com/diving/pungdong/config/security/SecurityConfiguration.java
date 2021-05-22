@@ -48,7 +48,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/*/signin", "/*/signup", "/sign/refresh").permitAll()
                         .antMatchers("/lecture/detail", "/lecture/list", "/lecture/new/list", "/schedule").permitAll()
                         .antMatchers(HttpMethod.GET, "/exception/**", "helloworld/**").permitAll()
-                        .antMatchers("/lecture/create", "/lecture/update", "/lecture/delete", "/lecture/manage/list").hasRole("INSTRUCTOR")
+                        .antMatchers("/lecture/create", "/lecture/update", "/lecture/delete", "/lecture/manage/list"
+                                , "/location/create").hasRole("INSTRUCTOR")
                         .anyRequest().authenticated()
                 .and()
                     .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
