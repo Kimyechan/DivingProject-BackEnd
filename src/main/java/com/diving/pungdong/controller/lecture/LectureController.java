@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
+import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
@@ -107,10 +108,12 @@ public class LectureController {
             throw new BadRequestException();
         }
 
+        LectureCreateResult lectureCreateResult = lectureService.createLecture(account, lectureCreateInfo);
+        EntityModel<LectureCreateResult> model = EntityModel.of(lectureCreateResult);
+        model.add(linkTo(methodOn(LectureController.class).createLecture(account, lectureCreateInfo, result)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
-
-
-        return null;
+        return ResponseEntity.ok().body(model);
     }
 
     @PostMapping("/update")

@@ -613,7 +613,7 @@ class LectureControllerTest {
                 .lectureId(1L)
                 .build();
 
-        given(lectureService.createLecture(lectureCreateInfo)).willReturn(result);
+        given(lectureService.createLecture(account, lectureCreateInfo)).willReturn(result);
 
         mockMvc.perform(post("/lecture/create")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

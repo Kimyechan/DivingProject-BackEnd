@@ -243,8 +243,9 @@ public class LectureService {
         return popularLectureInfos;
     }
 
-    public LectureCreateResult createLecture(LectureCreateInfo lectureCreateInfo) {
+    public LectureCreateResult createLecture(Account account, LectureCreateInfo lectureCreateInfo) {
         Lecture lecture = Lecture.builder()
+                .instructor(account)
                 .title(lectureCreateInfo.getTitle())
                 .region(lectureCreateInfo.getRegion())
                 .classKind(lectureCreateInfo.getClassKind())
