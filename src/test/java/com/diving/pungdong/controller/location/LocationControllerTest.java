@@ -29,6 +29,11 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -96,6 +101,26 @@ class LocationControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(locationCreateInfo)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document("location-create",
+                                requestHeaders(
+                                        headerWithName(org.springframework.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(org.springframework.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("address").description("강의 위치 주소"),
+                                        fieldWithPath("latitude").description("강의 위치 위도"),
+                                        fieldWithPath("longitude").description("강의 위치 경도"),
+                                        fieldWithPath("lectureId").description("위치를 지정할 강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값"),
+                                        fieldWithPath("locationId").description("강의 위치 식별자 값"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
     }
 }

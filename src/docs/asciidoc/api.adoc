@@ -155,6 +155,13 @@ operation::lecture-get-popular-list[]
 === 강사 자신의 강의 리스트 조회
 operation::lecture-get-list-per-instructor[]
 
+[[resource-location]]
+== 강의 위치
+
+[[resource-location-create]]
+=== 강의 위치 정보 생성
+operation::location-create[]
+
 [[resource-schedule]]
 == 강의 일정
 
