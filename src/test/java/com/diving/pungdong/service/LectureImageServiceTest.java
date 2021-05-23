@@ -1,16 +1,19 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.LectureImageJpaRepo;
+import com.diving.pungdong.service.image.S3Uploader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +30,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 @Transactional
 class LectureImageServiceTest {
+    @InjectMocks
     private LectureImageService lectureImageService;
 
     @Mock
@@ -36,12 +41,6 @@ class LectureImageServiceTest {
 
     @Mock
     private S3Uploader s3Uploader;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        lectureImageService = new LectureImageService(lectureImageJpaRepo, s3Uploader);
-   }
 
     @Test
     @DisplayName("강의 사진 저장")

@@ -2,7 +2,6 @@ package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
@@ -18,8 +17,7 @@ import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,32 +36,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectureService {
     private final LectureJpaRepo lectureJpaRepo;
-    private final LectureImageService lectureImageService;
-    private final S3Uploader s3Uploader;
-    private final EquipmentService equipmentService;
+//    private final LectureImageService lectureImageService;
+//    private final EquipmentService equipmentService;
 
     public Lecture saveLecture(Lecture lecture) {
         return lectureJpaRepo.save(lecture);
-    }
-
-    public Lecture createLecture(String email, List<MultipartFile> fileList, Lecture lecture, List<Equipment> equipmentList) throws IOException {
-        Lecture savedLecture = saveLecture(lecture);
-
-        for (Equipment equipment : equipmentList) {
-            equipment.setLecture(lecture);
-            equipmentService.saveEquipment(equipment);
-        }
-
-        for (MultipartFile file : fileList) {
-            String fileURI = s3Uploader.upload(file, "lecture", email);
-            LectureImage lectureImage = LectureImage.builder()
-                    .fileURI(fileURI)
-                    .lecture(savedLecture)
-                    .build();
-            lectureImageService.saveLectureImage(lectureImage);
-            savedLecture.getLectureImages().add(lectureImage);
-        }
-        return savedLecture;
     }
 
     public Lecture getLectureById(Long id) {
@@ -81,13 +59,13 @@ public class LectureService {
         return lectureJpaRepo.save(lecture);
     }
 
-    public Lecture updateLectureTx(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
-        lectureImageService.deleteIfIsDeleted(lectureUpdateInfo);
-        lectureImageService.addList(email, addLectureImageFiles, lecture);
-        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo.getEquipmentUpdateList(), lecture);
-
-        return updateLecture(lectureUpdateInfo, lecture);
-    }
+//    public Lecture updateLectureTx(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
+//        lectureImageService.deleteIfIsDeleted(lectureUpdateInfo);
+//        lectureImageService.addList(email, addLectureImageFiles, lecture);
+//        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo.getEquipmentUpdateList(), lecture);
+//
+//        return updateLecture(lectureUpdateInfo, lecture);
+//    }
 
     public void deleteLectureById(Long id) {
         lectureJpaRepo.deleteById(id);
@@ -154,8 +132,8 @@ public class LectureService {
     }
 
     public Page<NewLectureInfo> getNewLecturesInfo(Account account, Pageable pageable) {
-        LocalDate pastDate = LocalDate.now().minusDays(15);
-        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDate, pageable);
+        LocalDateTime pastDateTime = LocalDateTime.now().minusDays(15);
+        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDateTime, pageable);
 
         List<NewLectureInfo> newLectureInfos = mapToNewLectureInfos(account, lecturePage);
 

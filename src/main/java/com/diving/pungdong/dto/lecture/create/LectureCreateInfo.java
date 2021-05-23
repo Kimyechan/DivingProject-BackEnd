@@ -9,6 +9,7 @@ import java.time.LocalTime;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class LectureCreateInfo {
     @NotEmpty

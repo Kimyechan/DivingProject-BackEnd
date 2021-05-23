@@ -9,7 +9,7 @@ import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class Lecture {
 
     private String region;
 
-    private LocalDate registrationDate;
+    private LocalDateTime registrationDate;
 
     private Integer maxNumber;
 
@@ -70,4 +70,11 @@ public class Lecture {
 
     @OneToOne(mappedBy = "lecture", fetch = FetchType.LAZY)
     private Location location;
+
+    @PrePersist
+    public void prePersist() {
+        this.registrationDate = this.registrationDate == null ? LocalDateTime.now() : this.registrationDate;
+        this.reviewTotalAvg = this.reviewTotalAvg == null ? 0 : this.reviewTotalAvg;
+        this.reviewCount = this.reviewCount == null ? 0 : this.reviewCount;
+    }
 }

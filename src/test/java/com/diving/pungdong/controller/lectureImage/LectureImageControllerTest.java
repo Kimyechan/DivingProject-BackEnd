@@ -1,4 +1,4 @@
-package com.diving.pungdong.controller.location;
+package com.diving.pungdong.controller.lectureImage;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
@@ -6,11 +6,9 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.dto.location.LocationCreateInfo;
-import com.diving.pungdong.dto.location.LocationCreateResult;
+import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
 import com.diving.pungdong.service.AccountService;
-import com.diving.pungdong.service.LocationService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.diving.pungdong.service.LectureImageService;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,44 +18,45 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.hateoas.TemplateVariable.requestParameter;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 @AutoConfigureRestDocs
+@ActiveProfiles("test")
 @Import({RestDocsConfiguration.class})
-class LocationControllerTest {
+class LectureImageControllerTest {
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    JwtTokenProvider jwtTokenProvider;
 
     @MockBean
-    private AccountService accountService;
+    AccountService accountService;
 
     @MockBean
-    private LocationService locationService;
+    private LectureImageService lectureImageService;
 
     public Account createAccount() {
         Account account = Account.builder()
@@ -67,7 +66,7 @@ class LocationControllerTest {
                 .userName("yechan")
                 .age(27)
                 .gender(Gender.MALE)
-                .roles(Set.of(Role.STUDENT, Role.INSTRUCTOR))
+                .roles(Set.of(Role.INSTRUCTOR))
                 .build();
 
         given(accountService.loadUserByUsername(String.valueOf(account.getId())))
@@ -77,46 +76,44 @@ class LocationControllerTest {
     }
 
     @Test
-    @DisplayName("강의 위치 생성")
-    public void createLectureLocation() throws Exception {
+    @DisplayName("강의 개설시 이미지들 등록")
+    public void createImagesAboutLecture() throws Exception {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
-        LocationCreateInfo locationCreateInfo = LocationCreateInfo.builder()
-                .address("서울특별시 송파구 오륜동 올림픽로 424 올림픽수영장")
-                .latitude(37.519936106861635)
-                .longitude(127.12643458977112)
+        MockMultipartFile file1 = new MockMultipartFile("images", "test1", "image/png", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("images", "test2", "image/png", "test data".getBytes());
+
+        LectureImageInfo lectureImageInfo = LectureImageInfo.builder()
                 .lectureId(1L)
+                .imageUris(List.of("uri1", "uri2"))
                 .build();
 
-        LocationCreateResult result = LocationCreateResult.builder()
-                .lectureId(1L)
-                .locationId(1L)
-                .build();
+        given(lectureImageService.saveImages(any(), any(), any())).willReturn(lectureImageInfo);
 
-        given(locationService.saveLocationWithLecture(account, locationCreateInfo)).willReturn(result);
-
-        mockMvc.perform(post("/location/create")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .content(objectMapper.writeValueAsString(locationCreateInfo)))
+        mockMvc.perform(multipart("/lectureImage/create/list")
+                .file(file1)
+                .file(file2)
+                .param("lectureId", "1")
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andDo(
-                        document("location-create",
+                        document(
+                                "lectureImage-create-list",
                                 requestHeaders(
-                                        headerWithName(org.springframework.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                        headerWithName(org.springframework.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
                                 ),
-                                requestFields(
-                                        fieldWithPath("address").description("강의 위치 주소"),
-                                        fieldWithPath("latitude").description("강의 위치 위도"),
-                                        fieldWithPath("longitude").description("강의 위치 경도"),
-                                        fieldWithPath("lectureId").description("위치를 지정할 강의 식별자 값")
+                                requestParameters(
+                                        parameterWithName("lectureId").description("이미지들을 저장할 강의 식별자 값")
+                                ),
+                                requestParts(
+                                        partWithName("images").description("강의 이미지들")
                                 ),
                                 responseFields(
-                                        fieldWithPath("lectureId").description("강의 식별자 값"),
-                                        fieldWithPath("locationId").description("강의 위치 식별자 값"),
+                                        fieldWithPath("lectureId").description("개설된 강의 식별자 값"),
+                                        fieldWithPath("imageUris[]").description("강의 이미지 Uri들"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                                 )

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public interface LectureJpaRepo extends JpaRepository<Lecture, Long>, LectureJpaRepoCustom {
     Page<Lecture> findByRegion(String region, Pageable pageable);
@@ -16,12 +17,12 @@ public interface LectureJpaRepo extends JpaRepository<Lecture, Long>, LectureJpa
     Page<Lecture> findByInstructor(Account instructor, Pageable pageable);
 
     @Query(
-            value = "select l from Lecture l where l.registrationDate > :pastDate",
-            countQuery = "select count(l) from Lecture l where l.registrationDate > :pastDate"
+            value = "select l from Lecture l where l.registrationDate > :pastDateTime",
+            countQuery = "select count(l) from Lecture l where l.registrationDate > :pastDateTime"
     )
-    Page<Lecture> findFromPastDate(@Param("pastDate") LocalDate pastDate, Pageable pageable);
+    Page<Lecture> findFromPastDate(@Param("pastDateTime") LocalDateTime pastDateTime, Pageable pageable);
 
-    Page<Lecture> findLectureByRegistrationDateAfter(LocalDate pastDate, Pageable pageable);
+    Page<Lecture> findLectureByRegistrationDateAfter(LocalDateTime pastDateTime, Pageable pageable);
 
     @Query(
             value = "select l from Lecture l order by l.reviewCount desc, l.reviewTotalAvg desc",

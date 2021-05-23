@@ -1,4 +1,4 @@
-package com.diving.pungdong.config;
+package com.diving.pungdong.service.image;
 
 
 import com.amazonaws.services.s3.AmazonS3Client;

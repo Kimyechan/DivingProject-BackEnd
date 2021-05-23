@@ -1,7 +1,6 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -10,6 +9,7 @@ import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
+import com.diving.pungdong.service.image.S3Uploader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
