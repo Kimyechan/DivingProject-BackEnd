@@ -2,7 +2,6 @@ package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -18,6 +17,7 @@ import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateRes;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,6 +26,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
@@ -58,33 +59,34 @@ public class LectureController {
 
         LectureCreateResult lectureCreateResult = lectureService.createLecture(account, lectureCreateInfo);
         EntityModel<LectureCreateResult> model = EntityModel.of(lectureCreateResult);
-        model.add(linkTo(methodOn(LectureController.class).createLecture(account, lectureCreateInfo, result)).withSelfRel());
+        WebMvcLinkBuilder location = linkTo(methodOn(LectureController.class).createLecture(account, lectureCreateInfo, result));
+        model.add(location.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
-        return ResponseEntity.ok().body(model);
+        return ResponseEntity.created(location.toUri()).body(model);
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<EntityModel<LectureUpdateRes>> updateLecture(@CurrentUser Account account,
-                                                                       @RequestPart("request") LectureUpdateInfo lectureUpdateInfo,
-                                                                       @RequestPart("fileList") List<MultipartFile> addLectureImageFiles) throws IOException {
-        Lecture lecture = lectureService.getLectureById(lectureUpdateInfo.getId());
-
-        if (!lecture.getInstructor().getEmail().equals(account.getEmail())) {
-            throw new NoPermissionsException();
-        }
-
-        Lecture updatedLecture = lectureService.updateLectureTx(account.getEmail(), lectureUpdateInfo, addLectureImageFiles, lecture);
-        LectureUpdateRes lectureUpdateRes = LectureUpdateRes.builder()
-                .id(updatedLecture.getId())
-                .title(updatedLecture.getTitle())
-                .build();
-
-        EntityModel<LectureUpdateRes> model = EntityModel.of(lectureUpdateRes);
-        model.add(linkTo(methodOn(LectureController.class).updateLecture(account, lectureUpdateInfo, addLectureImageFiles)).withSelfRel());
-
-        return ResponseEntity.ok().body(model);
-    }
+//    @PostMapping("/update")
+//    public ResponseEntity<EntityModel<LectureUpdateRes>> updateLecture(@CurrentUser Account account,
+//                                                                       @RequestPart("request") LectureUpdateInfo lectureUpdateInfo,
+//                                                                       @RequestPart("fileList") List<MultipartFile> addLectureImageFiles) throws IOException {
+//        Lecture lecture = lectureService.getLectureById(lectureUpdateInfo.getId());
+//
+//        if (!lecture.getInstructor().getEmail().equals(account.getEmail())) {
+//            throw new NoPermissionsException();
+//        }
+//
+//        Lecture updatedLecture = lectureService.updateLectureTx(account.getEmail(), lectureUpdateInfo, addLectureImageFiles, lecture);
+//        LectureUpdateRes lectureUpdateRes = LectureUpdateRes.builder()
+//                .id(updatedLecture.getId())
+//                .title(updatedLecture.getTitle())
+//                .build();
+//
+//        EntityModel<LectureUpdateRes> model = EntityModel.of(lectureUpdateRes);
+//        model.add(linkTo(methodOn(LectureController.class).updateLecture(account, lectureUpdateInfo, addLectureImageFiles)).withSelfRel());
+//
+//        return ResponseEntity.ok().body(model);
+//    }
 
     @DeleteMapping("/delete")
     public ResponseEntity<EntityModel<LectureDeleteRes>> deleteLecture(@CurrentUser Account account, @RequestParam("id") Long id) {

@@ -1,11 +1,11 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.repo.InstructorImageJpaRepo;
+import com.diving.pungdong.service.image.S3Uploader;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

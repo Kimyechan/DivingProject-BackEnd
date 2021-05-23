@@ -1,7 +1,6 @@
 package com.diving.pungdong.controller.lecture;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
@@ -15,6 +14,7 @@ import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.image.S3Uploader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -524,7 +524,7 @@ class LectureControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(lectureCreateInfo)))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andDo(
                         document(
                                 "lecture-create",

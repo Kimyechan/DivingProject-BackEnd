@@ -101,7 +101,7 @@ class LocationControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(locationCreateInfo)))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andDo(
                         document("location-create",
                                 requestHeaders(

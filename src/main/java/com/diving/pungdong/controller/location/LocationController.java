@@ -9,6 +9,7 @@ import com.diving.pungdong.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,8 +39,9 @@ public class LocationController {
         LocationCreateResult locationCreateResult = locationService.saveLocationWithLecture(account, locationCreateInfo);
 
         EntityModel<LocationCreateResult> model = EntityModel.of(locationCreateResult);
-        model.add(linkTo(methodOn(LocationController.class).createLocationOfLecture(account, locationCreateInfo, result)).withSelfRel());
+        WebMvcLinkBuilder location = linkTo(methodOn(LocationController.class).createLocationOfLecture(account, locationCreateInfo, result));
+        model.add(location.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-location-create").withRel("profile"));
-        return ResponseEntity.ok().body(model);
+        return ResponseEntity.created(location.toUri()).body(model);
     }
 }

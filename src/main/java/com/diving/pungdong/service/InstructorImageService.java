@@ -1,10 +1,10 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorImage;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.repo.InstructorImageJpaRepo;
+import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -2,7 +2,6 @@ package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
