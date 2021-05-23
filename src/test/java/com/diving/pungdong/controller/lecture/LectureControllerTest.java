@@ -81,7 +81,7 @@ class LectureControllerTest {
                 .userName("yechan")
                 .age(27)
                 .gender(Gender.MALE)
-                .roles(Set.of(Role.STUDENT, Role.INSTRUCTOR))
+                .roles(Set.of(Role.INSTRUCTOR))
                 .build();
 
         given(accountService.loadUserByUsername(String.valueOf(account.getId())))

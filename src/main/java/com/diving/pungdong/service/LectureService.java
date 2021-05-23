@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,8 +155,8 @@ public class LectureService {
     }
 
     public Page<NewLectureInfo> getNewLecturesInfo(Account account, Pageable pageable) {
-        LocalDate pastDate = LocalDate.now().minusDays(15);
-        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDate, pageable);
+        LocalDateTime pastDateTime = LocalDateTime.now().minusDays(15);
+        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDateTime, pageable);
 
         List<NewLectureInfo> newLectureInfos = mapToNewLectureInfos(account, lecturePage);
 

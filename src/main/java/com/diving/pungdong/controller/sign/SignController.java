@@ -92,7 +92,7 @@ public class SignController {
     }
 
     @PostMapping(value = "/signup")
-    public ResponseEntity signup(@Valid @RequestBody SignUpReq signUpReq, BindingResult result) {
+    public ResponseEntity<?> signup(@Valid @RequestBody SignUpReq signUpReq, BindingResult result) {
         if (result.hasErrors()) {
             throw new SignInInputException();
         }
