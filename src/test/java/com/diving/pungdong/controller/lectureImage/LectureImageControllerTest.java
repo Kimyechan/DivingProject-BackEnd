@@ -28,6 +28,13 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.hateoas.TemplateVariable.requestParameter;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -90,6 +97,27 @@ class LectureImageControllerTest {
                 .param("lectureId", "1")
                 .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(
+                        document(
+                                "lectureImage-create-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("lectureId").description("이미지들을 저장할 강의 식별자 값")
+                                ),
+                                requestParts(
+                                        partWithName("images").description("강의 이미지들")
+                                ),
+                                responseFields(
+                                        fieldWithPath("lectureId").description("개설된 강의 식별자 값"),
+                                        fieldWithPath("imageUris[]").description("강의 이미지 Uri들"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
     }
 }
