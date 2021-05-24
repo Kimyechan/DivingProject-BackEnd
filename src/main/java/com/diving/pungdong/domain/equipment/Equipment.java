@@ -4,6 +4,7 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter @Setter
@@ -16,6 +17,9 @@ public class Equipment {
     private String name;
 
     private Integer price;
+
+    @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<EquipmentStock> equipmentStocks;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;
