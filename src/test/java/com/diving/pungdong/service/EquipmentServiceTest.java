@@ -7,8 +7,11 @@ import com.diving.pungdong.repo.EquipmentJpaRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,18 +25,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class EquipmentServiceTest {
+    @InjectMocks
     private EquipmentService equipmentService;
 
     @Mock
     private EquipmentJpaRepo equipmentJpaRepo;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        equipmentService = new EquipmentService(equipmentJpaRepo);
-    }
 
     @Test
     @DisplayName("강의 대여 장비 리스트 수정")
