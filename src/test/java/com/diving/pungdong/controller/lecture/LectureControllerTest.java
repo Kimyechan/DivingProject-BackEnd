@@ -1,5 +1,6 @@
 package com.diving.pungdong.controller.lecture;
 
+import com.diving.pungdong.advice.ExceptionAdvice;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.config.security.UserAccount;
@@ -54,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
-@Import({RestDocsConfiguration.class})
+@Import({RestDocsConfiguration.class, ExceptionAdvice.class})
 class LectureControllerTest {
     @Autowired
     MockMvc mockMvc;
