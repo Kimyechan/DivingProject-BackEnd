@@ -471,30 +471,30 @@ class LectureControllerTest {
 //        return new PageImpl<>(lectureInfoList, pageable, lectureInfoList.size());
 //    }
 
-//    @Test
-//    @DisplayName("강의 개설하기 실패 - 정보 기입 누락")
-//    public void createLectureBadRequest() throws Exception {
-//        Account account = createAccount();
-//        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-//
-//        LectureCreateInfo lectureCreateInfo = LectureCreateInfo.builder()
-//                .title("프리 다이빙 강의")
-//                .classKind("프리 다이빙")
-//                .organization(Organization.AIDA)
-//                .level("Level1")
-//                .description("프리 다이빙 Level1 자격증을 쉽게 가져가세요")
-//                .price(100000)
-//                .maxNumber(5)
-//                .region("서울")
-//                .build();
-//
-//        mockMvc.perform(post("/lecture/create")
-//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                .header(HttpHeaders.AUTHORIZATION, accessToken)
-//                .content(objectMapper.writeValueAsString(lectureCreateInfo)))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest());
-//    }
+    @Test
+    @DisplayName("강의 개설하기 실패 - 정보 기입 누락")
+    public void createLectureBadRequest() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureCreateInfo lectureCreateInfo = LectureCreateInfo.builder()
+                .title("프리 다이빙 강의")
+                .classKind("프리 다이빙")
+                .organization(Organization.AIDA)
+                .level("Level1")
+                .description("프리 다이빙 Level1 자격증을 쉽게 가져가세요")
+                .price(100000)
+                .maxNumber(5)
+                .region("서울")
+                .build();
+
+        mockMvc.perform(post("/lecture/create")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(lectureCreateInfo)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     @DisplayName("강의 개설하기")
