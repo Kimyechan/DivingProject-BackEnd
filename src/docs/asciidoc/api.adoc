@@ -170,6 +170,13 @@ operation::location-create[]
 [[resource-lecture-images-create]]
 operation::lectureImage-create-list[]
 
+[[resource-equipment]]
+== 강의 대여 장비
+
+[[resource-equipment-list-create]]
+=== 강의 대여 장비 목록 정보 생성
+operation::equipment-create-list[]
+
 
 [[resource-schedule]]
 == 강의 일정

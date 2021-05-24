@@ -28,6 +28,11 @@ import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -109,7 +114,30 @@ class EquipmentControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(equipmentCreateInfo)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(
+                        document(
+                                "equipment-create-list",
+                                requestHeaders(
+                                        headerWithName(org.springframework.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(org.springframework.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값"),
+                                        fieldWithPath("equipmentInfos[].name").description("오리발"),
+                                        fieldWithPath("equipmentInfos[].price").description("장비 한 개당 가격"),
+                                        fieldWithPath("equipmentInfos[].equipmentStockInfos[].size").description("장비 한 종류의 사이즈"),
+                                        fieldWithPath("equipmentInfos[].equipmentStockInfos[].quantity").description("장비 한 종류의 양")
+                                ),
+                                responseFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값"),
+                                        fieldWithPath("equipmentResults[].equipmentId").description("장비 한 종류의 식별자 값"),
+                                        fieldWithPath("equipmentResults[].name").description("장비 한 종류의 이름"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
     }
 
 }
