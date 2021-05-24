@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -242,14 +243,14 @@ class LectureJpaRepoTest {
     @Test
     @DisplayName("14일 전부터 오늘까지 생성된 강의 목록 조회 - method name query 사용")
     public void getLecturesPrevious14() {
-        saveLecturePerDate(LocalDate.now());
-        saveLecturePerDate(LocalDate.now().minusDays(14));
-        saveLecturePerDate(LocalDate.now().minusDays(15));
+        saveLecturePerDate(LocalDateTime.now());
+        saveLecturePerDate(LocalDateTime.now().minusDays(14));
+        saveLecturePerDate(LocalDateTime.now().minusDays(15));
 
-        LocalDate prevDate = LocalDate.now().minusDays(15);
+        LocalDateTime prevDateTime = LocalDateTime.now().minusDays(15);
         Pageable pageable = PageRequest.of(0, 20);
 
-        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(prevDate, pageable);
+        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(prevDateTime, pageable);
 
         assertThat(lecturePage.getContent().size()).isEqualTo(10);
     }
@@ -257,19 +258,19 @@ class LectureJpaRepoTest {
     @Test
     @DisplayName("14일 전부터 오늘까지 생성된 강의 목록 조회 - query 직접 작성 사용")
     public void getLecturesPrevious14ByWritingQuery() {
-        saveLecturePerDate(LocalDate.now());
-        saveLecturePerDate(LocalDate.now().minusDays(14));
-        saveLecturePerDate(LocalDate.now().minusDays(15));
+        saveLecturePerDate(LocalDateTime.now());
+        saveLecturePerDate(LocalDateTime.now().minusDays(14));
+        saveLecturePerDate(LocalDateTime.now().minusDays(15));
 
-        LocalDate prevDate = LocalDate.now().minusDays(15);
+        LocalDateTime prevDateTime = LocalDateTime.now().minusDays(15);
         Pageable pageable = PageRequest.of(0, 20);
 
-        Page<Lecture> lecturePage = lectureJpaRepo.findFromPastDate(prevDate, pageable);
+        Page<Lecture> lecturePage = lectureJpaRepo.findFromPastDate(prevDateTime, pageable);
 
         assertThat(lecturePage.getContent().size()).isEqualTo(10);
     }
 
-    public void saveLecturePerDate(LocalDate date) {
+    public void saveLecturePerDate(LocalDateTime date) {
         for (int i = 0; i < 5; i++) {
             Lecture lecture = Lecture.builder()
                     .registrationDate(date)

@@ -48,7 +48,7 @@
 | 요청을 성공적으로 처리함
 
 | `201 Created`
-| 새 리소스를 성공적으로 생성함. 응답의 `Location` 헤더에 해당 리소스의 URI가 담겨있다.
+| 새 리소스를 성공적으로 생성함. 응답의 `location` 헤더에 해당 리소스의 URI가 담겨있다.
 
 | `204 No Content`
 | 기존 리소스를 성공적으로 수정함.
@@ -125,7 +125,7 @@ operation::logout[]
 
 [[resource-lecture-create]]
 === 강의 생성
-operation::create-lecture[]
+operation::lecture-create[]
 
 [[resource-lecture-update]]
 === 강의 수정
@@ -154,6 +154,29 @@ operation::lecture-get-popular-list[]
 [[resource-lecture-get-instructor-own-list]]
 === 강사 자신의 강의 리스트 조회
 operation::lecture-get-list-per-instructor[]
+
+
+[[resource-location]]
+== 강의 위치
+
+[[resource-location-create]]
+=== 강의 위치 정보 생성
+operation::location-create[]
+
+
+[[resource-lecture-image]]
+== 강의 이미지
+
+[[resource-lecture-images-create]]
+operation::lectureImage-create-list[]
+
+[[resource-equipment]]
+== 강의 대여 장비
+
+[[resource-equipment-list-create]]
+=== 강의 대여 장비 목록 정보 생성
+operation::equipment-create-list[]
+
 
 [[resource-schedule]]
 == 강의 일정

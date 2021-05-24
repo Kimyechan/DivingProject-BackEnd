@@ -1,7 +1,7 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
-import com.diving.pungdong.config.S3Uploader;
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
@@ -9,12 +9,15 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
+import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
 import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
 import com.diving.pungdong.dto.lecture.search.SearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
+import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,44 +28,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class LectureService {
     private final LectureJpaRepo lectureJpaRepo;
-    private final LectureImageService lectureImageService;
-    private final S3Uploader s3Uploader;
-    private final EquipmentService equipmentService;
+//    private final LectureImageService lectureImageService;
+//    private final EquipmentService equipmentService;
 
     public Lecture saveLecture(Lecture lecture) {
         return lectureJpaRepo.save(lecture);
     }
 
-    public Lecture createLecture(String email, List<MultipartFile> fileList, Lecture lecture, List<Equipment> equipmentList) throws IOException {
-        Lecture savedLecture = saveLecture(lecture);
-
-        for (Equipment equipment : equipmentList) {
-            equipment.setLecture(lecture);
-            equipmentService.saveEquipment(equipment);
-        }
-
-        for (MultipartFile file : fileList) {
-            String fileURI = s3Uploader.upload(file, "lecture", email);
-            LectureImage lectureImage = LectureImage.builder()
-                    .fileURI(fileURI)
-                    .lecture(savedLecture)
-                    .build();
-            lectureImageService.saveLectureImage(lectureImage);
-            savedLecture.getLectureImages().add(lectureImage);
-        }
-        return savedLecture;
-    }
-
     public Lecture getLectureById(Long id) {
-        return lectureJpaRepo.findById(id).orElse(new Lecture());
+        return lectureJpaRepo.findById(id).orElseThrow(BadRequestException::new);
     }
 
     public Lecture updateLecture(LectureUpdateInfo lectureUpdateInfo, Lecture lecture) {
@@ -77,13 +59,13 @@ public class LectureService {
         return lectureJpaRepo.save(lecture);
     }
 
-    public Lecture updateLectureTx(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
-        lectureImageService.deleteIfIsDeleted(lectureUpdateInfo);
-        lectureImageService.addList(email, addLectureImageFiles, lecture);
-        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo.getEquipmentUpdateList(), lecture);
-
-        return updateLecture(lectureUpdateInfo, lecture);
-    }
+//    public Lecture updateLectureTx(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
+//        lectureImageService.deleteIfIsDeleted(lectureUpdateInfo);
+//        lectureImageService.addList(email, addLectureImageFiles, lecture);
+//        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo.getEquipmentUpdateList(), lecture);
+//
+//        return updateLecture(lectureUpdateInfo, lecture);
+//    }
 
     public void deleteLectureById(Long id) {
         lectureJpaRepo.deleteById(id);
@@ -130,7 +112,7 @@ public class LectureService {
         for (Schedule schedule : lecture.getSchedules()) {
             exitFor:
             for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
-                LocalDate upcomingScheduleDate  = LocalDate.now().plusDays(14);
+                LocalDate upcomingScheduleDate = LocalDate.now().plusDays(14);
                 if (scheduleDetail.getDate().isAfter(LocalDate.now().minusDays(1))
                         && scheduleDetail.getDate().isBefore(upcomingScheduleDate.plusDays(1))) {
                     upcomingScheduleCount += 1;
@@ -150,8 +132,8 @@ public class LectureService {
     }
 
     public Page<NewLectureInfo> getNewLecturesInfo(Account account, Pageable pageable) {
-        LocalDate pastDate = LocalDate.now().minusDays(15);
-        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDate, pageable);
+        LocalDateTime pastDateTime = LocalDateTime.now().minusDays(15);
+        Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDateTime, pageable);
 
         List<NewLectureInfo> newLectureInfos = mapToNewLectureInfos(account, lecturePage);
 
@@ -201,6 +183,7 @@ public class LectureService {
         return isMarked;
     }
 
+    @Transactional(readOnly = true)
     public Page<PopularLectureInfo> getPopularLecturesInfo(Account account, Pageable pageable) {
         Page<Lecture> lecturePage = lectureJpaRepo.findPopularLectures(pageable);
         List<PopularLectureInfo> popularLectureInfos = mapToPopularLectureInfos(account, lecturePage);
@@ -208,6 +191,7 @@ public class LectureService {
         return new PageImpl<>(popularLectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
     }
 
+    @Transactional(readOnly = true)
     public List<PopularLectureInfo> mapToPopularLectureInfos(Account account, Page<Lecture> lecturePage) {
         List<PopularLectureInfo> popularLectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
@@ -236,5 +220,36 @@ public class LectureService {
         }
 
         return popularLectureInfos;
+    }
+
+    @Transactional
+    public LectureCreateResult createLecture(Account account, LectureCreateInfo lectureCreateInfo) {
+        Lecture lecture = Lecture.builder()
+                .instructor(account)
+                .title(lectureCreateInfo.getTitle())
+                .region(lectureCreateInfo.getRegion())
+                .classKind(lectureCreateInfo.getClassKind())
+                .organization(lectureCreateInfo.getOrganization())
+                .level(lectureCreateInfo.getLevel())
+                .description(lectureCreateInfo.getDescription())
+                .price(lectureCreateInfo.getPrice())
+                .maxNumber(lectureCreateInfo.getMaxNumber())
+                .lectureTime(lectureCreateInfo.getLectureTime())
+                .build();
+
+        Lecture savedLecture = lectureJpaRepo.save(lecture);
+
+        return LectureCreateResult.builder()
+                .lectureId(savedLecture.getId())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public void checkLectureCreator(Account account, Long lectureId) {
+        Lecture lecture = getLectureById(lectureId);
+
+        if (!lecture.getInstructor().getId().equals(account.getId())) {
+            throw new BadRequestException();
+        }
     }
 }
