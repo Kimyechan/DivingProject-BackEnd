@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.lecture.search;
+package com.diving.pungdong.dto.lecture.list.search;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

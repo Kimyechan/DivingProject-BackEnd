@@ -10,8 +10,10 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
-import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
-import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
+import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
+import com.diving.pungdong.dto.lecture.list.search.CostCondition;
+import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -319,96 +321,6 @@ class LectureControllerTest {
 //    }
 //
 //    @Test
-//    @DisplayName("강의 리스트 조건 검색")
-//    public void searchList() throws Exception {
-//        CostCondition costCondition = CostCondition.builder()
-//                .min(10000)
-//                .max(50000)
-//                .build();
-//
-//        SearchCondition searchCondition = SearchCondition.builder()
-//                .groupName("AIDA")
-//                .certificateKind("LEVEL1")
-//                .region("서울")
-//                .costCondition(costCondition)
-//                .build();
-//
-//        Pageable pageable = PageRequest.of(1, 5);
-//        Page<Lecture> lecturePage = createLecturePage(pageable);
-//        given(lectureService.searchListByCondition(searchCondition, pageable)).willReturn(lecturePage);
-//
-//        mockMvc.perform(post("/lecture/list")
-//                .param("page", String.valueOf(pageable.getPageNumber()))
-//                .param("size", String.valueOf(pageable.getPageSize()))
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(searchCondition)))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andDo(document("get-lecture-by-condition",
-//                        requestParameters(
-//                                parameterWithName("page").description("몇 번째 페이지"),
-//                                parameterWithName("size").description("한 페이지당 크기")
-//                        ),
-//                        requestFields(
-//                                fieldWithPath("groupName").description("자격 단체 이름"),
-//                                fieldWithPath("certificateKind").description("자격증 종류"),
-//                                fieldWithPath("region").description("강의 지역"),
-//                                fieldWithPath("costCondition.max").description("강의료 최대 비용"),
-//                                fieldWithPath("costCondition.min").description("강의료 최소 비용")
-//                        ),
-//                        responseHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].id").description("강의 식별자 ID"),
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].title").description("강의 제목"),
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].classKind").description("강의 유형"),
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].groupName").description("강의 유형"),
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].certificateKind").description("자격증 종류"),
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].price").description("강의 비용"),
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].region").description("강의 지역"),
-//                                fieldWithPath("_embedded.lectureSearchResultList[0].imageURL").description("강의 이미지들"),
-//                                fieldWithPath("_links.first.href").description("첫 번째 페이지 URL"),
-//                                fieldWithPath("_links.prev.href").description("이전 번째 페이지 URL"),
-//                                fieldWithPath("_links.self.href").description("현재 페이지 URL"),
-//                                fieldWithPath("_links.next.href").description("다음 페이지 URL"),
-//                                fieldWithPath("_links.last.href").description("마지막 페이지 URL"),
-//                                fieldWithPath("page.size").description("한 페이지당 크기"),
-//                                fieldWithPath("page.totalElements").description("해당 지역 전체 강의 수"),
-//                                fieldWithPath("page.totalPages").description("전체 페이지 수"),
-//                                fieldWithPath("page.number").description("현재 페이지 번호")
-//                        )
-//                ));
-//    }
-//
-//    private Page<Lecture> createLecturePage(Pageable pageable) {
-//        List<Lecture> lectureList = new ArrayList<>();
-//        for (long i = 0; i < 15; i++) {
-//            LectureImage lectureImage = LectureImage.builder()
-//                    .fileURI("Image URL 주소")
-//                    .build();
-//
-//            Lecture lecture = Lecture.builder()
-//                    .id(i)
-//                    .title("강의")
-//                    .description("내용")
-//                    .classKind("스쿠버 다이빙")
-//                    .organization(Organization.AIDA)
-//                    .level("Level1")
-//                    .price(100000)
-//                    .region("서울")
-//                    .lectureImages(List.of(lectureImage))
-//                    .build();
-//            lectureList.add(lecture);
-//        }
-//
-//        long endIndex = (pageable.getOffset() + pageable.getPageSize()) > lectureList.size() ?
-//                lectureList.size() : pageable.getOffset() + pageable.getPageSize();
-//
-//        return new PageImpl<>(lectureList.subList((int) pageable.getOffset(), (int) endIndex), pageable, lectureList.size());
-//    }
-//
-//    @Test
 //    @DisplayName("강사 자신의 강의 목록 조회")
 //    public void getLectureList() throws Exception {
 //        Account account = createAccount();
@@ -632,9 +544,9 @@ class LectureControllerTest {
 
         Pageable pageable = PageRequest.of(0, 2);
 
-        List<PopularLectureInfo> lectureInfos = new ArrayList<>();
+        List<LectureInfo> lectureInfos = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            PopularLectureInfo popularLectureInfo = PopularLectureInfo.builder()
+            LectureInfo lectureInfo = LectureInfo.builder()
                     .id((long) i)
                     .title("title" + i)
                     .organization(Organization.AIDA)
@@ -648,11 +560,11 @@ class LectureControllerTest {
                     .starAvg(4.5f)
                     .reviewCount(100)
                     .build();
-            lectureInfos.add(popularLectureInfo);
+            lectureInfos.add(lectureInfo);
         }
-        Page<PopularLectureInfo> newLectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+        Page<LectureInfo> lectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
 
-        given(lectureService.getPopularLecturesInfo(account, pageable)).willReturn(newLectureInfoPage);
+        given(lectureService.getPopularLecturesInfo(account, pageable)).willReturn(lectureInfoPage);
 
         mockMvc.perform(get("/lecture/popular/list")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -673,20 +585,112 @@ class LectureControllerTest {
                                         parameterWithName("size").description("한 페이지 당 크기")
                                 ),
                                 responseFields(
-                                        fieldWithPath("_embedded.popularLectureInfoList[].id").description("인기 강의 식별자 값"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].title").description("인기 강의 제목"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].level").description("인기 강의 자격증 레벨"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].region").description("인기 강의 지역명"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].isMarked").description("인기 강의 찜 여부"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].price").description("인기 강의 강의 비용"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].imageUrl").description("인기 강의 대표 이미지"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].equipmentNames[]").description("인기 강의 대여 장비 목록"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].starAvg").description("인기 강의 리뷰 종합 평점"),
-                                        fieldWithPath("_embedded.popularLectureInfoList[].reviewCount").description("인기 강의 리뷰 갯수"),
+                                        fieldWithPath("_embedded.lectureInfoList[].id").description("인기 강의 식별자 값"),
+                                        fieldWithPath("_embedded.lectureInfoList[].title").description("인기 강의 제목"),
+                                        fieldWithPath("_embedded.lectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
+                                        fieldWithPath("_embedded.lectureInfoList[].level").description("인기 강의 자격증 레벨"),
+                                        fieldWithPath("_embedded.lectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.lectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
+                                        fieldWithPath("_embedded.lectureInfoList[].isMarked").description("인기 강의 찜 여부"),
+                                        fieldWithPath("_embedded.lectureInfoList[].price").description("인기 강의 강의 비용"),
+                                        fieldWithPath("_embedded.lectureInfoList[].imageUrl").description("인기 강의 대표 이미지"),
+                                        fieldWithPath("_embedded.lectureInfoList[].equipmentNames[]").description("인기 강의 대여 장비 목록"),
+                                        fieldWithPath("_embedded.lectureInfoList[].starAvg").description("인기 강의 리뷰 종합 평점"),
+                                        fieldWithPath("_embedded.lectureInfoList[].reviewCount").description("인기 강의 리뷰 갯수"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 필터 검색")
+    public void searchListByFilter() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        Pageable pageable = PageRequest.of(0, 2);
+        CostCondition costCondition = CostCondition.builder()
+                .max(150000)
+                .min(100000)
+                .build();
+        FilterSearchCondition condition = FilterSearchCondition.builder()
+                .region("서울")
+                .classKind("프리 다이빙")
+                .organization(Organization.AIDA)
+                .level("Level3")
+                .costCondition(costCondition)
+                .build();
+
+        List<LectureInfo> lectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            LectureInfo lectureInfo = LectureInfo.builder()
+                    .id((long) i)
+                    .title("title" + i)
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(10)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .isMarked(false)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .starAvg(4.5f)
+                    .reviewCount(100)
+                    .build();
+            lectureInfos.add(lectureInfo);
+        }
+        Page<LectureInfo> lectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+
+        given(lectureService.filterSearchList(account, condition, pageable)).willReturn(lectureInfoPage);
+
+        mockMvc.perform(post("/lecture/list/search/filter")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .content(objectMapper.writeValueAsString(condition)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-search-filter-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기")
+                                ),
+                                requestFields(
+                                        fieldWithPath("organization").description("자격증 단체 조건"),
+                                        fieldWithPath("level").description("자격증 레벨 조건"),
+                                        fieldWithPath("region").description("강의 지역 조건"),
+                                        fieldWithPath("classKind").description("강의 종류 조건"),
+                                        fieldWithPath("costCondition.max").description("강의료 최대 바용"),
+                                        fieldWithPath("costCondition.min").description("강의료 최저 바용")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.lectureInfoList[].id").description("인기 강의 식별자 값"),
+                                        fieldWithPath("_embedded.lectureInfoList[].title").description("인기 강의 제목"),
+                                        fieldWithPath("_embedded.lectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
+                                        fieldWithPath("_embedded.lectureInfoList[].level").description("인기 강의 자격증 레벨"),
+                                        fieldWithPath("_embedded.lectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.lectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
+                                        fieldWithPath("_embedded.lectureInfoList[].isMarked").description("인기 강의 찜 여부"),
+                                        fieldWithPath("_embedded.lectureInfoList[].price").description("인기 강의 강의 비용"),
+                                        fieldWithPath("_embedded.lectureInfoList[].imageUrl").description("인기 강의 대표 이미지"),
+                                        fieldWithPath("_embedded.lectureInfoList[].equipmentNames[]").description("인기 강의 대여 장비 목록"),
+                                        fieldWithPath("_embedded.lectureInfoList[].starAvg").description("인기 강의 리뷰 종합 평점"),
+                                        fieldWithPath("_embedded.lectureInfoList[].reviewCount").description("인기 강의 리뷰 갯수"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("page.size").description("한 페이지 당 사이즈"),
                                         fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),

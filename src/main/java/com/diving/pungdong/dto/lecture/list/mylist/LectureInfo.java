@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.lecture.search;
+package com.diving.pungdong.dto.lecture.list.mylist;
 
 import com.diving.pungdong.domain.lecture.Organization;
 import lombok.AllArgsConstructor;
@@ -10,9 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SearchCondition {
+public class LectureInfo {
+    private Long lectureId;
+    private String title;
     private Organization organization;
     private String level;
-    private String region;
-    private CostCondition costCondition;
+    private Integer cost;
+    private Boolean isRentEquipment;
+    private Integer upcomingScheduleCount;
 }

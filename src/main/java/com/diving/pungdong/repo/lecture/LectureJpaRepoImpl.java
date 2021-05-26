@@ -2,8 +2,8 @@ package com.diving.pungdong.repo.lecture;
 
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
-import com.diving.pungdong.dto.lecture.search.CostCondition;
-import com.diving.pungdong.dto.lecture.search.SearchCondition;
+import com.diving.pungdong.dto.lecture.list.search.CostCondition;
+import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -24,11 +24,11 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
     }
 
     @Override
-    public Page<Lecture> searchListByCondition(SearchCondition condition, Pageable pageable) {
+    public Page<Lecture> searchListByCondition(FilterSearchCondition condition, Pageable pageable) {
         List<Lecture> content = queryFactory
                 .selectFrom(lecture)
-                .join(lecture.lectureImages, lectureImage).fetchJoin()
                 .where(
+                        classKindEq(condition.getClassKind()),
                         organizationEq(condition.getOrganization()),
                         levelEq(condition.getLevel()),
                         regionEq(condition.getRegion()),
@@ -39,8 +39,9 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
 
         long total = queryFactory
                 .selectFrom(lecture)
-                .join(lecture.lectureImages, lectureImage).fetchJoin()
                 .where(
+                        classKindEq(condition.getClassKind()),
+                        organizationEq(condition.getOrganization()),
                         levelEq(condition.getLevel()),
                         regionEq(condition.getRegion()),
                         costBetween(condition.getCostCondition()))
@@ -55,6 +56,9 @@ public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
         return organization == null ? null : lecture.organization.eq(organization);
     }
 
+    private BooleanExpression classKindEq(String classKind) {
+        return classKind == null ? null : lecture.classKind.eq(classKind);
+    }
     private BooleanExpression levelEq(String level) {
         return level == null ? null : lecture.level.eq(level);
     }
