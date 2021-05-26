@@ -26,7 +26,7 @@ ext {
 
 bootJar {
     dependsOn asciidoctor
-    from ("${asciidoctor.outputDir}/html5") {
+    from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
     }
 }
@@ -43,6 +43,7 @@ dependencies {
     compile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
     implementation 'org.modelmapper:modelmapper:2.3.2'
+    implementation 'net.rakugakibox.util:yaml-resource-bundle:1.1'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

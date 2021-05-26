@@ -1,0 +1,51 @@
+unKnown:
+  code: "-9999"
+  msg: "알 수 없는 오류가 발생하였습니다."
+
+emailSigninFailed:
+  code: "-1001"
+  msg: "계정이 존재하지 않거나 이메일 또는 비밀번호가 정확하지 않습니다."
+
+entryPointException:
+  code: "-1002"
+  msg: "해당 리소스에 접근하기 위한 권한이 없습니다."
+
+accessDenied:
+  code: "-1003"
+  msg: "보유한 권한으로 접근할 수 없는 리소스 입니다"
+
+signInInputException:
+  code: "-1004"
+  msg: "회원가입 입력값을 제대로 입력하지 않았습니다"
+
+expiredAccessToken:
+  code: "-1005"
+  msg: "AccessToken이 만료되었습니다"
+
+expiredRefreshToken:
+  code: "-1006"
+  msg: "RefreshToken이 만료되었습니다"
+
+forbiddenToken:
+  code: "-1007"
+  msg: "사용이 제한된 토큰입니다"
+
+noPermissions:
+  code: "-1008"
+  msg: "해당 동작을 수행할 권한이 없습니다"
+
+resourceNotFound:
+  code: "-1009"
+  msg: "해당 자원을 조회할 수 없습니다"
+
+reservationFull:
+  code: "-1010"
+  msg: "남은 강의 예약 자리가 없습니다"
+
+badRequest:
+  code: "-1011"
+  msg: "보내신 요청 정보가 옳지 않습니다."
+
+emailDuplication:
+  code: "-1012"
+  msg: "이메일이 중복되었습니다"
