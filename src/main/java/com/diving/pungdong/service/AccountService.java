@@ -4,10 +4,10 @@ import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.CUserNotFoundException;
 import com.diving.pungdong.advice.exception.EmailDuplicationException;
 import com.diving.pungdong.config.security.UserAccount;
-import com.diving.pungdong.controller.sign.SignController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -86,5 +86,13 @@ public class AccountService implements UserDetailsService {
         if (!passwordEncoder.matches(signInReq.getPassword(), account.getPassword())) {
             throw new CEmailSigninFailedException();
         }
+    }
+
+    public EmailResult checkEmailExistence(String email) {
+        Boolean isExisted = accountJpaRepo.existsByEmail(email);
+
+        return EmailResult.builder()
+                .existed(isExisted)
+                .build();
     }
 }

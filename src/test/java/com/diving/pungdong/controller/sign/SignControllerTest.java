@@ -1,12 +1,13 @@
 package com.diving.pungdong.controller.sign;
 
-import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.config.EmbeddedRedisConfig;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
+import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
@@ -93,6 +94,41 @@ class SignControllerTest {
                 .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
 
         return account;
+    }
+
+    @Test
+    @DisplayName("이메일 존재 여부 확인")
+    public void checkEmailExistence() throws Exception {
+        EmailInfo emailInfo = EmailInfo.builder()
+                .email("kim@gmail.com")
+                .build();
+
+        EmailResult emailResult = EmailResult.builder()
+                .existed(true)
+                .build();
+
+        given(accountService.checkEmailExistence(any())).willReturn(emailResult);
+
+        mockMvc.perform(post("/sign/check/email")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(emailInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document("account-check-email",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입")
+                                ),
+                                requestFields(
+                                        fieldWithPath("email").description("유저 이메일")
+                                ),
+                                responseFields(
+                                        fieldWithPath("existed").description("유저 이메일 존재 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
     }
 
     @Test
@@ -195,9 +231,9 @@ class SignControllerTest {
                         requestPartBody("certificate"),
                         requestPartBody("request"),
                         requestPartFields("request",
-                                    fieldWithPath("phoneNumber").description("강사 전화번호"),
-                                    fieldWithPath("groupName").description("강사 소속 그룹"),
-                                    fieldWithPath("description").description("강사 소개글")
+                                fieldWithPath("phoneNumber").description("강사 전화번호"),
+                                fieldWithPath("groupName").description("강사 소속 그룹"),
+                                fieldWithPath("description").description("강사 소개글")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
