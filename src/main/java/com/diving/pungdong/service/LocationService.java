@@ -25,10 +25,10 @@ public class LocationService {
                 .address(locationCreateInfo.getAddress())
                 .latitude(locationCreateInfo.getLatitude())
                 .longitude(locationCreateInfo.getLongitude())
-                .lecture(lecture)
                 .build();
-
         locationJpaRepo.save(location);
+        lecture.setLocation(location);
+
         return LocationCreateResult.builder()
                 .lectureId(lecture.getId())
                 .locationId(location.getId())

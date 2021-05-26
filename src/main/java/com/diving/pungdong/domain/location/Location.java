@@ -17,7 +17,4 @@ public class Location {
     private String address;
     private Double latitude;
     private Double longitude;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    private Lecture lecture;
 }

@@ -6,27 +6,22 @@ import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
-import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
-import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
-import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
-import com.diving.pungdong.dto.lecture.search.SearchCondition;
+import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
+import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
-import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -69,26 +64,22 @@ public class LectureService {
         lectureJpaRepo.deleteById(id);
     }
 
-    public Page<Lecture> searchListByCondition(SearchCondition searchCondition, Pageable pageable) {
-        return lectureJpaRepo.searchListByCondition(searchCondition, pageable);
-    }
-
-    public Page<LectureInfo> getMyLectureInfoList(Account instructor, Pageable pageable) {
+    public Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> getMyLectureInfoList(Account instructor, Pageable pageable) {
         Page<Lecture> lecturePage = lectureJpaRepo.findByInstructor(instructor, pageable);
         List<Lecture> lectureList = lecturePage.getContent();
 
-        List<LectureInfo> lectureInfoList = mapToLectureInfoList(lectureList);
+        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = mapToLectureInfoList(lectureList);
 
         return new PageImpl<>(lectureInfoList, pageable, lecturePage.getTotalElements());
     }
 
-    public List<LectureInfo> mapToLectureInfoList(List<Lecture> lectureList) {
-        List<LectureInfo> lectureInfoList = new ArrayList<>();
+    public List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> mapToLectureInfoList(List<Lecture> lectureList) {
+        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = new ArrayList<>();
 
         for (Lecture lecture : lectureList) {
             Integer upcomingScheduleCount = countUpcomingSchedule(lecture);
 
-            LectureInfo lectureInfo = LectureInfo.builder()
+            com.diving.pungdong.dto.lecture.list.mylist.LectureInfo lectureInfo = com.diving.pungdong.dto.lecture.list.mylist.LectureInfo.builder()
                     .lectureId(lecture.getId())
                     .title(lecture.getTitle())
                     .organization(lecture.getOrganization())
@@ -184,16 +175,16 @@ public class LectureService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PopularLectureInfo> getPopularLecturesInfo(Account account, Pageable pageable) {
+    public Page<LectureInfo> getPopularLecturesInfo(Account account, Pageable pageable) {
         Page<Lecture> lecturePage = lectureJpaRepo.findPopularLectures(pageable);
-        List<PopularLectureInfo> popularLectureInfos = mapToPopularLectureInfos(account, lecturePage);
+        List<LectureInfo> lectureInfos = mapToPopularLectureInfos(account, lecturePage);
 
-        return new PageImpl<>(popularLectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
+        return new PageImpl<>(lectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
     }
 
     @Transactional(readOnly = true)
-    public List<PopularLectureInfo> mapToPopularLectureInfos(Account account, Page<Lecture> lecturePage) {
-        List<PopularLectureInfo> popularLectureInfos = new ArrayList<>();
+    public List<LectureInfo> mapToPopularLectureInfos(Account account, Page<Lecture> lecturePage) {
+        List<LectureInfo> lectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
             boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
@@ -202,7 +193,7 @@ public class LectureService {
                 equipmentNames.add(equipment.getName());
             }
 
-            PopularLectureInfo popularLectureInfo = PopularLectureInfo.builder()
+            LectureInfo lectureInfo = LectureInfo.builder()
                     .id(lecture.getId())
                     .title(lecture.getTitle())
                     .organization(lecture.getOrganization())
@@ -218,10 +209,10 @@ public class LectureService {
                     .equipmentNames(equipmentNames)
                     .build();
 
-            popularLectureInfos.add(popularLectureInfo);
+            lectureInfos.add(lectureInfo);
         }
 
-        return popularLectureInfos;
+        return lectureInfos;
     }
 
     private String getMainLectureImage(Lecture lecture) {
@@ -261,5 +252,12 @@ public class LectureService {
         if (!lecture.getInstructor().getId().equals(account.getId())) {
             throw new BadRequestException();
         }
+    }
+
+    public Page<LectureInfo> filterSearchList(Account account, FilterSearchCondition condition, Pageable pageable) {
+        Page<Lecture> lecturePage = lectureJpaRepo.searchListByCondition(condition, pageable);
+        List<LectureInfo> lectureInfos = mapToPopularLectureInfos(account, lecturePage);
+
+        return new PageImpl<>(lectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
     }
 }
