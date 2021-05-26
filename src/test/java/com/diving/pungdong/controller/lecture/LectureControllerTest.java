@@ -562,9 +562,9 @@ class LectureControllerTest {
                     .build();
             lectureInfos.add(lectureInfo);
         }
-        Page<LectureInfo> newLectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+        Page<LectureInfo> lectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
 
-        given(lectureService.getPopularLecturesInfo(account, pageable)).willReturn(newLectureInfoPage);
+        given(lectureService.getPopularLecturesInfo(account, pageable)).willReturn(lectureInfoPage);
 
         mockMvc.perform(get("/lecture/popular/list")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -614,14 +614,11 @@ class LectureControllerTest {
     public void searchListByFilter() throws Exception {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-
         Pageable pageable = PageRequest.of(0, 2);
-
         CostCondition costCondition = CostCondition.builder()
                 .max(150000)
                 .min(100000)
                 .build();
-
         FilterSearchCondition condition = FilterSearchCondition.builder()
                 .region("서울")
                 .classKind("프리 다이빙")
@@ -630,9 +627,29 @@ class LectureControllerTest {
                 .costCondition(costCondition)
                 .build();
 
-//        given(lectureService.filterSearchList())
-        mockMvc.perform(post("/lecture/" +
-                "list/search/filter")
+        List<LectureInfo> lectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            LectureInfo lectureInfo = LectureInfo.builder()
+                    .id((long) i)
+                    .title("title" + i)
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(10)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .isMarked(false)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .starAvg(4.5f)
+                    .reviewCount(100)
+                    .build();
+            lectureInfos.add(lectureInfo);
+        }
+        Page<LectureInfo> lectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+
+        given(lectureService.filterSearchList(account, condition, pageable)).willReturn(lectureInfoPage);
+
+        mockMvc.perform(post("/lecture/list/search/filter")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .param("page", String.valueOf(pageable.getPageNumber()))

@@ -146,9 +146,11 @@ public class LectureController {
     public ResponseEntity<?> searchListByFilter(@CurrentUser Account account,
                                                 @RequestBody FilterSearchCondition condition,
                                                 Pageable pageable,
-                                                PagedResourcesAssembler<?> assembler) {
+                                                PagedResourcesAssembler<LectureInfo> assembler) {
+        Page<LectureInfo> lectureInfoPage = lectureService.filterSearchList(account, condition, pageable);
 
-        return null;
+        PagedModel<EntityModel<LectureInfo>> model = assembler.toModel(lectureInfoPage);
+        return ResponseEntity.ok().body(model);
     }
 
     @GetMapping("/new/list")
