@@ -158,6 +158,7 @@ public class LectureService {
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
                     .isMarked(isMarked)
+                    .price(lecture.getPrice())
                     .equipmentNames(equipmentNames)
                     .build();
 
@@ -213,6 +214,7 @@ public class LectureService {
                     .reviewCount(lecture.getReviewCount())
                     .starAvg(lecture.getReviewTotalAvg())
                     .isMarked(isMarked)
+                    .price(lecture.getPrice())
                     .equipmentNames(equipmentNames)
                     .build();
 
