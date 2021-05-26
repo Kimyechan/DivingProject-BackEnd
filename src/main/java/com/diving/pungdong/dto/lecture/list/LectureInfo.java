@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.lecture.popularList;
+package com.diving.pungdong.dto.lecture.list;
 
 import com.diving.pungdong.domain.lecture.Organization;
 import lombok.*;
@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PopularLectureInfo {
+public class LectureInfo {
     private Long id;
     private String title;
     private Organization organization;

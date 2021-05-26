@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.lecture.newList;
+package com.diving.pungdong.dto.lecture.list.newList;
 
 import com.diving.pungdong.domain.lecture.Organization;
 import lombok.*;

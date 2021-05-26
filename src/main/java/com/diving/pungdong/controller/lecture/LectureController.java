@@ -5,22 +5,16 @@ import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
-import com.diving.pungdong.dto.lecture.mylist.LectureInfo;
-import com.diving.pungdong.dto.lecture.newList.NewLectureInfo;
-import com.diving.pungdong.dto.lecture.popularList.PopularLectureInfo;
-import com.diving.pungdong.dto.lecture.search.LectureSearchResult;
-import com.diving.pungdong.dto.lecture.search.SearchCondition;
-import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
-import com.diving.pungdong.dto.lecture.update.LectureUpdateRes;
+import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
+import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -35,8 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -150,48 +142,13 @@ public class LectureController {
 //        return lectureDetail;
 //    }
 
-    @PostMapping("/list")
-    public ResponseEntity<?> searchList(@RequestBody SearchCondition searchCondition,
-                                        Pageable pageable,
-                                        PagedResourcesAssembler<LectureSearchResult> assembler){
-        Page<Lecture> lecturePage = lectureService.searchListByCondition(searchCondition, pageable);
+    @PostMapping("/list/search/filter")
+    public ResponseEntity<?> searchListByFilter(@CurrentUser Account account,
+                                                @RequestBody FilterSearchCondition condition,
+                                                Pageable pageable,
+                                                PagedResourcesAssembler<?> assembler) {
 
-        List<LectureSearchResult> lectureSearchResults = mapToLectureSearchResults(lecturePage);
-
-        Page<LectureSearchResult> result = new PageImpl<>(lectureSearchResults, pageable, lecturePage.getTotalElements());
-        PagedModel<EntityModel<LectureSearchResult>> model = assembler.toModel(result);
-        return ResponseEntity.ok().body(model);
-    }
-
-    public List<LectureSearchResult> mapToLectureSearchResults(Page<Lecture> lecturePage) {
-        List<LectureSearchResult> lectureSearchResults = new ArrayList<>();
-        for (Lecture lecture : lecturePage.getContent()) {
-            List<String> imageURLs = mapToLectureImageUrls(lecture);
-            LectureSearchResult lectureSearchResult = mapToLectureSearchResult(lecture, imageURLs);
-            lectureSearchResults.add(lectureSearchResult);
-        }
-        return lectureSearchResults;
-    }
-
-    public LectureSearchResult mapToLectureSearchResult(Lecture lecture, List<String> imageURLs) {
-        return LectureSearchResult.builder()
-                .id(lecture.getId())
-                .title(lecture.getTitle())
-                .classKind(lecture.getClassKind())
-                .organization(lecture.getOrganization())
-                .level(lecture.getLevel())
-                .price(lecture.getPrice())
-                .region(lecture.getRegion())
-                .imageURL(imageURLs)
-                .build();
-    }
-
-    public List<String> mapToLectureImageUrls(Lecture lecture) {
-        List<String> imageURLs = new ArrayList<>();
-        for (LectureImage image : lecture.getLectureImages()) {
-            imageURLs.add(image.getFileURI());
-        }
-        return imageURLs;
+        return null;
     }
 
     @GetMapping("/new/list")
@@ -207,20 +164,20 @@ public class LectureController {
     @GetMapping("/popular/list")
     public ResponseEntity<?> getPopularLectures(@CurrentUser Account account,
                                                 Pageable pageable,
-                                                PagedResourcesAssembler<PopularLectureInfo> assembler) {
-        Page<PopularLectureInfo> lectureInfoPage = lectureService.getPopularLecturesInfo(account, pageable);
+                                                PagedResourcesAssembler<LectureInfo> assembler) {
+        Page<LectureInfo> lectureInfoPage = lectureService.getPopularLecturesInfo(account, pageable);
 
-        PagedModel<EntityModel<PopularLectureInfo>> model = assembler.toModel(lectureInfoPage);
+        PagedModel<EntityModel<LectureInfo>> model = assembler.toModel(lectureInfoPage);
         return ResponseEntity.ok().body(model);
     }
 
     @GetMapping("/manage/list")
     public ResponseEntity<?> manageList(@CurrentUser Account account,
                                         Pageable pageable,
-                                        PagedResourcesAssembler<LectureInfo> assembler) {
-        Page<LectureInfo> lectureInfoPage = lectureService.getMyLectureInfoList(account, pageable);
+                                        PagedResourcesAssembler<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> assembler) {
+        Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoPage = lectureService.getMyLectureInfoList(account, pageable);
 
-        PagedModel<EntityModel<LectureInfo>> model = assembler.toModel(lectureInfoPage);
+        PagedModel<EntityModel<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo>> model = assembler.toModel(lectureInfoPage);
         return ResponseEntity.ok().body(model);
     }
 

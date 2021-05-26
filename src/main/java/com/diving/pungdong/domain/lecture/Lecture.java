@@ -22,7 +22,8 @@ import java.util.List;
 @ToString(exclude = {"instructor", "equipmentList", "lectureImages"})
 public class Lecture {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -68,7 +69,7 @@ public class Lecture {
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Review> reviews;
 
-    @OneToOne(mappedBy = "lecture", fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private Location location;
 
     @PrePersist
