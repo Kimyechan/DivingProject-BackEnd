@@ -58,6 +58,7 @@ public class LectureController {
         }
 
         LectureCreateResult lectureCreateResult = lectureService.createLecture(account, lectureCreateInfo);
+
         EntityModel<LectureCreateResult> model = EntityModel.of(lectureCreateResult);
         WebMvcLinkBuilder location = linkTo(methodOn(LectureController.class).createLecture(account, lectureCreateInfo, result));
         model.add(location.withSelfRel());
