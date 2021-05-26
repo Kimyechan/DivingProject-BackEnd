@@ -1,35 +1,29 @@
 package com.diving.pungdong.controller.sign;
 
-import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.SignInInputException;
-import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
+import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
-import com.diving.pungdong.service.InstructorImageService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.*;
-import org.apache.commons.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -51,10 +45,20 @@ public class SignController {
     private final AccountService accountService;
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
     private final RedisTemplate<String, String> redisTemplate;
     private final AccountKafkaProducer producer;
+
+    @PostMapping("/check/email")
+    public ResponseEntity<?> checkEmailExistence(@RequestBody EmailInfo emailInfo) {
+        EmailResult emailResult = accountService.checkEmailExistence(emailInfo.getEmail());
+
+        EntityModel<EmailResult> model = EntityModel.of(emailResult);
+        model.add(linkTo(methodOn(SignController.class).checkEmailExistence(emailInfo)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-check-email").withRel("profile"));
+
+        return ResponseEntity.ok().body(model);
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@RequestBody SignInReq signInReq) {
@@ -178,33 +182,6 @@ public class SignController {
         private String userName;
         private Set<Role> roles;
     }
-
-//    @GetMapping("/refresh")
-//    public ResponseEntity refresh(HttpServletRequest request) {
-//        String refreshToken = jwtTokenProvider.resolveToken(request);
-//        Long id = Long.valueOf(jwtTokenProvider.getUserPk(refreshToken));
-//
-//        Account account = accountService.findAccountById(id);
-//
-//        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-//        String newRefreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
-//        RefreshRes refreshRes = new RefreshRes(newAccessToken, newRefreshToken);
-//
-//        EntityModel<RefreshRes> entity = EntityModel.of(refreshRes);
-//        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).refresh(request));
-//        entity.add(selfLinkBuilder.withSelfRel());
-//        entity.add(Link.of("/docs/api.html#resource-account-tokenRefresh").withRel("profile"));
-//
-//        return ResponseEntity.ok().body(entity);
-//    }
-//
-//    @Data
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    static class RefreshRes {
-//        String accessToken;
-//        String refreshToken;
-//    }
 
     @PostMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
