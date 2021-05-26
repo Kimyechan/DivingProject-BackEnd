@@ -36,8 +36,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectureService {
     private final LectureJpaRepo lectureJpaRepo;
-//    private final LectureImageService lectureImageService;
-//    private final EquipmentService equipmentService;
 
     public Lecture saveLecture(Lecture lecture) {
         return lectureJpaRepo.save(lecture);
@@ -143,6 +141,7 @@ public class LectureService {
     public List<NewLectureInfo> mapToNewLectureInfos(Account account, Page<Lecture> lecturePage) {
         List<NewLectureInfo> newLectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
+            String lectureImageUrl = getMainLectureImage(lecture);
             boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
             List<String> equipmentNames = new ArrayList<>();
             for (Equipment equipment : lecture.getEquipmentList()) {
@@ -157,8 +156,9 @@ public class LectureService {
                     .region(lecture.getRegion())
                     .maxNumber(lecture.getMaxNumber())
                     .lectureTime(lecture.getLectureTime())
-                    .imageUrl(lecture.getLectureImages().get(0).getFileURI())
+                    .imageUrl(lectureImageUrl)
                     .isMarked(isMarked)
+                    .price(lecture.getPrice())
                     .equipmentNames(equipmentNames)
                     .build();
 
@@ -195,6 +195,7 @@ public class LectureService {
     public List<PopularLectureInfo> mapToPopularLectureInfos(Account account, Page<Lecture> lecturePage) {
         List<PopularLectureInfo> popularLectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
+            String lectureImageUrl = getMainLectureImage(lecture);
             boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
             List<String> equipmentNames = new ArrayList<>();
             for (Equipment equipment : lecture.getEquipmentList()) {
@@ -209,10 +210,11 @@ public class LectureService {
                     .region(lecture.getRegion())
                     .maxNumber(lecture.getMaxNumber())
                     .lectureTime(lecture.getLectureTime())
-                    .imageUrl(lecture.getLectureImages().get(0).getFileURI())
+                    .imageUrl(lectureImageUrl)
                     .reviewCount(lecture.getReviewCount())
                     .starAvg(lecture.getReviewTotalAvg())
                     .isMarked(isMarked)
+                    .price(lecture.getPrice())
                     .equipmentNames(equipmentNames)
                     .build();
 
@@ -220,6 +222,14 @@ public class LectureService {
         }
 
         return popularLectureInfos;
+    }
+
+    private String getMainLectureImage(Lecture lecture) {
+        if (!lecture.getLectureImages().isEmpty()) {
+            return lecture.getLectureImages().get(0).getFileURI();
+        } else {
+            return "";
+        }
     }
 
     @Transactional
