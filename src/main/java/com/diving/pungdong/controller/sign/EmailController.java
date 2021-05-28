@@ -39,7 +39,7 @@ public class EmailController {
         SuccessResult successResult = new SuccessResult(true);
         EntityModel<SuccessResult> model = EntityModel.of(successResult);
         model.add(linkTo(methodOn(EmailController.class).sendEmailCode(emailSendInfo, result)).withSelfRel());
-        model.add(Link.of("/docs/api.html#resource-account-email-code-send").withRel("profile"));
+        model.add(Link.of("/docs/api.html#").withRel("profile"));
 
         return ResponseEntity.ok().body(model);
     }
