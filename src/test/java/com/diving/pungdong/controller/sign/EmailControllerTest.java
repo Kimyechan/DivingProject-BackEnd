@@ -1,6 +1,7 @@
 package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
+import com.diving.pungdong.dto.account.emailCode.EmailAuthInfo;
 import com.diving.pungdong.dto.account.emailCode.EmailSendInfo;
 import com.diving.pungdong.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +22,6 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -69,5 +69,20 @@ class EmailControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("이메일 승인 코드 검증")
+    public void verifyEmailCode() throws Exception {
+        EmailAuthInfo emailAuthInfo = EmailAuthInfo.builder()
+                .email("kim@gmail.com")
+                .code("123456")
+                .build();
+
+        mockMvc.perform(post("/email/code/verify")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(emailAuthInfo)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

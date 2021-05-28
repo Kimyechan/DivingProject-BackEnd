@@ -1,6 +1,8 @@
 package com.diving.pungdong.service;
 
 
+import com.diving.pungdong.dto.account.emailCode.EmailAuthInfo;
+import com.diving.pungdong.model.SuccessResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.MailException;
@@ -64,4 +66,15 @@ public class EmailService {
         }
     }
 
+    public SuccessResult verifyAuthCode(EmailAuthInfo emailAuthInfo) {
+        String authCode = redisTemplate.opsForValue().get(emailAuthInfo.getEmail() + "EmailAuth");
+        Boolean isSuccess = false;
+        if (authCode != null && authCode.equals(emailAuthInfo.getCode())) {
+            isSuccess = true;
+        }
+
+        return SuccessResult.builder()
+                .success(isSuccess)
+                .build();
+    }
 }

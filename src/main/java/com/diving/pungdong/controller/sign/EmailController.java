@@ -1,6 +1,7 @@
 package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
+import com.diving.pungdong.dto.account.emailCode.EmailAuthInfo;
 import com.diving.pungdong.dto.account.emailCode.EmailSendInfo;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.EmailService;
@@ -38,8 +39,25 @@ public class EmailController {
         SuccessResult successResult = new SuccessResult(true);
         EntityModel<SuccessResult> model = EntityModel.of(successResult);
         model.add(linkTo(methodOn(EmailController.class).sendEmailCode(emailSendInfo, result)).withSelfRel());
-        model.add(Link.of("/docs/api.html#").withRel("profile"));
+        model.add(Link.of("/docs/api.html#resource-account-email-code-send").withRel("profile"));
 
         return ResponseEntity.ok().body(model);
     }
+
+    @PostMapping("/code/verify")
+    public ResponseEntity<?> verifyEmailCode(@Valid @RequestBody EmailAuthInfo emailAuthInfo,
+                                             BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        SuccessResult successResult = emailService.verifyAuthCode(emailAuthInfo);
+
+        EntityModel<SuccessResult> model = EntityModel.of(successResult);
+        model.add(linkTo(methodOn(EmailController.class).verifyEmailCode(emailAuthInfo, result)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-email-code-verify").withRel("profile"));
+
+        return ResponseEntity.ok().body(model);
+    }
+
 }
