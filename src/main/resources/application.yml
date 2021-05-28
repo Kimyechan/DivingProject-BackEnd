@@ -50,3 +50,19 @@ security.oauth2.client.client-id: auth_id
 security.oauth2.client.client-secret: auth_secret
 
 authorization-server.host: http://3.36.37.253:8095
+
+mail:
+  smtp:
+    auth: true
+    port: 465
+    starttls:
+      required: true
+      enable: true
+    socketFactory:
+      class: javax.net.ssl.SSLSocketFactory
+      fallback: false
+      port: 465
+
+AdminMail:
+  id: pungdong773@gmail.com
+  password: pungdong1974@@
