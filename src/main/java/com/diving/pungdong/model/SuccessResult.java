@@ -1,14 +1,13 @@
 package com.diving.pungdong.model;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SuccessResult {
-    private boolean success;
+    private Boolean success;
 }

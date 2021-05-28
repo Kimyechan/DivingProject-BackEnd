@@ -1,7 +1,9 @@
 package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
+import com.diving.pungdong.dto.account.emailCode.EmailAuthInfo;
 import com.diving.pungdong.dto.account.emailCode.EmailSendInfo;
+import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHeaders;
@@ -17,11 +19,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,6 +63,44 @@ class EmailControllerTest {
                                 ),
                                 requestFields(
                                         fieldWithPath("email").description("유저 이메일")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("승인 코드 전송 성공 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("이메일 승인 코드 검증")
+    public void verifyEmailCode() throws Exception {
+        EmailAuthInfo emailAuthInfo = EmailAuthInfo.builder()
+                .email("kim@gmail.com")
+                .code("123456")
+                .build();
+
+        SuccessResult successResult = SuccessResult.builder()
+                .success(false)
+                .build();
+
+        given(emailService.verifyAuthCode(emailAuthInfo)).willReturn(successResult);
+
+        mockMvc.perform(post("/email/code/verify")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(emailAuthInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-email-auth-code-verify",
+                                requestHeaders(
+                                        headerWithName(org.springframework.http.HttpHeaders.CONTENT_TYPE).description("JSON 타입")
+                                ),
+                                requestFields(
+                                        fieldWithPath("email").description("유저 이메일"),
+                                        fieldWithPath("code").description("인증 코드")
                                 ),
                                 responseFields(
                                         fieldWithPath("success").description("승인 코드 전송 성공 여부"),
