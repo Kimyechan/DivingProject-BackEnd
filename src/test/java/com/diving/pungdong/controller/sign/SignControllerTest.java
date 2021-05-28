@@ -1,5 +1,6 @@
 package com.diving.pungdong.controller.sign;
 
+import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.config.EmbeddedRedisConfig;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
@@ -55,7 +56,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
 @Import({RestDocsConfiguration.class, EmbeddedRedisConfig.class})
-@Transactional
 class SignControllerTest {
 
     @Autowired
@@ -247,20 +247,20 @@ class SignControllerTest {
                 ));
     }
 
-//    @Test
-//    @DisplayName("회원 가입 실패 - 입력값이 잘못됨")
-//    public void signupInputNull() throws Exception {
-//        SignUpReq signUpReq = SignUpReq.builder().build();
-//
-//        mockMvc.perform(post("/sign/signup")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaTypes.HAL_JSON)
-//                .content(objectMapper.writeValueAsString(signUpReq)))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("code").value(-1004))
-//                .andExpect(jsonPath("success").value(false));
-//    }
+    @Test
+    @DisplayName("회원 가입 실패 - 입력값이 잘못됨")
+    public void signupInputNull() throws Exception {
+        SignUpReq signUpReq = SignUpReq.builder().build();
+
+        mockMvc.perform(post("/sign/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(signUpReq)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(-1004))
+                .andExpect(jsonPath("success").value(false));
+    }
 
     @Test
     @DisplayName("로그인 성공")
@@ -323,46 +323,46 @@ class SignControllerTest {
                 ));
     }
 
-//    @Test
-//    @DisplayName("로그인 실패 - 이메일(ID)이 없는 경우")
-//    public void signInNotFoundEmail() throws Exception {
-//        String email = "yechan@gmail.com";
-//        String password = "1234";
-//
-//        doThrow(new CEmailSigninFailedException()).when(accountService).findAccountByEmail(email);
-//
-//        mockMvc.perform(post("/sign/signin")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(new SignInReq(email, password))))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("success").value(false))
-//                .andExpect(jsonPath("code").value(-1001));
-//    }
+    @Test
+    @DisplayName("로그인 실패 - 이메일(ID)이 없는 경우")
+    public void signInNotFoundEmail() throws Exception {
+        String email = "yechan@gmail.com";
+        String password = "1234";
 
-//    @Test
-//    @DisplayName("로그인 실패 - PASSWORD가 틀린 경우")
-//    public void signInNotMatchPassword() throws Exception {
-//        String email = "yechan@gmail.com";
-//        String password = "1234";
-//        String encodedPassword = passwordEncoder.encode(password);
-//
-//        Account account = Account.builder()
-//                .email(email)
-//                .password(encodedPassword)
-//                .build();
-//
-//        given(accountService.findAccountByEmail(email)).willReturn(account);
-//        doThrow(new CEmailSigninFailedException()).when(accountService).checkCorrectPassword(any(), any());
-//
-//        mockMvc.perform(post("/sign/signin")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(new SignInReq(email, "wrongPassword"))))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("success").value(false))
-//                .andExpect(jsonPath("code").value(-1001));
-//    }
+        doThrow(new CEmailSigninFailedException()).when(accountService).findAccountByEmail(email);
+
+        mockMvc.perform(post("/sign/signin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new SignInReq(email, password))))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("success").value(false))
+                .andExpect(jsonPath("code").value(-1001));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - PASSWORD가 틀린 경우")
+    public void signInNotMatchPassword() throws Exception {
+        String email = "yechan@gmail.com";
+        String password = "1234";
+        String encodedPassword = passwordEncoder.encode(password);
+
+        Account account = Account.builder()
+                .email(email)
+                .password(encodedPassword)
+                .build();
+
+        given(accountService.findAccountByEmail(email)).willReturn(account);
+        doThrow(new CEmailSigninFailedException()).when(accountService).checkCorrectPassword(any(), any());
+
+        mockMvc.perform(post("/sign/signin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new SignInReq(email, "wrongPassword"))))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("success").value(false))
+                .andExpect(jsonPath("code").value(-1001));
+    }
 
 //    @Test
 //    @DisplayName("RefreshToken으로 재발급")

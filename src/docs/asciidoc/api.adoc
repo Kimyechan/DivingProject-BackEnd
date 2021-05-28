@@ -101,6 +101,10 @@
 === 이메일 존재 여부 확인
 operation::account-check-email[]
 
+[[resource-account-email-code-send]]
+=== 이메일 승인 코드 전송
+operation::account-email-auth-code-send[]
+
 [[resource-account-create]]
 === 유저 생성
 operation::signUp[]

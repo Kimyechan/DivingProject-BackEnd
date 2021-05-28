@@ -45,10 +45,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .authorizeRequests()
-                        .antMatchers("/sign/signup", "/sign/signin", "/sign/check/email", "/sign/refresh").permitAll()
+                        .antMatchers("/sign/signup", "/sign/signin", "/sign/check/email", "/sign/refresh",
+                                "/email/code/**").permitAll()
                         .antMatchers("/lecture/detail", "/lecture/list", "/lecture/new/list", "/lecture/popular/list", "/lecture/list/search/**",
                                 "/schedule").permitAll()
-                        .antMatchers(HttpMethod.GET, "/exception/**", "helloworld/**").permitAll()
+                        .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
                         .antMatchers("/lecture/create", "/lecture/update", "/lecture/delete", "/lecture/manage/list"
                                 , "/location/create", "/lectureImage/create/list", "/equipment/create/list").authenticated()
                         .anyRequest().authenticated()
