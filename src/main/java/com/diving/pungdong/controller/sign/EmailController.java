@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -34,7 +33,7 @@ public class EmailController {
             throw new BadRequestException();
         }
 
-        emailService.sendSimpleMessage(emailSendInfo.getEmail());
+        emailService.sendMessage(emailSendInfo.getEmail());
 
         SuccessResult successResult = new SuccessResult(true);
         EntityModel<SuccessResult> model = EntityModel.of(successResult);

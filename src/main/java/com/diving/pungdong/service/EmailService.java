@@ -49,12 +49,12 @@ public class EmailService {
         }
         String completedCode = code.toString();
 
-        redisTemplate.opsForValue().set(to + "emailAuth", completedCode, 60 * 3 * 1000, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(to + "EmailAuth", completedCode, 60 * 3 * 1000, TimeUnit.MILLISECONDS);
 
         return completedCode;
     }
 
-    public void sendSimpleMessage(String to) throws Exception {
+    public void sendMessage(String to) throws Exception {
         MimeMessage message = createMessage(to);
 
         try {
