@@ -105,6 +105,10 @@ operation::account-check-email[]
 === 이메일 승인 코드 전송
 operation::account-email-auth-code-send[]
 
+[[resource-account-email-code-verify]]
+=== 이메일 승인 코드 검증
+operation::account-email-auth-code-verify[]
+
 [[resource-account-create]]
 === 유저 생성
 operation::signUp[]
