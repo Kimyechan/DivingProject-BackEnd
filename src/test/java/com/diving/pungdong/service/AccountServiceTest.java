@@ -68,8 +68,8 @@ class AccountServiceTest {
                 .id(any())
                 .email(account.getEmail())
                 .password(account.getPassword())
-                .userName(account.getUserName())
-                .age(account.getAge())
+                .userName(account.getNickName())
+                .age(account.getBirth())
                 .gender(account.getGender())
                 .roles(account.getRoles())
                 .build();

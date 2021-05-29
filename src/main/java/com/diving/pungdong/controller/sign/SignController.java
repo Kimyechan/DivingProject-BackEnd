@@ -2,10 +2,10 @@ package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -95,52 +94,40 @@ public class SignController {
     }
 
     @PostMapping(value = "/sign-up")
-    public ResponseEntity<?> signup(@Valid @RequestBody SignUpReq signUpReq, BindingResult result) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpInfo signUpInfo, BindingResult result) {
         if (result.hasErrors()) {
             throw new SignInInputException();
         }
 
-        accountService.checkDuplicationOfEmail(signUpReq.getEmail());
-        signUpReq.setPassword(passwordEncoder.encode(signUpReq.getPassword()));
+        accountService.checkDuplicationOfEmail(signUpInfo.getEmail());
+        signUpInfo.setPassword(passwordEncoder.encode(signUpInfo.getPassword()));
 
-        Account student = modelMapper.map(signUpReq, Account.class);
+        Account student = modelMapper.map(signUpInfo, Account.class);
         student.setRoles(Set.of(Role.STUDENT));
         accountService.saveAccount(student);
         producer.sendAccountInfo(String.valueOf(student.getId()), student.getPassword(), student.getRoles());
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signup(signUpReq, result));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signUp(signUpInfo, result));
         URI createUri = selfLinkBuilder.toUri();
 
         SignUpRes signUpRes = SignUpRes.builder()
-                .email(signUpReq.getEmail())
-                .userName(signUpReq.getUserName())
+                .email(signUpInfo.getEmail())
+                .nickName(signUpInfo.getNickName())
                 .build();
 
         EntityModel<SignUpRes> model = EntityModel.of(signUpRes);
         model.add(selfLinkBuilder.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-create").withRel("profile"));
-        model.add(linkTo(methodOn(SignController.class).login(new SignInReq(signUpReq.getEmail(), signUpReq.getPassword()))).withRel("signin"));
+        model.add(linkTo(methodOn(SignController.class).login(new SignInReq(signUpInfo.getEmail(), signUpInfo.getPassword()))).withRel("signin"));
 
         return ResponseEntity.created(createUri).body(model);
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    static class SignUpReq {
-        @NotNull String email;
-        @NotNull String password;
-        @NotNull String userName;
-        @NotNull Integer age;
-        @NotNull Gender gender;
     }
 
     @Data
     @Builder
     static class SignUpRes {
         String email;
-        String userName;
+        String nickName;
     }
 
     @PostMapping("/addInstructorRole")
@@ -152,7 +139,7 @@ public class SignController {
 
         AddInstructorRoleRes addInstructorRoleRes = AddInstructorRoleRes.builder()
                 .email(updatedAccount.getEmail())
-                .userName(updatedAccount.getUserName())
+                .userName(updatedAccount.getNickName())
                 .roles(updatedAccount.getRoles())
                 .build();
 
