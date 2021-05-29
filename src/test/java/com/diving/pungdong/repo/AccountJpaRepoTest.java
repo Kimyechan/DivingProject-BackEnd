@@ -26,8 +26,8 @@ class AccountJpaRepoTest {
         Account account = Account.builder()
                 .email("rrr@gmail.com")
                 .password("1234")
-                .userName("rrr")
-                .age(24)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Set.of(Role.INSTRUCTOR))
                 .build();
@@ -43,8 +43,8 @@ class AccountJpaRepoTest {
         Account account = Account.builder()
                 .email("rrr@gmail.com")
                 .password("1234")
-                .userName("rrr")
-                .age(24)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Sets.newLinkedHashSet(Role.STUDENT))
                 .build();
@@ -62,8 +62,8 @@ class AccountJpaRepoTest {
         Account account = Account.builder()
                 .email("rrr@gmail.com")
                 .password("1234")
-                .userName("rrr")
-                .age(24)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Sets.newLinkedHashSet(Role.STUDENT))
                 .build();

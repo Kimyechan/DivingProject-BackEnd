@@ -134,7 +134,7 @@ public class ReservationService {
             Reservation reservation = reservationDate.getReservation();
 
             ReservationInfo reservationInfo = ReservationInfo.builder()
-                    .userName(reservation.getAccount().getUserName())
+                    .userName(reservation.getAccount().getNickName())
                     .equipmentList(reservation.getEquipmentList())
                     .description(reservation.getDescription())
                     .build();

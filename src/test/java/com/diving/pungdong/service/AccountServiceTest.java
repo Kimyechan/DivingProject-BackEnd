@@ -10,8 +10,11 @@ import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,8 +30,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ActiveProfiles("test")
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
+    @InjectMocks
     private AccountService accountService;
 
     @Mock
@@ -46,20 +50,14 @@ class AccountServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        accountService = new AccountService(accountJpaRepo, redisTemplate, instructorImageService, passwordEncoder);
-    }
-
     @Test
     @DisplayName("account 계정을 저장한다")
     public void saveAccount() {
         Account account = Account.builder()
                 .email("rrr@gmail.com")
                 .password("1234")
-                .userName("rrr")
-                .age(24)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Set.of(Role.INSTRUCTOR))
                 .build();
@@ -68,8 +66,8 @@ class AccountServiceTest {
                 .id(any())
                 .email(account.getEmail())
                 .password(account.getPassword())
-                .userName(account.getUserName())
-                .age(account.getAge())
+                .nickName(account.getNickName())
+                .birth(account.getBirth())
                 .gender(account.getGender())
                 .roles(account.getRoles())
                 .build();
@@ -101,8 +99,8 @@ class AccountServiceTest {
         Account account = Account.builder()
                 .email("rrr@gmail.com")
                 .password("1234")
-                .userName("rrr")
-                .age(24)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Sets.newLinkedHashSet(Role.STUDENT))
                 .build();

@@ -154,8 +154,8 @@ class ScheduleControllerTest {
                 .id(1L)
                 .email("yechan@gmail.com")
                 .password("1234")
-                .userName("yechan")
-                .age(27)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Set.of(Role.INSTRUCTOR))
                 .build();
