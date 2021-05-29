@@ -9,6 +9,8 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.signUp.SignUpInfo;
+import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
@@ -83,8 +85,8 @@ class SignControllerTest {
                 .id(1L)
                 .email("yechan@gmail.com")
                 .password("1234")
-                .userName("yechan")
-                .age(27)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Set.of(role))
                 .build();
@@ -133,23 +135,32 @@ class SignControllerTest {
     @Test
     @DisplayName("회원가입 성공 - 수강생 권한으로만 가입됨")
     public void signupInstructorSuccess() throws Exception {
-        SignUpReq signUpReq = SignUpReq.builder()
+        SignUpInfo signUpInfo = SignUpInfo.builder()
                 .email("yechan@gmail.com")
                 .password("1234")
-                .userName("yechan")
-                .age(24)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
+                .phoneNumber("010-1111-2222")
+                .verifyCode("111222")
                 .build();
+
+        SignUpResult signUpResult = SignUpResult.builder()
+                .email(signUpInfo.getEmail())
+                .nickName(signUpInfo.getNickName())
+                .build();
+
+        given(accountService.saveAccountInfo(signUpInfo)).willReturn(signUpResult);
 
         mockMvc.perform(post("/sign/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(signUpReq)))
+                .content(objectMapper.writeValueAsString(signUpInfo)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(jsonPath("email").exists())
-                .andExpect(jsonPath("userName").exists())
+                .andExpect(jsonPath("nickName").exists())
                 .andDo(document("signUp",
                         requestHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입")
@@ -157,9 +168,11 @@ class SignControllerTest {
                         requestFields(
                                 fieldWithPath("email").description("유저 ID"),
                                 fieldWithPath("password").description("유저 PASSWORD"),
-                                fieldWithPath("userName").description("유저의 이름"),
-                                fieldWithPath("age").description("유저의 나이"),
-                                fieldWithPath("gender").description("유저의 성별")
+                                fieldWithPath("nickName").description("유저의 닉네임"),
+                                fieldWithPath("birth").description("유저의 생년월일"),
+                                fieldWithPath("gender").description("유저의 성별"),
+                                fieldWithPath("phoneNumber").description("휴대폰 번호"),
+                                fieldWithPath("verifyCode").description("이메일 승인 코드")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("API 주소"),
@@ -167,10 +180,10 @@ class SignControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("email").description("유저 ID"),
-                                fieldWithPath("userName").description("유저의 이름"),
+                                fieldWithPath("nickName").description("유저의 닉네임"),
                                 fieldWithPath("_links.self.href").description("해당 API 링크"),
                                 fieldWithPath("_links.profile.href").description("API 문서 링크"),
-                                fieldWithPath("_links.signin.href").description("로그인 링크")
+                                fieldWithPath("_links.login.href").description("로그인 링크")
                         )
                 ));
     }
@@ -249,12 +262,12 @@ class SignControllerTest {
     @Test
     @DisplayName("회원 가입 실패 - 입력값이 잘못됨")
     public void signupInputNull() throws Exception {
-        SignUpReq signUpReq = SignUpReq.builder().build();
+        SignUpInfo signUpInfo = SignUpInfo.builder().build();
 
         mockMvc.perform(post("/sign/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(signUpReq)))
+                .content(objectMapper.writeValueAsString(signUpInfo)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(-1004))
@@ -273,8 +286,8 @@ class SignControllerTest {
                 .id(1L)
                 .email("yechan@gmail.com")
                 .password(passwordEncoder.encode(password))
-                .userName("yechan")
-                .age(27)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Set.of(Role.STUDENT))
                 .build();

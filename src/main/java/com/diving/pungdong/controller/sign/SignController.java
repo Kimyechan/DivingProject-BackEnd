@@ -6,12 +6,11 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
+import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
-import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.*;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -19,7 +18,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,10 +41,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class SignController {
     private final AccountService accountService;
     private final AuthService authService;
-    private final PasswordEncoder passwordEncoder;
-    private final ModelMapper modelMapper;
     private final RedisTemplate<String, String> redisTemplate;
-    private final AccountKafkaProducer producer;
 
     @PostMapping("/check/email")
     public ResponseEntity<?> checkEmailExistence(@RequestBody EmailInfo emailInfo) {
@@ -99,35 +94,15 @@ public class SignController {
             throw new SignInInputException();
         }
 
-        accountService.checkDuplicationOfEmail(signUpInfo.getEmail());
-        signUpInfo.setPassword(passwordEncoder.encode(signUpInfo.getPassword()));
+        SignUpResult signUpResult = accountService.saveAccountInfo(signUpInfo);
 
-        Account student = modelMapper.map(signUpInfo, Account.class);
-        student.setRoles(Set.of(Role.STUDENT));
-        accountService.saveAccount(student);
-        producer.sendAccountInfo(String.valueOf(student.getId()), student.getPassword(), student.getRoles());
-
+        EntityModel<SignUpResult> model = EntityModel.of(signUpResult);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signUp(signUpInfo, result));
-        URI createUri = selfLinkBuilder.toUri();
-
-        SignUpRes signUpRes = SignUpRes.builder()
-                .email(signUpInfo.getEmail())
-                .nickName(signUpInfo.getNickName())
-                .build();
-
-        EntityModel<SignUpRes> model = EntityModel.of(signUpRes);
         model.add(selfLinkBuilder.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-create").withRel("profile"));
-        model.add(linkTo(methodOn(SignController.class).login(new SignInReq(signUpInfo.getEmail(), signUpInfo.getPassword()))).withRel("signin"));
+        model.add(linkTo(methodOn(SignController.class).login(new SignInReq(signUpInfo.getEmail(), signUpInfo.getPassword()))).withRel("login"));
 
-        return ResponseEntity.created(createUri).body(model);
-    }
-
-    @Data
-    @Builder
-    static class SignUpRes {
-        String email;
-        String nickName;
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(model);
     }
 
     @PostMapping("/addInstructorRole")

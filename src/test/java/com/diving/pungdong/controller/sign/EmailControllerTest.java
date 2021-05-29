@@ -85,7 +85,7 @@ class EmailControllerTest {
                 .success(false)
                 .build();
 
-        given(emailService.verifyAuthCode(emailAuthInfo)).willReturn(successResult);
+        given(emailService.verifyAuthCode(emailAuthInfo.getEmail(), emailAuthInfo.getCode())).willReturn(successResult);
 
         mockMvc.perform(post("/email/code/verify")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

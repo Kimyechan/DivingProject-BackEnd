@@ -51,7 +51,7 @@ public class EmailController {
             throw new BadRequestException();
         }
 
-        SuccessResult successResult = emailService.verifyAuthCode(emailAuthInfo);
+        SuccessResult successResult = emailService.verifyAuthCode(emailAuthInfo.getEmail(), emailAuthInfo.getCode());
 
         EntityModel<SuccessResult> model = EntityModel.of(successResult);
         model.add(linkTo(methodOn(EmailController.class).verifyEmailCode(emailAuthInfo, result)).withSelfRel());
