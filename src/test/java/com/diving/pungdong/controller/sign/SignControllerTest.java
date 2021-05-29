@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
@@ -280,7 +281,7 @@ class SignControllerTest {
         String email = "yechan@gmail.com";
         String password = "1234";
 
-        SignInReq signInReq = new SignInReq(email, password);
+        SignInInfo signInInfo = new SignInInfo(email, password);
 
         Account account = Account.builder()
                 .id(1L)
@@ -301,12 +302,12 @@ class SignControllerTest {
                 .jti("jti")
                 .build();
 
-        given(authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword())).willReturn(authToken);
-        given(accountService.findAccountByEmail(signInReq.getEmail())).willReturn(account);
+        given(authService.getAuthToken(String.valueOf(account.getId()), signInInfo.getPassword())).willReturn(authToken);
+        given(accountService.findAccountByEmail(signInInfo.getEmail())).willReturn(account);
 
         mockMvc.perform(post("/sign/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signInReq)))
+                .content(objectMapper.writeValueAsString(signInInfo)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists())
@@ -345,7 +346,7 @@ class SignControllerTest {
 
         mockMvc.perform(post("/sign/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new SignInReq(email, password))))
+                .content(objectMapper.writeValueAsString(new SignInInfo(email, password))))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("success").value(false))
@@ -369,7 +370,7 @@ class SignControllerTest {
 
         mockMvc.perform(post("/sign/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new SignInReq(email, "wrongPassword"))))
+                .content(objectMapper.writeValueAsString(new SignInInfo(email, "wrongPassword"))))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("success").value(false))
