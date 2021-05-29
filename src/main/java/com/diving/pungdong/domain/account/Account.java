@@ -22,9 +22,9 @@ public class Account {
 
     String password;
 
-    String userName;
+    String nickName;
 
-    Integer age;
+    String birth;
 
     @Enumerated(EnumType.STRING)
     Gender gender;
@@ -34,6 +34,8 @@ public class Account {
     Set<Role> roles = new HashSet<>();
 
     private String phoneNumber;
+
+    private Boolean isCertified;
 
     private String groupName;
 

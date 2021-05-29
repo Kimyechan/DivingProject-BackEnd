@@ -1,7 +1,7 @@
 package com.diving.pungdong.service;
 
 
-import com.diving.pungdong.dto.account.emailCode.EmailAuthInfo;
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.model.SuccessResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -51,7 +51,7 @@ public class EmailService {
         }
         String completedCode = code.toString();
 
-        redisTemplate.opsForValue().set(to + "EmailAuth", completedCode, 60 * 3 * 1000, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(to + "EmailAuth", completedCode, 60 * 10 * 1000, TimeUnit.MILLISECONDS);
 
         return completedCode;
     }
@@ -66,15 +66,18 @@ public class EmailService {
         }
     }
 
-    public SuccessResult verifyAuthCode(EmailAuthInfo emailAuthInfo) {
-        String authCode = redisTemplate.opsForValue().get(emailAuthInfo.getEmail() + "EmailAuth");
-        Boolean isSuccess = false;
-        if (authCode != null && authCode.equals(emailAuthInfo.getCode())) {
-            isSuccess = true;
+    public SuccessResult verifyAuthCode(String email, String code) {
+        String authCode = redisTemplate.opsForValue().get(email + "EmailAuth");
+        if (authCode == null) {
+            throw new BadRequestException("인증 시간이 만료되었습니다");
+        }
+
+        if (!authCode.equals(code)) {
+            throw new BadRequestException("인증 코드가 일치하지 않습니다");
         }
 
         return SuccessResult.builder()
-                .success(isSuccess)
+                .success(true)
                 .build();
     }
 }

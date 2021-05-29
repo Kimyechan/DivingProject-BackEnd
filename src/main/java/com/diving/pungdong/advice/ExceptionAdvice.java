@@ -91,6 +91,9 @@ public class ExceptionAdvice {
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CommonResult badRequest(BadRequestException e) {
+        if (e.getMessage() != null) {
+            return responseService.getFailResult(Integer.parseInt(getMessage("badRequest.code")), e.getMessage());
+        }
         return responseService.getFailResult(Integer.parseInt(getMessage("badRequest.code")), getMessage("badRequest.msg"));
     }
 

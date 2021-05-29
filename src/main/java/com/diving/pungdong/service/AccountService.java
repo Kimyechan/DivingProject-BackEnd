@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.advice.exception.CUserNotFoundException;
 import com.diving.pungdong.advice.exception.EmailDuplicationException;
@@ -8,7 +9,10 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.signUp.SignUpInfo;
+import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
+import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.diving.pungdong.controller.sign.SignController.AddInstructorRoleReq;
 import static com.diving.pungdong.controller.sign.SignController.SignInReq;
@@ -33,7 +38,9 @@ public class AccountService implements UserDetailsService {
     private final AccountJpaRepo accountJpaRepo;
     private final RedisTemplate<String, String> redisTemplate;
     private final InstructorImageService instructorImageService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final AccountKafkaProducer producer;
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
@@ -94,5 +101,36 @@ public class AccountService implements UserDetailsService {
         return EmailResult.builder()
                 .existed(isExisted)
                 .build();
+    }
+
+    @Transactional
+    public SignUpResult saveAccountInfo(SignUpInfo signUpInfo) {
+        emailService.verifyAuthCode(signUpInfo.getEmail(), signUpInfo.getVerifyCode());
+        checkDuplicationOfNickName(signUpInfo.getNickName());
+        checkDuplicationOfEmail(signUpInfo.getEmail());
+
+        Account student = Account.builder()
+                .email(signUpInfo.getEmail())
+                .password(passwordEncoder.encode(signUpInfo.getPassword()))
+                .gender(signUpInfo.getGender())
+                .birth(signUpInfo.getBirth())
+                .phoneNumber(signUpInfo.getPhoneNumber())
+                .roles(Set.of(Role.STUDENT))
+                .build();
+        Account savedStudent = accountJpaRepo.save(student);
+
+        producer.sendAccountInfo(String.valueOf(student.getId()), student.getPassword(), student.getRoles());
+
+        return SignUpResult.builder()
+                .email(savedStudent.getEmail())
+                .nickName(savedStudent.getNickName())
+                .build();
+    }
+
+    private void checkDuplicationOfNickName(String nickName) {
+        Optional<Account> account = accountJpaRepo.findByNickName(nickName);
+        if (account.isPresent()) {
+            throw new BadRequestException();
+        }
     }
 }

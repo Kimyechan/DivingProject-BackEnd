@@ -89,8 +89,8 @@ class ReservationServiceTest {
                 .id(1L)
                 .email("kim@gmail.com")
                 .password("1234")
-                .userName("kim")
-                .age(27)
+                .nickName("yechan")
+                .birth("1999-09-11")
                 .gender(Gender.MALE)
                 .roles(Set.of(Role.STUDENT))
                 .build();
