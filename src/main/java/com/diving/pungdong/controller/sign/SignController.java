@@ -1,10 +1,12 @@
 package com.diving.pungdong.controller.sign;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
@@ -26,7 +28,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -55,30 +56,23 @@ public class SignController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody SignInReq signInReq) {
-        Account account = accountService.findAccountByEmail(signInReq.getEmail());
-        accountService.checkCorrectPassword(signInReq, account);
+    public ResponseEntity<?> login(@Valid @RequestBody SignInInfo signInInfo,
+                                   BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
 
-        AuthToken authToken = authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword());
+        Account account = accountService.findAccountByEmail(signInInfo.getEmail());
+        accountService.checkCorrectPassword(signInInfo, account);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).login(signInReq));
+        AuthToken authToken = authService.getAuthToken(String.valueOf(account.getId()), signInInfo.getPassword());
+
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).login(signInInfo, result));
         EntityModel<AuthToken> entityModel = EntityModel.of(authToken);
         entityModel.add(selfLinkBuilder.withSelfRel());
         entityModel.add(Link.of("/docs/api.html#resource-account-login").withRel("profile"));
 
         return ResponseEntity.ok().body(entityModel);
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SignInReq {
-        @Email
-        @NotEmpty
-        String email;
-
-        @NotEmpty
-        String password;
     }
 
     @Data
@@ -100,7 +94,7 @@ public class SignController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signUp(signUpInfo, result));
         model.add(selfLinkBuilder.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-create").withRel("profile"));
-        model.add(linkTo(methodOn(SignController.class).login(new SignInReq(signUpInfo.getEmail(), signUpInfo.getPassword()))).withRel("login"));
+        model.add(linkTo(methodOn(SignController.class).login(new SignInInfo(signUpInfo.getEmail(), signUpInfo.getPassword()), result)).withRel("login"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(model);
     }
