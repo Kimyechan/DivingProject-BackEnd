@@ -33,7 +33,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -142,7 +141,7 @@ class SignControllerTest {
                 .gender(Gender.MALE)
                 .build();
 
-        mockMvc.perform(post("/sign/signup")
+        mockMvc.perform(post("/sign/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(signUpReq)))
@@ -252,7 +251,7 @@ class SignControllerTest {
     public void signupInputNull() throws Exception {
         SignUpReq signUpReq = SignUpReq.builder().build();
 
-        mockMvc.perform(post("/sign/signup")
+        mockMvc.perform(post("/sign/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(signUpReq)))
@@ -264,7 +263,7 @@ class SignControllerTest {
 
     @Test
     @DisplayName("로그인 성공")
-    public void signinSuccess() throws Exception {
+    public void loginSuccess() throws Exception {
         String email = "yechan@gmail.com";
         String password = "1234";
 
@@ -292,7 +291,7 @@ class SignControllerTest {
         given(authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword())).willReturn(authToken);
         given(accountService.findAccountByEmail(signInReq.getEmail())).willReturn(account);
 
-        mockMvc.perform(post("/sign/signin")
+        mockMvc.perform(post("/sign/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(signInReq)))
                 .andDo(print())
@@ -325,13 +324,13 @@ class SignControllerTest {
 
     @Test
     @DisplayName("로그인 실패 - 이메일(ID)이 없는 경우")
-    public void signInNotFoundEmail() throws Exception {
+    public void loginNotFoundEmail() throws Exception {
         String email = "yechan@gmail.com";
         String password = "1234";
 
         doThrow(new CEmailSigninFailedException()).when(accountService).findAccountByEmail(email);
 
-        mockMvc.perform(post("/sign/signin")
+        mockMvc.perform(post("/sign/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new SignInReq(email, password))))
                 .andDo(print())
@@ -342,7 +341,7 @@ class SignControllerTest {
 
     @Test
     @DisplayName("로그인 실패 - PASSWORD가 틀린 경우")
-    public void signInNotMatchPassword() throws Exception {
+    public void loginNotMatchPassword() throws Exception {
         String email = "yechan@gmail.com";
         String password = "1234";
         String encodedPassword = passwordEncoder.encode(password);
@@ -355,7 +354,7 @@ class SignControllerTest {
         given(accountService.findAccountByEmail(email)).willReturn(account);
         doThrow(new CEmailSigninFailedException()).when(accountService).checkCorrectPassword(any(), any());
 
-        mockMvc.perform(post("/sign/signin")
+        mockMvc.perform(post("/sign/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new SignInReq(email, "wrongPassword"))))
                 .andDo(print())

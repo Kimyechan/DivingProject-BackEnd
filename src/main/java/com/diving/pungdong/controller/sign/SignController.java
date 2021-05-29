@@ -60,14 +60,14 @@ public class SignController {
         return ResponseEntity.ok().body(model);
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> signin(@RequestBody SignInReq signInReq) {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody SignInReq signInReq) {
         Account account = accountService.findAccountByEmail(signInReq.getEmail());
         accountService.checkCorrectPassword(signInReq, account);
 
         AuthToken authToken = authService.getAuthToken(String.valueOf(account.getId()), signInReq.getPassword());
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).signin(signInReq));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(SignController.class).login(signInReq));
         EntityModel<AuthToken> entityModel = EntityModel.of(authToken);
         entityModel.add(selfLinkBuilder.withSelfRel());
         entityModel.add(Link.of("/docs/api.html#resource-account-login").withRel("profile"));
@@ -94,7 +94,7 @@ public class SignController {
         String refreshToken;
     }
 
-    @PostMapping(value = "/signup")
+    @PostMapping(value = "/sign-up")
     public ResponseEntity<?> signup(@Valid @RequestBody SignUpReq signUpReq, BindingResult result) {
         if (result.hasErrors()) {
             throw new SignInInputException();
@@ -119,7 +119,7 @@ public class SignController {
         EntityModel<SignUpRes> model = EntityModel.of(signUpRes);
         model.add(selfLinkBuilder.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-create").withRel("profile"));
-        model.add(linkTo(methodOn(SignController.class).signin(new SignInReq(signUpReq.getEmail(), signUpReq.getPassword()))).withRel("signin"));
+        model.add(linkTo(methodOn(SignController.class).login(new SignInReq(signUpReq.getEmail(), signUpReq.getPassword()))).withRel("signin"));
 
         return ResponseEntity.created(createUri).body(model);
     }
