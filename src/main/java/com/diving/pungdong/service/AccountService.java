@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
@@ -29,7 +30,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.diving.pungdong.controller.sign.SignController.AddInstructorRoleReq;
-import static com.diving.pungdong.controller.sign.SignController.SignInReq;
 
 @Service
 @RequiredArgsConstructor
@@ -60,10 +60,6 @@ public class AccountService implements UserDetailsService {
         return accountJpaRepo.findById(id).orElseThrow(CUserNotFoundException::new);
     }
 
-    public String checkValidToken(String token) {
-        return redisTemplate.opsForValue().get(token);
-    }
-
     public Account updateAccountToInstructor(String email,
                                              AddInstructorRoleReq request,
                                              List<MultipartFile> profiles,
@@ -89,8 +85,8 @@ public class AccountService implements UserDetailsService {
         }
     }
 
-    public void checkCorrectPassword(SignInReq signInReq, Account account) {
-        if (!passwordEncoder.matches(signInReq.getPassword(), account.getPassword())) {
+    public void checkCorrectPassword(SignInInfo signInInfo, Account account) {
+        if (!passwordEncoder.matches(signInInfo.getPassword(), account.getPassword())) {
             throw new CEmailSigninFailedException();
         }
     }
@@ -114,6 +110,7 @@ public class AccountService implements UserDetailsService {
                 .password(passwordEncoder.encode(signUpInfo.getPassword()))
                 .gender(signUpInfo.getGender())
                 .birth(signUpInfo.getBirth())
+                .nickName(signUpInfo.getNickName())
                 .phoneNumber(signUpInfo.getPhoneNumber())
                 .roles(Set.of(Role.STUDENT))
                 .build();
