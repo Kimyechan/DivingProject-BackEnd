@@ -75,13 +75,6 @@ public class SignController {
         return ResponseEntity.ok().body(entityModel);
     }
 
-    @Data
-    @AllArgsConstructor
-    static class SignInResponse {
-        String accessToken;
-        String refreshToken;
-    }
-
     @PostMapping(value = "/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpInfo signUpInfo, BindingResult result) {
         if (result.hasErrors()) {
