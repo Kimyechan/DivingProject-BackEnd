@@ -132,7 +132,7 @@ public class AccountService implements UserDetailsService {
         }
 
         return NickNameResult.builder()
-                .isExisted(true)
+                .isExisted(false)
                 .build();
     }
 }
