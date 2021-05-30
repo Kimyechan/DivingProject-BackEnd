@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
@@ -47,8 +48,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -126,6 +126,38 @@ class SignControllerTest {
                                 ),
                                 responseFields(
                                         fieldWithPath("existed").description("유저 이메일 존재 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 여부 확인")
+    public void checkDuplicationNickName() throws Exception {
+        String nickName = "닉네임";
+        NickNameResult nickNameResult = NickNameResult.builder()
+                .isExisted(false)
+                .build();
+
+        given(accountService.checkDuplicationOfNickName(nickName)).willReturn(nickNameResult);
+
+        mockMvc.perform(get("/sign/check/nickName")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("nickName", nickName))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document("account-check-duplication-nickName",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입")
+                                ),
+                                requestParameters(
+                                        parameterWithName("nickName").description("닉네임")
+                                ),
+                                responseFields(
+                                        fieldWithPath("isExisted").description("유저 이메일 존재 여부"),
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
                                         fieldWithPath("_links.profile.href").description("API 문서 링크")
                                 )
