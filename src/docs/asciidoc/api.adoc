@@ -109,6 +109,10 @@ operation::account-email-auth-code-send[]
 === 이메일 승인 코드 검증
 operation::account-email-auth-code-verify[]
 
+[[resource-account-check-duplication-nickName]]
+=== 닉네임 중복 여부
+operation::account-check-duplication-nickName[]
+
 [[resource-account-create]]
 === 유저 생성
 operation::signUp[]

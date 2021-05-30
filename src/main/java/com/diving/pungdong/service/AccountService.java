@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
@@ -124,10 +125,14 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
-    private void checkDuplicationOfNickName(String nickName) {
+    public NickNameResult checkDuplicationOfNickName(String nickName) {
         Optional<Account> account = accountJpaRepo.findByNickName(nickName);
         if (account.isPresent()) {
-            throw new BadRequestException();
+            throw new BadRequestException("닉네임이 중복되었습니다");
         }
+
+        return NickNameResult.builder()
+                .isExisted(true)
+                .build();
     }
 }
