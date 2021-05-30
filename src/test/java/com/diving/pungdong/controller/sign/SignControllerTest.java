@@ -157,7 +157,7 @@ class SignControllerTest {
                                         parameterWithName("nickName").description("닉네임")
                                 ),
                                 responseFields(
-                                        fieldWithPath("isExisted").description("유저 이메일 존재 여부"),
+                                        fieldWithPath("isExisted").description("유저 닉네임 존재 여부"),
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
                                         fieldWithPath("_links.profile.href").description("API 문서 링크")
                                 )
