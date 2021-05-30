@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
@@ -131,6 +132,23 @@ class SignControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 여부 확인")
+    public void checkDuplicationNickName() throws Exception {
+        String nickName = "닉네임";
+        NickNameResult nickNameResult = NickNameResult.builder()
+                .isExisted(false)
+                .build();
+
+        given(accountService.checkDuplicationOfNickName(nickName)).willReturn(nickNameResult);
+
+        mockMvc.perform(get("/sign/check/nickName")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("nickName", nickName))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test

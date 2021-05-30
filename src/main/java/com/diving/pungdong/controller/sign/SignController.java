@@ -6,6 +6,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
@@ -55,6 +56,16 @@ public class SignController {
         return ResponseEntity.ok().body(model);
     }
 
+    @GetMapping("/check/nickName")
+    public ResponseEntity<?> checkDuplicationNickName(@NotEmpty @RequestParam String nickName) {
+        NickNameResult nickNameResult = accountService.checkDuplicationOfNickName(nickName);
+
+        EntityModel<NickNameResult> model = EntityModel.of(nickNameResult);
+        model.add(linkTo(methodOn(SignController.class).checkDuplicationNickName(nickName)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-check-nickName").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody SignInInfo signInInfo,
                                    BindingResult result) {
@@ -91,6 +102,8 @@ public class SignController {
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(model);
     }
+
+
 
     @PostMapping("/addInstructorRole")
     public ResponseEntity<EntityModel<AddInstructorRoleRes>> changeToInstructor(Authentication authentication,
