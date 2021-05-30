@@ -62,7 +62,7 @@ public class SignController {
 
         EntityModel<NickNameResult> model = EntityModel.of(nickNameResult);
         model.add(linkTo(methodOn(SignController.class).checkDuplicationNickName(nickName)).withSelfRel());
-        model.add(Link.of("/docs/api.html#resource-account-check-nickName").withRel("profile"));
+        model.add(Link.of("/docs/api.html#resource-account-check-duplication-nickName").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 
