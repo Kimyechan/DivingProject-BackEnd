@@ -134,10 +134,7 @@ public class LectureService {
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
             boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
-            List<String> equipmentNames = new ArrayList<>();
-            for (Equipment equipment : lecture.getEquipmentList()) {
-                equipmentNames.add(equipment.getName());
-            }
+            List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             NewLectureInfo newLectureInfo = NewLectureInfo.builder()
                     .id(lecture.getId())
@@ -188,10 +185,7 @@ public class LectureService {
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
             boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
-            List<String> equipmentNames = new ArrayList<>();
-            for (Equipment equipment : lecture.getEquipmentList()) {
-                equipmentNames.add(equipment.getName());
-            }
+            List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             LectureInfo lectureInfo = LectureInfo.builder()
                     .id(lecture.getId())
@@ -215,7 +209,16 @@ public class LectureService {
         return lectureInfos;
     }
 
-    private String getMainLectureImage(Lecture lecture) {
+    public List<String> mapToEquipmentNames(Lecture lecture) {
+        List<String> equipmentNames = new ArrayList<>();
+        for (Equipment equipment : lecture.getEquipmentList()) {
+            equipmentNames.add(equipment.getName());
+        }
+
+        return equipmentNames;
+    }
+
+    public String getMainLectureImage(Lecture lecture) {
         if (!lecture.getLectureImages().isEmpty()) {
             return lecture.getLectureImages().get(0).getFileURI();
         } else {
