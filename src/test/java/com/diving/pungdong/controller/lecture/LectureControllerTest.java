@@ -17,6 +17,7 @@ import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import com.diving.pungdong.service.image.S3Uploader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -73,6 +74,8 @@ class LectureControllerTest {
     LectureService lectureService;
     @MockBean
     LectureImageService lectureImageService;
+    @MockBean
+    LectureEsService lectureEsService;
     @MockBean
     S3Uploader s3Uploader;
 
@@ -675,6 +678,82 @@ class LectureControllerTest {
                                         fieldWithPath("classKind").description("강의 종류 조건"),
                                         fieldWithPath("costCondition.max").description("강의료 최대 바용"),
                                         fieldWithPath("costCondition.min").description("강의료 최저 바용")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.lectureInfoList[].id").description("인기 강의 식별자 값"),
+                                        fieldWithPath("_embedded.lectureInfoList[].title").description("인기 강의 제목"),
+                                        fieldWithPath("_embedded.lectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
+                                        fieldWithPath("_embedded.lectureInfoList[].level").description("인기 강의 자격증 레벨"),
+                                        fieldWithPath("_embedded.lectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("인기 강의 최대 인원수"),
+                                        fieldWithPath("_embedded.lectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
+                                        fieldWithPath("_embedded.lectureInfoList[].isMarked").description("인기 강의 찜 여부"),
+                                        fieldWithPath("_embedded.lectureInfoList[].price").description("인기 강의 강의 비용"),
+                                        fieldWithPath("_embedded.lectureInfoList[].imageUrl").description("인기 강의 대표 이미지"),
+                                        fieldWithPath("_embedded.lectureInfoList[].equipmentNames[]").description("인기 강의 대여 장비 목록"),
+                                        fieldWithPath("_embedded.lectureInfoList[].starAvg").description("인기 강의 리뷰 종합 평점"),
+                                        fieldWithPath("_embedded.lectureInfoList[].reviewCount").description("인기 강의 리뷰 갯수"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 키워드 검색")
+    public void searchListByKeyword() throws Exception {
+        String keyword = "프리 다이빙";
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Pageable pageable = PageRequest.of(0, 2);
+
+        List<LectureInfo> lectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            LectureInfo lectureInfo = LectureInfo.builder()
+                    .id((long) i)
+                    .title("프리 다이빙")
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(10)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .price(100000)
+                    .isMarked(false)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .starAvg(4.5f)
+                    .reviewCount(100)
+                    .build();
+            lectureInfos.add(lectureInfo);
+        }
+        Page<LectureInfo> lectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+
+        given(lectureEsService.getListContainKeyword(any(), any(), any())).willReturn(lectureInfoPage);
+
+        mockMvc.perform(get("/lecture/list/search/keyword")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .param("keyword", keyword))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-search-keyword-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("keyword").description("검색 키워드"),
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기")
                                 ),
                                 responseFields(
                                         fieldWithPath("_embedded.lectureInfoList[].id").description("인기 강의 식별자 값"),
