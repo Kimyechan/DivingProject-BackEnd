@@ -17,6 +17,7 @@ import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import com.diving.pungdong.service.image.S3Uploader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -73,6 +74,8 @@ class LectureControllerTest {
     LectureService lectureService;
     @MockBean
     LectureImageService lectureImageService;
+    @MockBean
+    LectureEsService lectureEsService;
     @MockBean
     S3Uploader s3Uploader;
 
@@ -699,5 +702,44 @@ class LectureControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("강의 키워드 검색")
+    public void searchListByKeyword() throws Exception {
+        String keyword = "프리 다이빙";
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Pageable pageable = PageRequest.of(0, 2);
+
+        List<LectureInfo> lectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            LectureInfo lectureInfo = LectureInfo.builder()
+                    .id((long) i)
+                    .title("프리 다이빙")
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(10)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .isMarked(false)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .starAvg(4.5f)
+                    .reviewCount(100)
+                    .build();
+            lectureInfos.add(lectureInfo);
+        }
+        Page<LectureInfo> lectureInfoPage = new PageImpl<>(lectureInfos, pageable, lectureInfos.size());
+
+        given(lectureEsService.getListContainKeyword(any(), any(), any())).willReturn(lectureInfoPage);
+
+        mockMvc.perform(get("/lecture/list/search/keyword")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("keyword", keyword))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

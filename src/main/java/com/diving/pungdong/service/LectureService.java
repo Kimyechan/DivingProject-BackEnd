@@ -133,7 +133,7 @@ public class LectureService {
         List<NewLectureInfo> newLectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
-            boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
+            boolean isMarked = isLectureMarked(account, lecture.getId());
             List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             NewLectureInfo newLectureInfo = NewLectureInfo.builder()
@@ -156,14 +156,14 @@ public class LectureService {
         return newLectureInfos;
     }
 
-    public boolean isLectureMarked(Account account, List<LectureMark> lectureMarks) {
+    public boolean isLectureMarked(Account account, Long lectureId) {
         if (account == null) {
             return false;
         }
 
         boolean isMarked = false;
-        for (LectureMark lectureMark : lectureMarks) {
-            if (lectureMark.getAccount().getId().equals(account.getId())) {
+        for (LectureMark lectureMark : account.getLectureMarks()) {
+            if (lectureMark.getLecture().getId().equals(lectureId)) {
                 isMarked = true;
                 break;
             }
@@ -184,7 +184,7 @@ public class LectureService {
         List<LectureInfo> lectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
-            boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
+            boolean isMarked = isLectureMarked(account, lecture.getId());
             List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             LectureInfo lectureInfo = LectureInfo.builder()

@@ -218,7 +218,12 @@ class LectureServiceTest {
                 .build();
         lectureMarks.add(lectureMark);
 
-        boolean result = lectureService.isLectureMarked(Account.builder().id(1L).build(), lectureMarks);
+        Account account = Account.builder()
+                .id(1L)
+                .lectureMarks(lectureMarks)
+                .build();
+
+        boolean result = lectureService.isLectureMarked(account, 1L);
 
         assertTrue(result);
     }
@@ -228,12 +233,17 @@ class LectureServiceTest {
     public void checkLectureNotMarked() {
         List<LectureMark> lectureMarks = new ArrayList<>();
         LectureMark lectureMark = LectureMark.builder()
-                .account(Account.builder().id(2L).build())
+                .account(Account.builder().id(1L).build())
                 .lecture(Lecture.builder().id(1L).build())
                 .build();
         lectureMarks.add(lectureMark);
 
-        boolean result = lectureService.isLectureMarked(Account.builder().id(1L).build(), lectureMarks);
+        Account account = Account.builder()
+                .id(1L)
+                .lectureMarks(lectureMarks)
+                .build();
+
+        boolean result = lectureService.isLectureMarked(account, 2L);
 
         assertFalse(result);
     }
@@ -241,14 +251,7 @@ class LectureServiceTest {
     @Test
     @DisplayName("비회원 일 때 찜 해제")
     public void markFalseWhenNotMember() {
-        List<LectureMark> lectureMarks = new ArrayList<>();
-        LectureMark lectureMark = LectureMark.builder()
-                .account(Account.builder().id(2L).build())
-                .lecture(Lecture.builder().id(1L).build())
-                .build();
-        lectureMarks.add(lectureMark);
-
-        boolean result = lectureService.isLectureMarked(null, lectureMarks);
+        boolean result = lectureService.isLectureMarked(null, 1L);
 
         assertFalse(result);
     }

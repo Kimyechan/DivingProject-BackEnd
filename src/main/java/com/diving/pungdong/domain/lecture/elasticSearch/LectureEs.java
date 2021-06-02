@@ -4,7 +4,10 @@ import com.diving.pungdong.domain.lecture.Organization;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.Id;
 import java.time.LocalTime;
@@ -23,9 +26,11 @@ public class LectureEs {
     private String level;
     private String region;
     private Integer maxNumber;
+
+    @Field(type = FieldType.Date, format = DateFormat.basic_time)
     private LocalTime lectureTime;
+
     private String imageUrl;
-    private Boolean isMarked;
     private Integer price;
     private List<String> equipmentNames;
     private Float starAvg;
