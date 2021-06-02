@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -39,6 +41,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class LectureController {
 
     private final LectureService lectureService;
+    private final LectureEsService lectureEsService;
     private final S3Uploader s3Uploader;
 
     @PostMapping("/create")
@@ -148,6 +151,17 @@ public class LectureController {
                                                 Pageable pageable,
                                                 PagedResourcesAssembler<LectureInfo> assembler) {
         Page<LectureInfo> lectureInfoPage = lectureService.filterSearchList(account, condition, pageable);
+
+        PagedModel<EntityModel<LectureInfo>> model = assembler.toModel(lectureInfoPage);
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/list/search/keyword")
+    public ResponseEntity<?> searchListByKeyword(@CurrentUser Account account,
+                                                 @NotEmpty @RequestParam String keyword,
+                                                 Pageable pageable,
+                                                 PagedResourcesAssembler<LectureInfo> assembler) {
+        Page<LectureInfo> lectureInfoPage = lectureEsService.getListContainKeyword(account, keyword, pageable);
 
         PagedModel<EntityModel<LectureInfo>> model = assembler.toModel(lectureInfoPage);
         return ResponseEntity.ok().body(model);

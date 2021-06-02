@@ -6,6 +6,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.dto.equipment.create.EquipmentCreateInfo;
 import com.diving.pungdong.dto.equipment.create.EquipmentCreateResult;
 import com.diving.pungdong.service.EquipmentService;
+import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -27,6 +28,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "/equipment")
 public class EquipmentController {
     private final EquipmentService equipmentService;
+    private final LectureEsService lectureEsService;
 
     @PostMapping("/create/list")
     public ResponseEntity<?> createLectureEquipments(@CurrentUser Account account,
@@ -37,6 +39,7 @@ public class EquipmentController {
         }
 
         EquipmentCreateResult equipmentCreateResult = equipmentService.saveRentEquipmentInfos(account, equipmentCreateInfo);
+        lectureEsService.saveLectureInfo(equipmentCreateResult.getLectureId());
 
         EntityModel<EquipmentCreateResult> model = EntityModel.of(equipmentCreateResult);
         WebMvcLinkBuilder location = linkTo(methodOn(EquipmentController.class).createLectureEquipments(account, equipmentCreateInfo, result));

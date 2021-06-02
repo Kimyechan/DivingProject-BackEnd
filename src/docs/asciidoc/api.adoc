@@ -170,6 +170,10 @@ operation::lecture-get-popular-list[]
 === 강의 필터 검색
 operation::lecture-search-filter-list[]
 
+[[resource-lecture-search-keyword-list]]
+=== 강의 키워드 검색
+operation::lecture-search-keyword-list[]
+
 [[resource-lecture-get-instructor-own-list]]
 === 강사 자신의 강의 리스트 조회
 operation::lecture-get-list-per-instructor[]

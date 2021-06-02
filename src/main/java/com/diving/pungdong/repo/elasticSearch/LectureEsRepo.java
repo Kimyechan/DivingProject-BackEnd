@@ -1,10 +1,31 @@
 package com.diving.pungdong.repo.elasticSearch;
 
 import com.diving.pungdong.domain.lecture.elasticSearch.LectureEs;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-
-import java.util.List;
+import org.springframework.data.jpa.repository.Query;
 
 public interface LectureEsRepo extends ElasticsearchRepository<LectureEs, String> {
-    List<LectureEs> findByTitle(String title);
+    @Query("{\n" +
+            "\t\"bool\": {\n" +
+            "\t      \"should\": [\n" +
+            "\t        { \"match\": \n" +
+            "\t\t\t\t\t\t\t{ \n" +
+            "\t\t\t\t\t\t\t\t\"title\": {\n" +
+            "\t\t\t\t\t\t\t\t\t\"query\" : \"?0\",\n" +
+            "\t\t\t\t\t\t\t\t\t\"operator\" : \"and\"\n" +
+            "\t\t\t\t\t\t\t} \n" +
+            "\t\t\t\t\t},\n" +
+            "\t        { \"match\": \n" +
+            "\t\t\t\t\t\t\t{ \n" +
+            "\t\t\t\t\t\t\t\t\"nickName\": {\n" +
+            "\t\t\t\t\t\t\t\t\t\"query\" : \"?1\",\n" +
+            "\t\t\t\t\t\t\t\t\t\"operator\" : \"and\"\n" +
+            "\t\t\t\t\t\t\t}  \n" +
+            "\t\t\t\t\t}\n" +
+            "\t      ]\n" +
+            "\t    }\n" +
+            "}")
+    Page<LectureEs> findByTitleOrNickName(String title, String nickName, Pageable pageable);
 }

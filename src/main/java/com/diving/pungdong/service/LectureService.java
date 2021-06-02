@@ -133,11 +133,8 @@ public class LectureService {
         List<NewLectureInfo> newLectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
-            boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
-            List<String> equipmentNames = new ArrayList<>();
-            for (Equipment equipment : lecture.getEquipmentList()) {
-                equipmentNames.add(equipment.getName());
-            }
+            boolean isMarked = isLectureMarked(account, lecture.getId());
+            List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             NewLectureInfo newLectureInfo = NewLectureInfo.builder()
                     .id(lecture.getId())
@@ -159,14 +156,14 @@ public class LectureService {
         return newLectureInfos;
     }
 
-    public boolean isLectureMarked(Account account, List<LectureMark> lectureMarks) {
+    public boolean isLectureMarked(Account account, Long lectureId) {
         if (account == null) {
             return false;
         }
 
         boolean isMarked = false;
-        for (LectureMark lectureMark : lectureMarks) {
-            if (lectureMark.getAccount().getId().equals(account.getId())) {
+        for (LectureMark lectureMark : account.getLectureMarks()) {
+            if (lectureMark.getLecture().getId().equals(lectureId)) {
                 isMarked = true;
                 break;
             }
@@ -187,11 +184,8 @@ public class LectureService {
         List<LectureInfo> lectureInfos = new ArrayList<>();
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
-            boolean isMarked = isLectureMarked(account, lecture.getLectureMarks());
-            List<String> equipmentNames = new ArrayList<>();
-            for (Equipment equipment : lecture.getEquipmentList()) {
-                equipmentNames.add(equipment.getName());
-            }
+            boolean isMarked = isLectureMarked(account, lecture.getId());
+            List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             LectureInfo lectureInfo = LectureInfo.builder()
                     .id(lecture.getId())
@@ -215,7 +209,16 @@ public class LectureService {
         return lectureInfos;
     }
 
-    private String getMainLectureImage(Lecture lecture) {
+    public List<String> mapToEquipmentNames(Lecture lecture) {
+        List<String> equipmentNames = new ArrayList<>();
+        for (Equipment equipment : lecture.getEquipmentList()) {
+            equipmentNames.add(equipment.getName());
+        }
+
+        return equipmentNames;
+    }
+
+    public String getMainLectureImage(Lecture lecture) {
         if (!lecture.getLectureImages().isEmpty()) {
             return lecture.getLectureImages().get(0).getFileURI();
         } else {
