@@ -121,9 +121,9 @@ operation::signUp[]
 === 유저 로그인
 operation::signIn[]
 
-[[resource-add-instructor-role]]
-=== 강사 권한 및 강사 정보 추가
-operation::sign-addInstructorRole[]
+[[resource-account-add-instructorInfo]]
+=== 강사 정보 추가
+operation::account-add-instructorInfo[]
 
 [[resource-account-tokenRefresh]]
 === 토큰 재발급

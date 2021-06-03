@@ -1,6 +1,7 @@
 package com.diving.pungdong.domain.account;
 
 import com.diving.pungdong.domain.LectureMark;
+import com.diving.pungdong.domain.lecture.Organization;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,7 +15,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class Account {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Email
@@ -37,10 +38,10 @@ public class Account {
 
     private Boolean isCertified;
 
-    private String groupName;
+    private Organization organization;
 
     @Lob
-    private String description;
+    private String selfIntroduction;
 
     @Column(columnDefinition = "integer default 0")
     private Long income;

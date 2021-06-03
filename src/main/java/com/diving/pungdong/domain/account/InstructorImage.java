@@ -13,7 +13,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(of = "id")
 public class InstructorImage {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
