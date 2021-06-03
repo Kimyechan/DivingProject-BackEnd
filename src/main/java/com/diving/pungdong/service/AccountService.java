@@ -34,8 +34,6 @@ import java.util.Set;
 @Transactional
 public class AccountService implements UserDetailsService {
     private final AccountJpaRepo accountJpaRepo;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final InstructorImageService instructorImageService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AccountKafkaProducer producer;

@@ -1,8 +1,7 @@
 package com.diving.pungdong.repo;
 
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.InstructorImage;
-import com.diving.pungdong.domain.account.InstructorImgCategory;
+import com.diving.pungdong.domain.account.InstructorCertificate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @DataJpaTest
-class InstructorImageJpaRepoTest {
+class InstructorCertificateJpaRepoTest {
 
     @Autowired
     private InstructorImageJpaRepo instructorImageJpaRepo;
@@ -21,13 +20,12 @@ class InstructorImageJpaRepoTest {
     @Test
     @DisplayName("강사 이미지 저장")
     public void save() {
-        InstructorImage image = InstructorImage.builder()
+        InstructorCertificate image = InstructorCertificate.builder()
                 .fileURL("test URL")
-                .category(InstructorImgCategory.PROFILE)
                 .instructor(new Account())
                 .build();
 
-        InstructorImage savedImage = instructorImageJpaRepo.save(image);
+        InstructorCertificate savedImage = instructorImageJpaRepo.save(image);
 
         assertThat(savedImage.getId()).isNotNull();
         assertThat(savedImage.getFileURL()).isEqualTo(image.getFileURL());

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @Transactional
-class InstructorImageServiceTest {
+class InstructorCertificateServiceTest {
     private InstructorImageService instructorImageService;
 
     @Mock

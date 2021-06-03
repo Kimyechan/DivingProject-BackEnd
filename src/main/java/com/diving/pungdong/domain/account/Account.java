@@ -47,7 +47,7 @@ public class Account {
     private Long income;
 
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
-    private List<InstructorImage> instructorImages;
+    private List<InstructorCertificate> instructorCertificates;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<LectureMark> lectureMarks;

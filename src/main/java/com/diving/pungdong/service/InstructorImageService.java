@@ -1,7 +1,7 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.InstructorImage;
+import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
 import com.diving.pungdong.repo.InstructorImageJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
@@ -21,7 +21,7 @@ public class InstructorImageService {
     private final InstructorImageJpaRepo instructorImageJpaRepo;
     private final S3Uploader s3Uploader;
 
-    public InstructorImage saveInstructorImage(InstructorImage image) {
+    public InstructorCertificate saveInstructorImage(InstructorCertificate image) {
         return instructorImageJpaRepo.save(image);
     }
 
@@ -32,9 +32,8 @@ public class InstructorImageService {
                                        InstructorImgCategory instructorImgCategory) throws IOException {
         for (MultipartFile file : files) {
             String fileURL = s3Uploader.upload(file, dirName, email);
-            InstructorImage image = InstructorImage.builder()
+            InstructorCertificate image = InstructorCertificate.builder()
                     .fileURL(fileURL)
-                    .category(instructorImgCategory)
                     .instructor(updateAccount)
                     .build();
 
