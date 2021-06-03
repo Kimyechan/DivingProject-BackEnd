@@ -123,4 +123,10 @@ public class AccountService implements UserDetailsService {
                 .success(true)
                 .build();
     }
+
+    @Transactional
+    public void updateIsRequestCertificated(Account account) {
+        account.setIsRequestCertified(true);
+        accountJpaRepo.save(account);
+    }
 }

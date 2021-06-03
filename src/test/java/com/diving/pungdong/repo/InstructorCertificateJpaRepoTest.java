@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class InstructorCertificateJpaRepoTest {
 
     @Autowired
-    private InstructorImageJpaRepo instructorImageJpaRepo;
+    private InstructorCertificateJpaRepo instructorCertificateJpaRepo;
 
     @Test
     @DisplayName("강사 이미지 저장")
@@ -25,7 +25,7 @@ class InstructorCertificateJpaRepoTest {
                 .instructor(new Account())
                 .build();
 
-        InstructorCertificate savedImage = instructorImageJpaRepo.save(image);
+        InstructorCertificate savedImage = instructorCertificateJpaRepo.save(image);
 
         assertThat(savedImage.getId()).isNotNull();
         assertThat(savedImage.getFileURL()).isEqualTo(image.getFileURL());

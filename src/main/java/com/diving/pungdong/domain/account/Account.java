@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,12 +37,16 @@ public class Account {
 
     private String phoneNumber;
 
-    private Boolean isCertified;
-
     private Organization organization;
 
     @Lob
     private String selfIntroduction;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isRequestCertified;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isCertified;
 
     @Column(columnDefinition = "integer default 0")
     private Long income;

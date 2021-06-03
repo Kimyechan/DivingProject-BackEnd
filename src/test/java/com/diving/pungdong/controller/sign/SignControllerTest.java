@@ -20,6 +20,7 @@ import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
+import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -53,8 +55,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -82,6 +83,9 @@ class SignControllerTest {
 
     @MockBean
     AuthService authService;
+
+    @MockBean
+    InstructorCertificateService instructorCertificateService;
 
     @MockBean
     AccountKafkaProducer producer;
@@ -411,7 +415,7 @@ class SignControllerTest {
 
         given(accountService.saveInstructorInfo(account, instructorInfo)).willReturn(successResult);
 
-        mockMvc.perform(post("/sign/instructor-info")
+        mockMvc.perform(post("/sign/instructor/info")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(instructorInfo)))
@@ -435,6 +439,30 @@ class SignControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("강사 자격증 이미지 추가")
+    public void addInstructorCertificateImage() throws Exception {
+        Account account = createAccount(Role.INSTRUCTOR);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        MockMultipartFile file1 = new MockMultipartFile("certificateImages", "test1", "image/png", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("certificateImages", "test2", "image/png", "test data".getBytes());
+
+        SuccessResult successResult = SuccessResult.builder()
+                .success(true)
+                .build();
+
+        given(instructorCertificateService.saveInstructorCertificate(any(), any())).willReturn(successResult);
+
+        mockMvc.perform(multipart("/sign/instructor/certificate")
+                .file(file1)
+                .file(file2)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 //    @Test

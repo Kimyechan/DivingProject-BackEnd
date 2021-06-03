@@ -3,7 +3,8 @@ package com.diving.pungdong.service;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
-import com.diving.pungdong.repo.InstructorImageJpaRepo;
+import com.diving.pungdong.model.SuccessResult;
+import com.diving.pungdong.repo.InstructorCertificateJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,14 +17,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class InstructorImageService {
-
-    private final InstructorImageJpaRepo instructorImageJpaRepo;
+public class InstructorCertificateService {
+    private final AccountService accountService;
+    private final InstructorCertificateJpaRepo instructorCertificateJpaRepo;
     private final S3Uploader s3Uploader;
-
-    public InstructorCertificate saveInstructorImage(InstructorCertificate image) {
-        return instructorImageJpaRepo.save(image);
-    }
 
     public void uploadInstructorImages(String email,
                                        List<MultipartFile> files,
@@ -37,7 +34,27 @@ public class InstructorImageService {
                     .instructor(updateAccount)
                     .build();
 
-            instructorImageJpaRepo.save(image);
+            instructorCertificateJpaRepo.save(image);
         }
+    }
+
+    @Transactional
+    public SuccessResult saveInstructorCertificate(Account account,
+                                                   List<MultipartFile> certificateImages) throws IOException {
+        for (MultipartFile certificateImage : certificateImages) {
+            String fileURL = s3Uploader.upload(certificateImage, "instructorCertificate", account.getEmail());
+            InstructorCertificate image = InstructorCertificate.builder()
+                    .fileURL(fileURL)
+                    .instructor(account)
+                    .build();
+
+            instructorCertificateJpaRepo.save(image);
+        }
+
+        accountService.updateIsRequestCertificated(account);
+
+        return SuccessResult.builder()
+                .success(true)
+                .build();
     }
 }
