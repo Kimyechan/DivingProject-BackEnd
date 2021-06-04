@@ -10,22 +10,27 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
     @InjectMocks
+    @Spy
     private AccountService accountService;
 
     @Mock
@@ -84,5 +89,22 @@ class AccountServiceTest {
 
         UserDetails userDetails = accountService.loadUserByUsername(String.valueOf(account.getId()));
         assertThat(userDetails.getUsername()).isEqualTo("1");
+    }
+
+    @Test
+    @DisplayName("강사 권한 추가")
+    public void addInstructorRole() {
+        Set<Role> roles = new HashSet<>();
+        roles.add(Role.STUDENT);
+        Account account = Account.builder()
+                .id(1L)
+                .roles(roles)
+                .build();
+
+        doReturn(account).when(accountService).findAccountById(account.getId());
+
+        Account instructor = accountService.addInstructorRole(account.getId());
+
+        assertThat(instructor.getRoles()).contains(Role.INSTRUCTOR);
     }
 }

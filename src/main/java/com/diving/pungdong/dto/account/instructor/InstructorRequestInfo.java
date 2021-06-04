@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class InstructorRequestInfo {
+    private Long accountId;
     private String email;
     private String nickName;
     private String phoneNumber;

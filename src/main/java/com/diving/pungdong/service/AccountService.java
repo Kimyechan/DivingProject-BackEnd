@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
@@ -97,7 +98,7 @@ public class AccountService implements UserDetailsService {
                 .birth(signUpInfo.getBirth())
                 .nickName(signUpInfo.getNickName())
                 .phoneNumber(signUpInfo.getPhoneNumber())
-                .roles(Set.of(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN))
+                .roles(Set.of(Role.STUDENT))
                 .build();
         Account savedStudent = accountJpaRepo.save(student);
 
@@ -145,6 +146,7 @@ public class AccountService implements UserDetailsService {
             List<String> certificateImageUrls = mapToCertificateImageUrls(account);
 
             InstructorRequestInfo requestInfo = InstructorRequestInfo.builder()
+                    .accountId(account.getId())
                     .email(account.getEmail())
                     .nickName(account.getNickName())
                     .phoneNumber(account.getPhoneNumber())
@@ -167,5 +169,22 @@ public class AccountService implements UserDetailsService {
         }
 
         return certificateImageUrls;
+    }
+
+    @Transactional
+    public Account addInstructorRole(Long accountId) {
+        Account account = findAccountById(accountId);
+
+        account.getRoles().add(Role.INSTRUCTOR);
+        accountJpaRepo.save(account);
+
+        return account;
+    }
+
+    public InstructorConfirmResult mapToInstructorConfirmResult(Account account) {
+        return InstructorConfirmResult.builder()
+                .email(account.getEmail())
+                .nickName(account.getNickName())
+                .build();
     }
 }

@@ -129,6 +129,14 @@ operation::account-add-instructorInfo[]
 === 강사 자격증 추가
 operation::account-add-instructor-certificate[]
 
+[[resource-account-instructor-get-request-list]]
+=== 강사 신청자 조회
+operation::account-instructor-get-request-list[]
+
+[[resource-account-instructor-confirm]]
+=== 강사 신청자 중 강사 권한 부여
+operation::account-instructor-confirm[]
+
 [[resource-account-tokenRefresh]]
 === 토큰 재발급
 operation::refresh[]
