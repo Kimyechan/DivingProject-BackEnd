@@ -1,10 +1,12 @@
 package com.diving.pungdong.domain.account;
 
 import com.diving.pungdong.domain.LectureMark;
+import com.diving.pungdong.domain.lecture.Organization;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +16,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class Account {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Email
@@ -35,19 +37,27 @@ public class Account {
 
     private String phoneNumber;
 
-    private Boolean isCertified;
-
-    private String groupName;
+    private Organization organization;
 
     @Lob
-    private String description;
+    private String selfIntroduction;
 
-    @Column(columnDefinition = "integer default 0")
+    private Boolean isRequestCertified;
+
+    private Boolean isCertified;
+
     private Long income;
 
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
-    private List<InstructorImage> instructorImages;
+    private List<InstructorCertificate> instructorCertificates;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<LectureMark> lectureMarks;
+
+    @PrePersist
+    public void prePersist() {
+        this.income = this.income == null ? 0 : this.income;
+        this.isRequestCertified = this.isRequestCertified != null && this.isRequestCertified;
+        this.isCertified = this.isCertified != null && this.isCertified;
+    }
 }

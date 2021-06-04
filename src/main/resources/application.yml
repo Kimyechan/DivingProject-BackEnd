@@ -10,7 +10,7 @@ spring:
         default_batch_fetch_size: 100
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         jdbc.lob.non_contextual_creation: true
-        hbm2ddl.auto: update
+        hbm2ddl.auto: create
         format_sql: true
     show-sql: true
 

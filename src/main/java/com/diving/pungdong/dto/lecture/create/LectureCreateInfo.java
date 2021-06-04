@@ -1,7 +1,10 @@
 package com.diving.pungdong.dto.lecture.create;
 
 import com.diving.pungdong.domain.lecture.Organization;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

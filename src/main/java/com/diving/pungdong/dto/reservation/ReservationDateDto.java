@@ -1,6 +1,5 @@
 package com.diving.pungdong.dto.reservation;
 
-import com.diving.pungdong.domain.Location;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

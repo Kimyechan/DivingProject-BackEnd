@@ -1,9 +1,7 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
-import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.domain.schedule.ScheduleTime;

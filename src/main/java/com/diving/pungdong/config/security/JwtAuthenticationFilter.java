@@ -1,8 +1,5 @@
 package com.diving.pungdong.config.security;
 
-import com.diving.pungdong.advice.exception.ExpiredAccessTokenException;
-import com.diving.pungdong.advice.exception.ExpiredRefreshTokenException;
-import com.diving.pungdong.advice.exception.ForbiddenTokenException;
 import com.diving.pungdong.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Slf4j
