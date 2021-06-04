@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/lecture/detail", "/lecture/list", "/lecture/new/list", "/lecture/popular/list", "/lecture/list/search/**",
                                 "/schedule").permitAll()
                         .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
-                        .antMatchers("/sign/instructor/request/list").hasRole("ADMIN")
+                        .antMatchers("/sign/instructor/request/list", "/sign/instructor/confirm").hasRole("ADMIN")
                         .antMatchers("/lecture/create", "/lecture/update", "/lecture/delete", "/lecture/manage/list"
                                 , "/location/create", "/lectureImage/create/list", "/equipment/create/list").authenticated()
                         .anyRequest().authenticated()
