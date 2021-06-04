@@ -11,6 +11,8 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.instructor.InstructorConfirmInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
@@ -56,6 +58,7 @@ import java.util.stream.Collectors;
 import static com.diving.pungdong.controller.sign.SignController.LogoutReq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -490,15 +493,16 @@ class SignControllerTest {
     }
 
     @Test
-    @DisplayName("강사 신청 계정 목록 조회")
+    @DisplayName("관리자가 강사 신청 계정 목록 조회")
     public void getRequestOfInstructor() throws Exception {
         Account account = createAccount(Role.ADMIN);
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
         Pageable pageable = PageRequest.of(0, 2);
 
         List<InstructorRequestInfo> instructorRequestInfos = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 1; i <= 2; i++) {
             InstructorRequestInfo instructorRequestInfo = InstructorRequestInfo.builder()
+                    .accountId((long) i)
                     .email("kim@gmail.com")
                     .phoneNumber("010-1111-2222")
                     .nickName("kim")
@@ -531,6 +535,7 @@ class SignControllerTest {
                                         parameterWithName("size").description("한 페이지 당 크기")
                                 ),
                                 responseFields(
+                                        fieldWithPath("_embedded.instructorRequestInfoList[].accountId").description("강사 신청자 식별자 값"),
                                         fieldWithPath("_embedded.instructorRequestInfoList[].email").description("강사 신청자 이메일"),
                                         fieldWithPath("_embedded.instructorRequestInfoList[].nickName").description("강사 신청자 닉네임"),
                                         fieldWithPath("_embedded.instructorRequestInfoList[].phoneNumber").description("강사 신청자 휴대폰 번호"),
@@ -542,6 +547,50 @@ class SignControllerTest {
                                         fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
                                         fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
                                         fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("관리자가 강사 권한 승인")
+    public void confirmInstructor() throws Exception {
+        Account account = createAccount(Role.ADMIN);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        InstructorConfirmInfo instructorConfirmInfo = InstructorConfirmInfo.builder()
+                .accountId(account.getId())
+                .build();
+
+        InstructorConfirmResult instructorConfirmResult = InstructorConfirmResult.builder()
+                .email(account.getEmail())
+                .nickName(account.getNickName())
+                .build();
+
+        given(accountService.addInstructorRole(any())).willReturn(Account.builder().build());
+        given(accountService.mapToInstructorConfirmResult(any())).willReturn(instructorConfirmResult);
+
+        mockMvc.perform(put("/sign/instructor/confirm")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(instructorConfirmInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-instructor-confirm",
+                                requestHeaders(
+                                        headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("관리자 access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("accountId").description("강사 권한을 획들할 계정 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("email").description("강사 권한을 얻은 계정 이메일"),
+                                        fieldWithPath("nickName").description("강사 권한을 얻은 계정 닉네임"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
                                 )
                         )
                 );

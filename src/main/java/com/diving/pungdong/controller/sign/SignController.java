@@ -4,9 +4,10 @@ import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.SignInInputException;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.instructor.InstructorConfirmInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
@@ -14,7 +15,6 @@ import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
-import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
@@ -147,6 +147,22 @@ public class SignController {
         Page<InstructorRequestInfo> infoPage = accountService.getRequestInstructor(pageable);
 
         PagedModel<EntityModel<InstructorRequestInfo>> model = assembler.toModel(infoPage);
+        return ResponseEntity.ok().body(model);
+    }
+
+    @PutMapping(value = "/instructor/confirm")
+    public ResponseEntity<?> confirmInstructor(@Valid @RequestBody InstructorConfirmInfo instructorConfirmInfo,
+                                               BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        Account account = accountService.addInstructorRole(instructorConfirmInfo.getAccountId());
+        InstructorConfirmResult instructorConfirmResult = accountService.mapToInstructorConfirmResult(account);
+
+        EntityModel<InstructorConfirmResult> model = EntityModel.of(instructorConfirmResult);
+        model.add(linkTo(methodOn(SignController.class).confirmInstructor(instructorConfirmInfo, result)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-instructor-confirm").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 
