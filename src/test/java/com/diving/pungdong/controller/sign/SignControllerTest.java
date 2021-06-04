@@ -12,6 +12,7 @@ import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
@@ -31,6 +32,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -42,7 +47,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -480,6 +487,38 @@ class SignControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("강사 신청 계정 목록 조회")
+    public void getRequestOfInstructor() throws Exception {
+        Account account = createAccount(Role.ADMIN);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        Pageable pageable = PageRequest.of(0, 2);
+
+        List<InstructorRequestInfo> instructorRequestInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            InstructorRequestInfo instructorRequestInfo = InstructorRequestInfo.builder()
+                    .email("kim@gmail.com")
+                    .phoneNumber("010-1111-2222")
+                    .nickName("kim")
+                    .organization(Organization.AIDA)
+                    .selfIntroduction("자기소개")
+                    .certificateImageUrls(List.of("자격증 이미지 Url"))
+                    .build();
+            instructorRequestInfos.add(instructorRequestInfo);
+        }
+        Page<InstructorRequestInfo> instructorRequestInfoPage = new PageImpl<>(instructorRequestInfos, pageable, instructorRequestInfos.size());
+
+        given(accountService.getRequestInstructor(pageable)).willReturn(instructorRequestInfoPage);
+
+        mockMvc.perform(get("/sign/instructor/request/list")
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 //    @Test

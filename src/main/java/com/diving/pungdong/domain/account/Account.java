@@ -42,13 +42,10 @@ public class Account {
     @Lob
     private String selfIntroduction;
 
-    @Column(columnDefinition = "boolean default false")
     private Boolean isRequestCertified;
 
-    @Column(columnDefinition = "boolean default false")
     private Boolean isCertified;
 
-    @Column(columnDefinition = "integer default 0")
     private Long income;
 
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
@@ -56,4 +53,11 @@ public class Account {
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<LectureMark> lectureMarks;
+
+    @PrePersist
+    public void prePersist() {
+        this.income = this.income == null ? 0 : this.income;
+        this.isRequestCertified = this.isRequestCertified != null && this.isRequestCertified;
+        this.isCertified = this.isCertified != null && this.isCertified;
+    }
 }

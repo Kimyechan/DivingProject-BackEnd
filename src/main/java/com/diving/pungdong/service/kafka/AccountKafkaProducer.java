@@ -1,7 +1,7 @@
 package com.diving.pungdong.service.kafka;
 
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.dto.account.AccountInfo;
+import com.diving.pungdong.dto.account.kafka.AccountInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

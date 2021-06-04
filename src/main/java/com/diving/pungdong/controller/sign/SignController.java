@@ -8,20 +8,26 @@ import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
+import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
 import com.diving.pungdong.service.InstructorCertificateService;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -135,6 +141,14 @@ public class SignController {
         return ResponseEntity.ok().body(model);
     }
 
+    @GetMapping(value = "/instructor/request/list")
+    public ResponseEntity<?> getRequestOfInstructor(Pageable pageable,
+                                                    PagedResourcesAssembler<InstructorRequestInfo> assembler) {
+        Page<InstructorRequestInfo> infoPage = accountService.getRequestInstructor(pageable);
+
+        PagedModel<EntityModel<InstructorRequestInfo>> model = assembler.toModel(infoPage);
+        return ResponseEntity.ok().body(model);
+    }
 
     @PostMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
