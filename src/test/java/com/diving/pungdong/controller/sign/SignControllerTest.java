@@ -518,7 +518,33 @@ class SignControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-instructor-get-request-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("관리자 계정 access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.instructorRequestInfoList[].email").description("강사 신청자 이메일"),
+                                        fieldWithPath("_embedded.instructorRequestInfoList[].nickName").description("강사 신청자 닉네임"),
+                                        fieldWithPath("_embedded.instructorRequestInfoList[].phoneNumber").description("강사 신청자 휴대폰 번호"),
+                                        fieldWithPath("_embedded.instructorRequestInfoList[].organization").description("강사 신청자 소속 단체"),
+                                        fieldWithPath("_embedded.instructorRequestInfoList[].selfIntroduction").description("강사 신청자 자기 소개"),
+                                        fieldWithPath("_embedded.instructorRequestInfoList[].certificateImageUrls[]").description("강사 신청자 강사 자격증"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
     }
 
 //    @Test

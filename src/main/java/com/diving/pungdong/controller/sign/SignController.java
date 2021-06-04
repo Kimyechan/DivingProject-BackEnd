@@ -150,6 +150,7 @@ public class SignController {
         return ResponseEntity.ok().body(model);
     }
 
+
     @PostMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutReq logoutReq) {
         redisTemplate.opsForValue().set(logoutReq.getAccessToken(), "false", 60 * 60 * 1000, TimeUnit.MILLISECONDS);
