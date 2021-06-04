@@ -121,9 +121,13 @@ operation::signUp[]
 === 유저 로그인
 operation::signIn[]
 
-[[resource-add-instructor-role]]
-=== 강사 권한 및 강사 정보 추가
-operation::sign-addInstructorRole[]
+[[resource-account-add-instructorInfo]]
+=== 강사 정보 추가
+operation::account-add-instructorInfo[]
+
+[[resource-account-add-instructor-certificate]]
+=== 강사 자격증 추가
+operation::account-add-instructor-certificate[]
 
 [[resource-account-tokenRefresh]]
 === 토큰 재발급
@@ -132,6 +136,7 @@ operation::refresh[]
 [[resource-account-logout]]
 === 유저 로그아웃
 operation::logout[]
+
 
 [[resource-lecture]]
 == 강의

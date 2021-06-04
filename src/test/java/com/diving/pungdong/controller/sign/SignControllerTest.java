@@ -4,18 +4,24 @@ import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
 import com.diving.pungdong.config.EmbeddedRedisConfig;
 import com.diving.pungdong.config.RestDocsConfiguration;
 import com.diving.pungdong.config.security.JwtTokenProvider;
+import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.instructor.InstructorInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
+import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
+import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +32,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -37,18 +47,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.diving.pungdong.controller.sign.SignController.*;
-import static org.mockito.ArgumentMatchers.*;
+import static com.diving.pungdong.controller.sign.SignController.LogoutReq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -79,6 +92,9 @@ class SignControllerTest {
     AuthService authService;
 
     @MockBean
+    InstructorCertificateService instructorCertificateService;
+
+    @MockBean
     AccountKafkaProducer producer;
 
     public Account createAccount(Role role) {
@@ -93,9 +109,15 @@ class SignControllerTest {
                 .build();
 
         given(accountService.loadUserByUsername(String.valueOf(account.getId())))
-                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
+                .willReturn(new UserAccount(account));
 
         return account;
+    }
+
+    private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
+        return roles.stream()
+                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
+                .collect(Collectors.toList());
     }
 
     @Test
@@ -222,77 +244,6 @@ class SignControllerTest {
     }
 
     @Test
-    @DisplayName("강사 정보 입력 및 강사 권한 추가")
-    public void changeToInstructor() throws Exception {
-        Account account = createAccount(Role.STUDENT);
-        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-
-        AddInstructorRoleReq addInstructorRoleReq = AddInstructorRoleReq.builder()
-                .phoneNumber("01011112222")
-                .groupName("AIDA")
-                .description("강사 소개")
-                .build();
-
-        MockMultipartFile profile1 = new MockMultipartFile("profile", "profile1.png", "image/png", "test data".getBytes());
-        MockMultipartFile profile2 = new MockMultipartFile("profile", "profile2.jpg", "image/png", "test data".getBytes());
-        MockMultipartFile certificate1 = new MockMultipartFile("certificate", "certificate1.jpg", "image/png", "test data".getBytes());
-        MockMultipartFile certificate2 = new MockMultipartFile("certificate", "certificate2.jpg", "image/png", "test data".getBytes());
-        MockMultipartFile request =
-                new MockMultipartFile("request",
-                        "request",
-                        MediaType.APPLICATION_JSON_VALUE,
-                        objectMapper.writeValueAsString(addInstructorRoleReq).getBytes());
-        account.setPhoneNumber(addInstructorRoleReq.getPhoneNumber());
-        account.setGroupName(addInstructorRoleReq.getGroupName());
-        account.setDescription(addInstructorRoleReq.getDescription());
-        account.setRoles(Set.of(Role.STUDENT, Role.INSTRUCTOR));
-
-        given(accountService.updateAccountToInstructor(eq(account.getEmail()), eq(addInstructorRoleReq), anyList(), anyList()))
-                .willReturn(account);
-
-        mockMvc.perform(multipart("/sign/addInstructorRole")
-                .file(profile1)
-                .file(profile2)
-                .file(certificate1)
-                .file(certificate2)
-                .file(request)
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .header("IsRefreshToken", "false"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andDo(document("sign-addInstructorRole",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
-                                headerWithName("IsRefreshToken").description("token이 refresh toekn인지 확인")
-                        ),
-                        requestParts(
-                                partWithName("request").description("강사 추가 정보"),
-                                partWithName("profile").description("강사 프로필 이미지들"),
-                                partWithName("certificate").description("강사 자격증 이미지들")
-                        ),
-                        requestPartBody("profile"),
-                        requestPartBody("certificate"),
-                        requestPartBody("request"),
-                        requestPartFields("request",
-                                fieldWithPath("phoneNumber").description("강사 전화번호"),
-                                fieldWithPath("groupName").description("강사 소속 그룹"),
-                                fieldWithPath("description").description("강사 소개글")
-                        ),
-                        responseHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
-                        ),
-                        responseFields(
-                                fieldWithPath("email").description("강사 아이디"),
-                                fieldWithPath("userName").description("강사 유저 이름"),
-                                fieldWithPath("roles").description("해당 아이디의 권한"),
-                                fieldWithPath("_links.self.href").description("해당 API 링크")
-                        )
-                ));
-    }
-
-    @Test
     @DisplayName("회원 가입 실패 - 입력값이 잘못됨")
     public void signupInputNull() throws Exception {
         SignUpInfo signUpInfo = SignUpInfo.builder().build();
@@ -409,41 +360,6 @@ class SignControllerTest {
                 .andExpect(jsonPath("code").value(-1001));
     }
 
-//    @Test
-//    @DisplayName("RefreshToken으로 재발급")
-//    public void refresh() throws Exception {
-//        Long id = 1L;
-//        Account account = Account.builder()
-//                .id(id)
-//                .email("yechan@gmail.com")
-//                .roles(Set.of(Role.INSTRUCTOR))
-//                .build();
-//
-//        given(accountService.findAccountById(id)).willReturn(account);
-//        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(id));
-//
-//        mockMvc.perform(get("/sign/refresh")
-//                .header("Authorization", refreshToken)
-//                .header("IsRefreshToken", "true"))
-//                .andDo(print())
-//                .andExpect(jsonPath("accessToken").exists())
-//                .andExpect(jsonPath("refreshToken").exists())
-//                .andDo(document("refresh",
-//                        requestHeaders(
-//                                headerWithName("Authorization").description("refresh token 값"),
-//                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-//                        ),
-//                        responseHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("accessToken").description("재발급된 access token"),
-//                                fieldWithPath("refreshToken").description("재발급된 refresh token"),
-//                                fieldWithPath("_links.self.href").description("해당 API 링크"),
-//                                fieldWithPath("_links.profile.href").description("해당 API 문서 링크")
-//                        )
-//                ));
-//    }
 
     @Test
     @DisplayName("로그아웃 성공")
@@ -489,6 +405,122 @@ class SignControllerTest {
                 ));
     }
 
+    @Test
+    @DisplayName("강사 기본 정보 추가")
+    public void addInstructorInfo() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        InstructorInfo instructorInfo = InstructorInfo.builder()
+                .organization(Organization.AIDA)
+                .selfIntroduction("10년차 프리 다이빙 강사입니다.")
+                .build();
+
+        SuccessResult successResult = SuccessResult.builder()
+                .success(true)
+                .build();
+
+        given(accountService.saveInstructorInfo(account, instructorInfo)).willReturn(successResult);
+
+        mockMvc.perform(post("/sign/instructor/info")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(instructorInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-add-instructorInfo",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("organization").description("소속 단체"),
+                                        fieldWithPath("selfIntroduction").description("강사 자기 소개")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("승인 코드 전송 성공 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강사 자격증 이미지 추가")
+    public void addInstructorCertificateImage() throws Exception {
+        Account account = createAccount(Role.INSTRUCTOR);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        MockMultipartFile file1 = new MockMultipartFile("certificateImages", "test1", "image/png", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("certificateImages", "test2", "image/png", "test data".getBytes());
+
+        SuccessResult successResult = SuccessResult.builder()
+                .success(true)
+                .build();
+
+        given(instructorCertificateService.saveInstructorCertificate(any(), any())).willReturn(successResult);
+
+        mockMvc.perform(multipart("/sign/instructor/certificate")
+                .file(file1)
+                .file(file2)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-add-instructor-certificate",
+                                requestHeaders(
+                                        headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParts(
+                                        partWithName("certificateImages").description("강의 이미지들")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("승인 코드 전송 성공 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강사 신청 계정 목록 조회")
+    public void getRequestOfInstructor() throws Exception {
+        Account account = createAccount(Role.ADMIN);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+        Pageable pageable = PageRequest.of(0, 2);
+
+        List<InstructorRequestInfo> instructorRequestInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            InstructorRequestInfo instructorRequestInfo = InstructorRequestInfo.builder()
+                    .email("kim@gmail.com")
+                    .phoneNumber("010-1111-2222")
+                    .nickName("kim")
+                    .organization(Organization.AIDA)
+                    .selfIntroduction("자기소개")
+                    .certificateImageUrls(List.of("자격증 이미지 Url"))
+                    .build();
+            instructorRequestInfos.add(instructorRequestInfo);
+        }
+        Page<InstructorRequestInfo> instructorRequestInfoPage = new PageImpl<>(instructorRequestInfos, pageable, instructorRequestInfos.size());
+
+        given(accountService.getRequestInstructor(pageable)).willReturn(instructorRequestInfoPage);
+
+        mockMvc.perform(get("/sign/instructor/request/list")
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 //    @Test
 //    @DisplayName("금지된 토큰으로 접근시 실패 테스트")
 //    public void forbidden() throws Exception {
@@ -521,11 +553,4 @@ class SignControllerTest {
 //                .andExpect(status().isForbidden())
 //                .andExpect(jsonPath("code").value(-1007));
 //    }
-
-    private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
-        return roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
-                .collect(Collectors.toList());
-    }
-
 }

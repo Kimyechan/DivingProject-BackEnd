@@ -2,35 +2,42 @@ package com.diving.pungdong.controller.sign;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.SignInInputException;
+import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.dto.account.emailCheck.EmailInfo;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
+import com.diving.pungdong.dto.account.instructor.InstructorInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
+import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.AccountService;
 import com.diving.pungdong.service.AuthService;
+import com.diving.pungdong.service.InstructorCertificateService;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -44,6 +51,7 @@ public class SignController {
     private final AccountService accountService;
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final InstructorCertificateService instructorCertificateService;
 
     @PostMapping("/check/email")
     public ResponseEntity<?> checkEmailExistence(@RequestBody EmailInfo emailInfo) {
@@ -87,7 +95,8 @@ public class SignController {
     }
 
     @PostMapping(value = "/sign-up")
-    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpInfo signUpInfo, BindingResult result) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpInfo signUpInfo,
+                                    BindingResult result) {
         if (result.hasErrors()) {
             throw new SignInInputException();
         }
@@ -103,46 +112,42 @@ public class SignController {
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(model);
     }
 
+    @PostMapping(value = "/instructor/info")
+    public ResponseEntity<?> addInstructorInfo(@CurrentUser Account account,
+                                               @Valid @RequestBody InstructorInfo instructorInfo,
+                                               BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
 
+        SuccessResult successResult = accountService.saveInstructorInfo(account, instructorInfo);
 
-    @PostMapping("/addInstructorRole")
-    public ResponseEntity<EntityModel<AddInstructorRoleRes>> changeToInstructor(Authentication authentication,
-                                                                                @RequestPart("request") AddInstructorRoleReq request,
-                                                                                @RequestPart("profile") List<MultipartFile> profiles,
-                                                                                @RequestPart("certificate") List<MultipartFile> certificates) throws IOException {
-        Account updatedAccount = accountService.updateAccountToInstructor(authentication.getName(), request, profiles, certificates);
+        EntityModel<SuccessResult> model = EntityModel.of(successResult);
+        model.add(linkTo(methodOn(SignController.class).addInstructorInfo(account, instructorInfo, result)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-add-instructorInfo").withRel("profile"));
 
-        AddInstructorRoleRes addInstructorRoleRes = AddInstructorRoleRes.builder()
-                .email(updatedAccount.getEmail())
-                .userName(updatedAccount.getNickName())
-                .roles(updatedAccount.getRoles())
-                .build();
-
-        EntityModel<AddInstructorRoleRes> model = EntityModel.of(addInstructorRoleRes);
-        model.add(linkTo(methodOn(SignController.class).changeToInstructor(authentication, request, profiles, certificates)).withSelfRel());
         return ResponseEntity.ok().body(model);
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class AddInstructorRoleReq {
-        @NotEmpty
-        private String phoneNumber;
-        @NotEmpty
-        private String groupName;
-        @NotEmpty
-        private String description;
+
+    @PostMapping(value = "/instructor/certificate")
+    public ResponseEntity<?> addInstructorCertificate(@CurrentUser Account account,
+                                                      @Valid @RequestParam("certificateImages") List<MultipartFile> certificateImages) throws IOException {
+        SuccessResult successResult = instructorCertificateService.saveInstructorCertificate(account, certificateImages);
+
+        EntityModel<SuccessResult> model = EntityModel.of(successResult);
+        model.add(linkTo(methodOn(SignController.class).addInstructorCertificate(account, certificateImages)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-add-instructor-certificate").withRel("profile"));
+        return ResponseEntity.ok().body(model);
     }
 
-    @Data
-    @AllArgsConstructor
-    @Builder
-    static class AddInstructorRoleRes {
-        private String email;
-        private String userName;
-        private Set<Role> roles;
+    @GetMapping(value = "/instructor/request/list")
+    public ResponseEntity<?> getRequestOfInstructor(Pageable pageable,
+                                                    PagedResourcesAssembler<InstructorRequestInfo> assembler) {
+        Page<InstructorRequestInfo> infoPage = accountService.getRequestInstructor(pageable);
+
+        PagedModel<EntityModel<InstructorRequestInfo>> model = assembler.toModel(infoPage);
+        return ResponseEntity.ok().body(model);
     }
 
     @PostMapping("/logout")

@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class Equipment {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;

@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.account;
+package com.diving.pungdong.dto.account.kafka;
 
 import com.diving.pungdong.domain.account.Role;
 import lombok.AllArgsConstructor;

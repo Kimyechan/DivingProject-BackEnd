@@ -14,7 +14,6 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static com.diving.pungdong.domain.lecture.QLecture.lecture;
-import static com.diving.pungdong.domain.lecture.QLectureImage.lectureImage;
 
 public class LectureJpaRepoImpl implements LectureJpaRepoCustom {
     private final JPAQueryFactory queryFactory;

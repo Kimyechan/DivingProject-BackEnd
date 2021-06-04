@@ -11,13 +11,10 @@ import javax.persistence.*;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
-public class InstructorImage {
+public class InstructorCertificate {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    private InstructorImgCategory category;
 
     private String fileURL;
 
