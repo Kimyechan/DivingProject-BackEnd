@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -200,5 +201,11 @@ public class LectureController {
     @PostMapping("/upload")
     public String upload(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {
         return s3Uploader.upload(file, "lecture", authentication.getName());
+    }
+
+    @GetMapping(value = "/instructor/info")
+    public ResponseEntity<?> findInstructorInfoForLecture(@NotNull @RequestParam Long lectureId) {
+
+        return ResponseEntity.ok().body(null);
     }
 }

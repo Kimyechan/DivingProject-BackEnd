@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
@@ -778,5 +779,27 @@ class LectureControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("해당 강의를 개설한 강사 정보 조회")
+    public void findInstructorInfoForLecture() throws Exception {
+        Long lectureId = 1L;
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureCreatorInfo lectureCreatorInfo = LectureCreatorInfo.builder()
+                .instructorId(2L)
+                .nickName("열혈 다이버")
+                .selfIntroduction("안녕하세요 열혈 다이버입니다")
+                .build();
+        given(lectureService.findLectureCreatorInfo(lectureId)).willReturn(lectureCreatorInfo);
+
+        mockMvc.perform(get("/sign/instructor/info/creator")
+                .param("lectureId", String.valueOf(lectureId))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

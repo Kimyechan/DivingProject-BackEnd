@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
+import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
@@ -262,5 +263,16 @@ public class LectureService {
         List<LectureInfo> lectureInfos = mapToPopularLectureInfos(account, lecturePage);
 
         return new PageImpl<>(lectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
+    }
+
+    public LectureCreatorInfo findLectureCreatorInfo(Long lectureId) {
+        Lecture lecture = getLectureById(lectureId);
+        Account account = lecture.getInstructor();
+
+        return LectureCreatorInfo.builder()
+                .instructorId(account.getId())
+                .nickName(account.getNickName())
+                .selfIntroduction(account.getSelfIntroduction())
+                .build();
     }
 }
