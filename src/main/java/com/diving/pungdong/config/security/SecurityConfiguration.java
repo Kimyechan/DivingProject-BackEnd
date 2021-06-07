@@ -1,6 +1,6 @@
 package com.diving.pungdong.config.security;
 
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/sign/sign-up", "/sign/login", "/sign/check/**", "/sign/refresh",
                                 "/email/code/**").permitAll()
                         .antMatchers("/lecture/detail", "/lecture/list", "/lecture/new/list", "/lecture/popular/list", "/lecture/list/search/**",
+                                "/lecture/instructor/info",
                                 "/schedule").permitAll()
                         .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
                         .antMatchers("/sign/instructor/request/list", "/sign/instructor/confirm").hasRole("ADMIN")

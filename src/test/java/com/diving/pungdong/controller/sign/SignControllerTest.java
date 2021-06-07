@@ -21,7 +21,7 @@ import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.auth.AuthToken;
 import com.diving.pungdong.model.SuccessResult;
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.AuthService;
 import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
@@ -58,7 +58,6 @@ import java.util.stream.Collectors;
 import static com.diving.pungdong.controller.sign.SignController.LogoutReq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -580,8 +579,8 @@ class SignControllerTest {
                         document(
                                 "account-instructor-confirm",
                                 requestHeaders(
-                                        headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("관리자 access token 값")
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("관리자 access token 값")
                                 ),
                                 requestFields(
                                         fieldWithPath("accountId").description("강사 권한을 획들할 계정 식별자 값")

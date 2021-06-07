@@ -7,7 +7,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.equipment.create.*;
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.EquipmentService;
 import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import com.fasterxml.jackson.databind.ObjectMapper;

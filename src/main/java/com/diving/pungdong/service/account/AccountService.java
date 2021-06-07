@@ -1,4 +1,4 @@
-package com.diving.pungdong.service;
+package com.diving.pungdong.service.account;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
@@ -7,6 +7,7 @@ import com.diving.pungdong.advice.exception.EmailDuplicationException;
 import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
+import com.diving.pungdong.domain.account.ProfilePhoto;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
@@ -18,12 +19,12 @@ import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
+import com.diving.pungdong.service.EmailService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -45,6 +46,7 @@ public class AccountService implements UserDetailsService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AccountKafkaProducer producer;
+    private final ProfilePhotoService profilePhotoService;
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
@@ -91,6 +93,8 @@ public class AccountService implements UserDetailsService {
         checkDuplicationOfNickName(signUpInfo.getNickName());
         checkDuplicationOfEmail(signUpInfo.getEmail());
 
+        ProfilePhoto profilePhoto = profilePhotoService.saveDefaultProfilePhoto();
+
         Account student = Account.builder()
                 .email(signUpInfo.getEmail())
                 .password(passwordEncoder.encode(signUpInfo.getPassword()))
@@ -99,6 +103,7 @@ public class AccountService implements UserDetailsService {
                 .nickName(signUpInfo.getNickName())
                 .phoneNumber(signUpInfo.getPhoneNumber())
                 .roles(Set.of(Role.STUDENT))
+                .profilePhoto(profilePhoto)
                 .build();
         Account savedStudent = accountJpaRepo.save(student);
 
