@@ -273,6 +273,7 @@ public class LectureService {
                 .instructorId(account.getId())
                 .nickName(account.getNickName())
                 .selfIntroduction(account.getSelfIntroduction())
+                .profilePhotoUrl(account.getProfilePhoto().getImageUrl())
                 .build();
     }
 }

@@ -13,4 +13,5 @@ public class LectureCreatorInfo {
     private Long instructorId;
     private String nickName;
     private String selfIntroduction;
+    private String profilePhotoUrl;
 }
