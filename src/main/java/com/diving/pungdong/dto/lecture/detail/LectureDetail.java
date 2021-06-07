@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,10 +16,8 @@ public class LectureDetail {
     private String level;
     private String description;
     private Integer price;
-    private Integer period;
-    private Integer studentCount;
     private String region;
-    private Long instructorId;
-    private List<String> lectureUrlList;
-//    private List<EquipmentDto> equipmentList;
+    private Float reviewTotalAvg;
+    private Integer reviewCount;
+    private Boolean isMarked;
 }

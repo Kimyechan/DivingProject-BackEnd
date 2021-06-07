@@ -48,8 +48,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/sign/sign-up", "/sign/login", "/sign/check/**", "/sign/refresh",
                                 "/email/code/**").permitAll()
                         .antMatchers("/lecture/detail", "/lecture/list", "/lecture/new/list", "/lecture/popular/list", "/lecture/list/search/**",
-                                "/lecture/instructor/info",
-                                "/schedule").permitAll()
+                                "/lecture/instructor/info").permitAll()
+                        .antMatchers(HttpMethod.GET, "/lecture").permitAll()
+                        .antMatchers("/schedule").permitAll()
                         .antMatchers("/lectureImage/list").permitAll()
                         .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
                         .antMatchers("/sign/instructor/request/list", "/sign/instructor/confirm").hasRole("ADMIN")
