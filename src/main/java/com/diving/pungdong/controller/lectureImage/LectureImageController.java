@@ -3,19 +3,20 @@ package com.diving.pungdong.controller.lectureImage;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
+import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
 import com.diving.pungdong.service.LectureImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -39,5 +40,15 @@ public class LectureImageController {
         model.add(Link.of("/docs/api.html#resource-lecture-images-create").withRel("profile"));
 
         return ResponseEntity.created(location.toUri()).body(model);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> findLectureImages(@Valid @RequestParam Long lectureId) {
+        List<LectureImageUrl> lectureImages = lectureImageService.findLectureImagesUrl(lectureId);
+
+        CollectionModel<LectureImageUrl> model = CollectionModel.of(lectureImages);
+        model.add(linkTo(methodOn(LectureImageController.class).findLectureImages(lectureId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-lectureImage-find-list").withRel("profile"));
+        return ResponseEntity.ok().body(model);
     }
 }

@@ -786,7 +786,6 @@ class LectureControllerTest {
     public void findInstructorInfoForLecture() throws Exception {
         Long lectureId = 1L;
         Account account = createAccount();
-        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
         LectureCreatorInfo lectureCreatorInfo = LectureCreatorInfo.builder()
                 .instructorId(2L)
@@ -798,16 +797,12 @@ class LectureControllerTest {
         given(lectureService.findLectureCreatorInfo(lectureId)).willReturn(lectureCreatorInfo);
 
         mockMvc.perform(get("/lecture/instructor/info/creator")
-                .param("lectureId", String.valueOf(lectureId))
-                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .param("lectureId", String.valueOf(lectureId)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(
                         document(
                                 "lecture-find-instructor-info",
-                                requestHeaders(
-                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
-                                ),
                                 requestParameters(
                                         parameterWithName("lectureId").description("강의 식별자 값")
                                 ),
