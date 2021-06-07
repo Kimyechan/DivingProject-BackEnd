@@ -3,8 +3,11 @@ package com.diving.pungdong.controller.lecture;
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.security.CurrentUser;
+import com.diving.pungdong.controller.sign.SignController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.dto.account.signUp.SignUpResult;
+import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
@@ -205,7 +208,11 @@ public class LectureController {
 
     @GetMapping(value = "/instructor/info")
     public ResponseEntity<?> findInstructorInfoForLecture(@NotNull @RequestParam Long lectureId) {
+        LectureCreatorInfo lectureCreatorInfo = lectureService.findLectureCreatorInfo(lectureId);
 
-        return ResponseEntity.ok().body(null);
+        EntityModel<LectureCreatorInfo> model = EntityModel.of(lectureCreatorInfo);
+        model.add(linkTo(methodOn(LectureController.class).findInstructorInfoForLecture(lectureId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-lecture-find-instructor-info").withRel("profile"));
+        return ResponseEntity.ok().body(model);
     }
 }
