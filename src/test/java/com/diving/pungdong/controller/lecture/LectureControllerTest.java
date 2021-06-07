@@ -8,13 +8,14 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.elasticSearch.LectureEsService;
@@ -775,6 +776,48 @@ class LectureControllerTest {
                                         fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
                                         fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
                                         fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("해당 강의를 개설한 강사 정보 조회")
+    public void findInstructorInfoForLecture() throws Exception {
+        Long lectureId = 1L;
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureCreatorInfo lectureCreatorInfo = LectureCreatorInfo.builder()
+                .instructorId(2L)
+                .nickName("열혈 다이버")
+                .selfIntroduction("안녕하세요 열혈 다이버입니다")
+                .profilePhotoUrl("강사 프로필 사진 Url")
+                .build();
+
+        given(lectureService.findLectureCreatorInfo(lectureId)).willReturn(lectureCreatorInfo);
+
+        mockMvc.perform(get("/lecture/instructor/info/creator")
+                .param("lectureId", String.valueOf(lectureId))
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-find-instructor-info",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("lectureId").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("instructorId").description("강사 식별자 Id"),
+                                        fieldWithPath("nickName").description("강사 닉네임"),
+                                        fieldWithPath("selfIntroduction").description("강사 자기 소개"),
+                                        fieldWithPath("profilePhotoUrl").description("강사 프로필 사진 URL"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
                                 )
                         )
                 );
