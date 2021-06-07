@@ -15,7 +15,7 @@ import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.elasticSearch.LectureEsService;

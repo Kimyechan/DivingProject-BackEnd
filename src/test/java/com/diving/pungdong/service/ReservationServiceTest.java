@@ -9,6 +9,7 @@ import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
+import com.diving.pungdong.service.account.AccountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package com.diving.pungdong.config.security;
 
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

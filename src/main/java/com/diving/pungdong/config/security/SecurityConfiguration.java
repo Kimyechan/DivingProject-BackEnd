@@ -1,6 +1,6 @@
 package com.diving.pungdong.config.security;
 
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;

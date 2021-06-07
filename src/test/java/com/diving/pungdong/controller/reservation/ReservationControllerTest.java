@@ -16,7 +16,7 @@ import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.dto.reservation.ReservationInfo;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleTimeInfo;
-import com.diving.pungdong.service.AccountService;
+import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ReservationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +37,6 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
