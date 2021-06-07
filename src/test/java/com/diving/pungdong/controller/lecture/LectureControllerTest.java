@@ -792,15 +792,34 @@ class LectureControllerTest {
                 .instructorId(2L)
                 .nickName("열혈 다이버")
                 .selfIntroduction("안녕하세요 열혈 다이버입니다")
+                .profilePhotoUrl("강사 프로필 사진 Url")
                 .build();
 
         given(lectureService.findLectureCreatorInfo(lectureId)).willReturn(lectureCreatorInfo);
 
-        mockMvc.perform(get("/sign/instructor/info/creator")
+        mockMvc.perform(get("/lecture/instructor/info/creator")
                 .param("lectureId", String.valueOf(lectureId))
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-find-instructor-info",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("lectureId").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("instructorId").description("강사 식별자 Id"),
+                                        fieldWithPath("nickName").description("강사 닉네임"),
+                                        fieldWithPath("selfIntroduction").description("강사 자기 소개"),
+                                        fieldWithPath("profilePhotoUrl").description("강사 프로필 사진 URL"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
     }
 }

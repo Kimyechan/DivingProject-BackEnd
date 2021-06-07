@@ -579,8 +579,8 @@ class SignControllerTest {
                         document(
                                 "account-instructor-confirm",
                                 requestHeaders(
-                                        headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("관리자 access token 값")
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("관리자 access token 값")
                                 ),
                                 requestFields(
                                         fieldWithPath("accountId").description("강사 권한을 획들할 계정 식별자 값")

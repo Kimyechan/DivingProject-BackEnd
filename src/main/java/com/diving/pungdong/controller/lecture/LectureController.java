@@ -206,7 +206,7 @@ public class LectureController {
         return s3Uploader.upload(file, "lecture", authentication.getName());
     }
 
-    @GetMapping(value = "/instructor/info")
+    @GetMapping(value = "/instructor/info/creator")
     public ResponseEntity<?> findInstructorInfoForLecture(@NotNull @RequestParam Long lectureId) {
         LectureCreatorInfo lectureCreatorInfo = lectureService.findLectureCreatorInfo(lectureId);
 
