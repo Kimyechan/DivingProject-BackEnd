@@ -17,19 +17,22 @@ import java.util.Set;
 @NoArgsConstructor @AllArgsConstructor
 public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Email
-    String email;
+    private String email;
 
-    String password;
+    private String password;
 
-    String nickName;
+    private String nickName;
 
-    String birth;
+    private String birth;
 
     @Enumerated(EnumType.STRING)
-    Gender gender;
+    private Gender gender;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private ProfilePhoto profilePhoto;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)

@@ -793,6 +793,7 @@ class LectureControllerTest {
                 .nickName("열혈 다이버")
                 .selfIntroduction("안녕하세요 열혈 다이버입니다")
                 .build();
+
         given(lectureService.findLectureCreatorInfo(lectureId)).willReturn(lectureCreatorInfo);
 
         mockMvc.perform(get("/sign/instructor/info/creator")
