@@ -33,6 +33,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -54,7 +55,7 @@ class LocationControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private  ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @MockBean
     private AccountService accountService;
@@ -144,6 +145,21 @@ class LocationControllerTest {
         mockMvc.perform(get("/location")
                 .param("lectureId", String.valueOf(lectureId)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document("location-find",
+                                requestParameters(
+                                        parameterWithName("lectureId").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("id").description("강의 위치 식별자 값"),
+                                        fieldWithPath("address").description("강의 위치 상세 주소"),
+                                        fieldWithPath("latitude").description("강의 위치 위도"),
+                                        fieldWithPath("longitude").description("강의 위치 경도"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
     }
 }
