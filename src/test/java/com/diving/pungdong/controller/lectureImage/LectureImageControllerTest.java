@@ -7,6 +7,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
+import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import org.apache.http.HttpHeaders;
@@ -21,7 +22,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -33,8 +37,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -112,6 +115,38 @@ class LectureImageControllerTest {
                                 responseFields(
                                         fieldWithPath("lectureId").description("개설된 강의 식별자 값"),
                                         fieldWithPath("imageUris[]").description("강의 이미지 Uri들"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 이미지 목록 조회")
+    public void findLectureImages() throws Exception {
+        Long lectureId = 1L;
+
+        List<LectureImageUrl> urls = new ArrayList<>();
+        LectureImageUrl lectureImageUrl = LectureImageUrl.builder()
+                .url("강의 이미지 Url 1")
+                .build();
+        urls.add(lectureImageUrl);
+
+        given(lectureImageService.findLectureImagesUrl(lectureId)).willReturn(urls);
+
+        mockMvc.perform(get("/lectureImage/list")
+                .param("lectureId", String.valueOf(lectureId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lectureImage-find-list",
+                                requestParameters(
+                                        parameterWithName("lectureId").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.lectureImageUrlList[].url").description("강의 이미지 URL 목록"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                                 )

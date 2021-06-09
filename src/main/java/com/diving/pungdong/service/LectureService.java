@@ -6,11 +6,13 @@ import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
+import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -258,6 +260,7 @@ public class LectureService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Page<LectureInfo> filterSearchList(Account account, FilterSearchCondition condition, Pageable pageable) {
         Page<Lecture> lecturePage = lectureJpaRepo.searchListByCondition(condition, pageable);
         List<LectureInfo> lectureInfos = mapToPopularLectureInfos(account, lecturePage);
@@ -274,6 +277,25 @@ public class LectureService {
                 .nickName(account.getNickName())
                 .selfIntroduction(account.getSelfIntroduction())
                 .profilePhotoUrl(account.getProfilePhoto().getImageUrl())
+                .build();
+    }
+
+    public LectureDetail findLectureDetailInfo(Long id, Account account) {
+        Lecture lecture = getLectureById(id);
+        Boolean isMarked = isLectureMarked(account, id);
+
+        return LectureDetail.builder()
+                .id(lecture.getId())
+                .title(lecture.getTitle())
+                .classKind(lecture.getClassKind())
+                .organization(lecture.getOrganization())
+                .level(lecture.getLevel())
+                .description(lecture.getDescription())
+                .price(lecture.getPrice())
+                .region(lecture.getRegion())
+                .reviewTotalAvg(lecture.getReviewTotalAvg())
+                .reviewCount(lecture.getReviewCount())
+                .isMarked(isMarked)
                 .build();
     }
 }
