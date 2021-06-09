@@ -1,11 +1,10 @@
 package com.diving.pungdong.domain.location;
 
+import com.diving.pungdong.domain.lecture.Lecture;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -19,4 +18,7 @@ public class Location {
     private String address;
     private Double latitude;
     private Double longitude;
+
+    @OneToOne(mappedBy = "location", fetch = FetchType.LAZY)
+    private Lecture lecture;
 }
