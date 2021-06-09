@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.location.Location;
@@ -33,5 +34,10 @@ public class LocationService {
                 .lectureId(lecture.getId())
                 .locationId(location.getId())
                 .build();
+    }
+
+    @Transactional(readOnly = true )
+    public Location findLocationByLectureId(Long lectureId) {
+        return locationJpaRepo.findByLectureId(lectureId).orElseThrow(BadRequestException::new);
     }
 }
