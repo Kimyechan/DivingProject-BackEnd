@@ -6,6 +6,7 @@ import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lecture.update.LectureImageUpdate;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
+import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
 import com.diving.pungdong.repo.LectureImageJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
@@ -77,5 +78,19 @@ public class LectureImageService {
                 .lectureId(lecture.getId())
                 .imageUris(imageUris)
                 .build();
+    }
+
+    public List<LectureImageUrl> findLectureImagesUrl(Long lectureId) {
+        List<LectureImage> lectureImages = lectureImageJpaRepo.findAllByLectureId(lectureId);
+
+        List<LectureImageUrl> lectureImageUrls = new ArrayList<>();
+        for (LectureImage lectureImage : lectureImages) {
+            LectureImageUrl url = LectureImageUrl.builder()
+                    .url(lectureImage.getFileURI())
+                    .build();
+            lectureImageUrls.add(url);
+        }
+
+        return lectureImageUrls;
     }
 }

@@ -199,7 +199,12 @@ operation::location-create[]
 == 강의 이미지
 
 [[resource-lecture-images-create]]
+=== 강의 이미지 목록 생성
 operation::lectureImage-create-list[]
+
+[[resource-lectureImage-find-list]]
+=== 헤당 강의 이미지 목록 조회
+operation::lectureImage-find-list[]
 
 
 [[resource-equipment]]

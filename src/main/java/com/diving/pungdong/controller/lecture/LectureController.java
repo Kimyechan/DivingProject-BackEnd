@@ -11,6 +11,7 @@ import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
+import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -213,6 +214,17 @@ public class LectureController {
         EntityModel<LectureCreatorInfo> model = EntityModel.of(lectureCreatorInfo);
         model.add(linkTo(methodOn(LectureController.class).findInstructorInfoForLecture(lectureId)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-find-instructor-info").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> findLecture(@CurrentUser Account account,
+                                         @NotNull @RequestParam Long id) {
+        LectureDetail lectureDetail = lectureService.findLectureDetailInfo(id, account);
+
+        EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
+        model.add(linkTo(methodOn(LectureController.class).findLecture(account, id)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-lecture-find-info").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 }
