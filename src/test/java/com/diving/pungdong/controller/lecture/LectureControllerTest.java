@@ -846,6 +846,32 @@ class LectureControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .param("id", String.valueOf(id)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-find-info",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("id").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("id").description("강의 식별자 값"),
+                                        fieldWithPath("title").description("강의 타이틀"),
+                                        fieldWithPath("classKind").description("강의 종류"),
+                                        fieldWithPath("organization").description("강의 관련 자격증 단체"),
+                                        fieldWithPath("level").description("강의 자격증 종류"),
+                                        fieldWithPath("description").description("강의 설명"),
+                                        fieldWithPath("price").description("강의 1인당 가격"),
+                                        fieldWithPath("region").description("강의 지역"),
+                                        fieldWithPath("reviewTotalAvg").description("강의 리뷰 전체 평균"),
+                                        fieldWithPath("reviewCount").description("강의 리뷰 갯수"),
+                                        fieldWithPath("isMarked").description("강의 찜 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
     }
 }

@@ -182,6 +182,10 @@ operation::lecture-search-keyword-list[]
 === 해당 강의 강사 정보 조회
 operation::lecture-find-instructor-info[]
 
+[[resource-lecture-find-info]]
+=== 해당 강의 상세 정보
+operation::lecture-find-info[]
+
 //[[resource-lecture-get-instructor-own-list]]
 //=== 강사 자신의 강의 리스트 조회
 //operation::lecture-get-list-per-instructor[]
