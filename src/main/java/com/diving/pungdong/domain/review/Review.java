@@ -1,5 +1,6 @@
 package com.diving.pungdong.domain.review;
 
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import lombok.*;
 
@@ -23,6 +24,9 @@ public class Review {
     private Float locationStar;
 
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account writer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;
