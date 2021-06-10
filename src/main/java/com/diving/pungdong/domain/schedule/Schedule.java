@@ -4,6 +4,8 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -18,11 +20,20 @@ public class Schedule {
 
     private Integer period;
 
+    private LocalTime startTime;
+
+    private Integer currentNumber;
+
     private Integer maxNumber;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<LocalDate> dates;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;
 
-    @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
-    private List<ScheduleDetail> scheduleDetails;
+    @PrePersist
+    public void prePersist() {
+        this.currentNumber = this.currentNumber == null ? 0 : this.currentNumber;
+    }
 }

@@ -192,15 +192,15 @@ public class LectureController {
         return ResponseEntity.ok().body(model);
     }
 
-    @GetMapping("/manage/list")
-    public ResponseEntity<?> manageList(@CurrentUser Account account,
-                                        Pageable pageable,
-                                        PagedResourcesAssembler<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> assembler) {
-        Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoPage = lectureService.getMyLectureInfoList(account, pageable);
-
-        PagedModel<EntityModel<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo>> model = assembler.toModel(lectureInfoPage);
-        return ResponseEntity.ok().body(model);
-    }
+//    @GetMapping("/manage/list")
+//    public ResponseEntity<?> manageList(@CurrentUser Account account,
+//                                        Pageable pageable,
+//                                        PagedResourcesAssembler<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> assembler) {
+//        Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoPage = lectureService.getMyLectureInfoList(account, pageable);
+//
+//        PagedModel<EntityModel<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo>> model = assembler.toModel(lectureInfoPage);
+//        return ResponseEntity.ok().body(model);
+//    }
 
     @PostMapping("/upload")
     public String upload(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {

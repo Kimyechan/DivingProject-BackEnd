@@ -5,15 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleCreateReq {
-    private Long lectureId;
-    private Integer period;
-    private Integer maxNumber;
-    List<ScheduleDetailReq> detailReqList;
+public class ScheduleCreateResult {
+    private Long scheduleId;
 }
