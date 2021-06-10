@@ -2,6 +2,7 @@ package com.diving.pungdong.domain.account;
 
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.domain.review.Review;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,7 +32,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ProfilePhoto profilePhoto;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -51,11 +52,14 @@ public class Account {
 
     private Long income;
 
-    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<InstructorCertificate> instructorCertificates;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<LectureMark> lectureMarks;
+
+    @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Review> reviews;
 
     @PrePersist
     public void prePersist() {

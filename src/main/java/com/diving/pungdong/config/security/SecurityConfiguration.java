@@ -49,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                                 "/email/code/**").permitAll()
                         .antMatchers("/lecture/detail", "/lecture/list", "/lecture/new/list", "/lecture/popular/list", "/lecture/list/search/**",
                                 "/lecture/instructor/info/creator").permitAll()
-                        .antMatchers(HttpMethod.GET, "/lecture", "/location").permitAll()
+                        .antMatchers(HttpMethod.GET, "/lecture", "/location", "/review/list").permitAll()
                         .antMatchers("/schedule").permitAll()
                         .antMatchers("/lectureImage/list").permitAll()
                         .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
