@@ -20,6 +20,11 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,7 +73,33 @@ class ReviewControllerTest {
                 .param("size", String.valueOf(pageable.getPageSize()))
                 .param("sort", String.valueOf(pageable.getSort())))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "review-find-list",
+                                requestParameters(
+                                        parameterWithName("lectureId").description("강의 식별자 값"),
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.reviewInfoList[].id").description("리뷰 식별자 값"),
+                                        fieldWithPath("_embedded.reviewInfoList[].instructorStar").description("강사 평점"),
+                                        fieldWithPath("_embedded.reviewInfoList[].lectureStar").description("강의 평점"),
+                                        fieldWithPath("_embedded.reviewInfoList[].locationStar").description("강의 장소 평점"),
+                                        fieldWithPath("_embedded.reviewInfoList[].totalStarAvg").description("강의 총 평점"),
+                                        fieldWithPath("_embedded.reviewInfoList[].description").description("리뷰 내용"),
+                                        fieldWithPath("_embedded.reviewInfoList[].writeDate").description("리뷰 작성 날짜"),
+                                        fieldWithPath("_embedded.reviewInfoList[].reviewImageUrls[]").description("리뷰 이미지 Url들"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
     }
 
 }
