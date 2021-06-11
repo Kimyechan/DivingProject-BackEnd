@@ -4,7 +4,10 @@ import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDateTime;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
+import com.diving.pungdong.dto.schedule.create.ScheduleDateTimeCreateInfo;
+import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.repo.ScheduleJpaRepo;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -22,6 +26,7 @@ import java.util.List;
 public class ScheduleService {
     private final ScheduleJpaRepo scheduleJpaRepo;
     private final LectureService lectureService;
+    private final ScheduleDateTimeService scheduleDateTimeService;
 
     public List<Schedule> findByLectureId(Long lectureId) {
         return scheduleJpaRepo.findAllByLectureId(lectureId);
@@ -33,10 +38,11 @@ public class ScheduleService {
 
         List<Schedule> possibleMonthSchedules = new ArrayList<>();
         for (Schedule schedule : schedules) {
-            List<LocalDate> dates = schedule.getDates();
-            dates.sort(LocalDate::compareTo);
+            List<ScheduleDateTime> scheduleDateTimes = schedule.getScheduleDateTimes();
+            scheduleDateTimes.sort(Comparator.comparing(ScheduleDateTime::getDate));
+            LocalDate scheduleFirstDate = scheduleDateTimes.get(0).getDate();
 
-            if (dates.get(0).isAfter(currentDate) && dates.get(0).getMonth() == month) {
+            if (scheduleFirstDate.isAfter(currentDate) && scheduleFirstDate.getMonth() == month) {
                 possibleMonthSchedules.add(schedule);
             }
         }
@@ -89,29 +95,45 @@ public class ScheduleService {
 
         Schedule schedule = Schedule.builder()
                 .lecture(lecture)
-                .period(scheduleCreateInfo.getPeriod())
                 .maxNumber(scheduleCreateInfo.getMaxNumber())
-                .startTime(scheduleCreateInfo.getStartTime())
-                .dates(scheduleCreateInfo.getDates())
                 .build();
+        Schedule savedSchedule = scheduleJpaRepo.save(schedule);
 
-        return scheduleJpaRepo.save(schedule);
+        List<ScheduleDateTime> scheduleDateTimes = scheduleDateTimeService.mapToScheduleDateTimes(scheduleCreateInfo.getDateTimeCreateInfos(), savedSchedule);
+        scheduleDateTimeService.saveScheduleDateTimeList(scheduleDateTimes);
+
+        return savedSchedule;
     }
 
     public List<ScheduleInfo> mapToScheduleInfos(List<Schedule> schedules) {
         List<ScheduleInfo> scheduleInfos = new ArrayList<>();
         for (Schedule schedule : schedules) {
+            List<ScheduleDateTimeInfo> scheduleDateTimeInfos = mapToScheduleDateTimeInfos(schedule.getScheduleDateTimes());
+
             ScheduleInfo scheduleInfo = ScheduleInfo.builder()
                     .scheduleId(schedule.getId())
-                    .period(schedule.getPeriod())
-                    .startTime(schedule.getStartTime())
                     .currentNumber(schedule.getCurrentNumber())
                     .maxNumber(schedule.getMaxNumber())
-                    .dates(schedule.getDates())
+                    .dateTimeInfos(scheduleDateTimeInfos)
                     .build();
             scheduleInfos.add(scheduleInfo);
         }
 
         return scheduleInfos;
+    }
+
+    private List<ScheduleDateTimeInfo> mapToScheduleDateTimeInfos(List<ScheduleDateTime> scheduleDateTimes) {
+        List<ScheduleDateTimeInfo> scheduleDateTimeInfos = new ArrayList<>();
+        for (ScheduleDateTime scheduleDateTime : scheduleDateTimes) {
+            ScheduleDateTimeInfo scheduleDateTimeInfo = ScheduleDateTimeInfo.builder()
+                    .scheduleDateTimeId(scheduleDateTime.getId())
+                    .startTime(scheduleDateTime.getStartTime())
+                    .endTime(scheduleDateTime.getEndTime())
+                    .date(scheduleDateTime.getDate())
+                    .build();
+            scheduleDateTimeInfos.add(scheduleDateTimeInfo);
+        }
+
+        return scheduleDateTimeInfos;
     }
 }

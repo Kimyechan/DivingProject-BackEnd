@@ -4,8 +4,6 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -18,16 +16,12 @@ public class Schedule {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer period;
-
-    private LocalTime startTime;
-
     private Integer currentNumber;
 
     private Integer maxNumber;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<LocalDate> dates;
+    @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ScheduleDateTime> scheduleDateTimes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;

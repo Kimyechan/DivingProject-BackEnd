@@ -9,6 +9,8 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
+import com.diving.pungdong.dto.schedule.create.ScheduleDateTimeCreateInfo;
+import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.ScheduleService;
@@ -90,12 +92,16 @@ class ScheduleControllerTest {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.INSTRUCTOR));
 
+        ScheduleDateTimeCreateInfo scheduleDateTimeCreateInfo = ScheduleDateTimeCreateInfo.builder()
+                .startTime(LocalTime.of(11, 30))
+                .endTime(LocalTime.of(12, 30))
+                .date(LocalDate.of(2021, 6, 30))
+                .build();
+
         ScheduleCreateInfo scheduleCreateInfo = ScheduleCreateInfo.builder()
                 .lectureId(1L)
-                .period(3)
                 .maxNumber(5)
-                .startTime(LocalTime.of(11, 30))
-                .dates(List.of(LocalDate.now().plusDays(5), LocalDate.now().plusDays(6), LocalDate.now().plusDays(8)))
+                .dateTimeCreateInfos(List.of(scheduleDateTimeCreateInfo))
                 .build();
 
         given(scheduleService.saveScheduleInfo(any(), any())).willReturn(Schedule.builder().id(1L).build());
@@ -110,14 +116,14 @@ class ScheduleControllerTest {
                         document("schedule-create",
                                 requestHeaders(
                                         headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                        headerWithName("Authorization").description("강의 생성자 access token 값")
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("강의 생성자 access token 값")
                                 ),
                                 requestFields(
                                         fieldWithPath("lectureId").description("강의 식별자 값"),
-                                        fieldWithPath("period").description("강의 기간"),
                                         fieldWithPath("maxNumber").description("수강 제한 인원 수"),
-                                        fieldWithPath("startTime").description("강의 시작 시간"),
-                                        fieldWithPath("dates[]").description("강의 날짜 목록")
+                                        fieldWithPath("dateTimeCreateInfos[].startTime").description("강의 한 날짜의 시작 시간"),
+                                        fieldWithPath("dateTimeCreateInfos[].endTime").description("강의 한 날짜의 종료 시간"),
+                                        fieldWithPath("dateTimeCreateInfos[].date").description("강의 날짜")
                                 ),
                                 responseFields(
                                         fieldWithPath("scheduleId").description("일정 식별자 값"),
@@ -135,13 +141,18 @@ class ScheduleControllerTest {
 
         List<ScheduleInfo> scheduleInfos = new ArrayList<>();
         for (int i = 1; i <= 2; i++) {
+            ScheduleDateTimeInfo scheduleDateTimeInfo = ScheduleDateTimeInfo.builder()
+                    .scheduleDateTimeId(1L)
+                    .startTime(LocalTime.of(11, 30))
+                    .endTime(LocalTime.of(12, 30))
+                    .date(LocalDate.of(2021, 6, 30))
+                    .build();
+
             ScheduleInfo scheduleInfo = ScheduleInfo.builder()
                     .scheduleId((long) i)
-                    .period(2)
-                    .startTime(LocalTime.of(i, 30))
                     .currentNumber(5)
                     .maxNumber(10)
-                    .dates(List.of(LocalDate.now().plusDays(1), LocalDate.now().plusDays(2)))
+                    .dateTimeInfos(List.of(scheduleDateTimeInfo))
                     .build();
             scheduleInfos.add(scheduleInfo);
         }
@@ -162,11 +173,12 @@ class ScheduleControllerTest {
                                 ),
                                 responseFields(
                                         fieldWithPath("_embedded.scheduleInfoList[].scheduleId").description("강의 일정 식별자 값"),
-                                        fieldWithPath("_embedded.scheduleInfoList[].period").description("강의 기간"),
-                                        fieldWithPath("_embedded.scheduleInfoList[].startTime").description("강의 시작 시간"),
                                         fieldWithPath("_embedded.scheduleInfoList[].currentNumber").description("현재 일정에 등록된 수강생 수"),
                                         fieldWithPath("_embedded.scheduleInfoList[].maxNumber").description("해당 일정에 가능한 최대 수강생 수"),
-                                        fieldWithPath("_embedded.scheduleInfoList[].dates[]").description("강의 일정 날짜 목록"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].scheduleDateTimeId").description("강의 일정 날짜 식별자 값"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].startTime").description("강의 일정 한 날짜의 시작 시간"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].endTime").description("강의 일정 한 날짜의 종료 시간"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].date").description("강의 일정 날짜"),
                                         fieldWithPath("_links.self.href").description("해당 API 주소"),
                                         fieldWithPath("_links.profile.href").description("해당 API 문서 주소")
                                 )

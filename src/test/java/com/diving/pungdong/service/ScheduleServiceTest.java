@@ -1,6 +1,8 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDateTime;
+import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.repo.ScheduleJpaRepo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,23 +49,23 @@ class ScheduleServiceTest {
     private List<Schedule> createSchedules(LocalDate currentDate) {
         List<Schedule> schedules = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
-            List<LocalDate> dates = new ArrayList<>();
-            dates.add(currentDate.minusDays(i));
-            dates.add(currentDate.minusDays(i + 1));
+            List<ScheduleDateTime> dates = new ArrayList<>();
+            dates.add(ScheduleDateTime.builder().date(currentDate.minusDays(i)).build());
+            dates.add(ScheduleDateTime.builder().date(currentDate.minusDays(i + 1)).build());
 
             Schedule schedule = Schedule.builder()
-                    .dates(dates)
+                    .scheduleDateTimes(dates)
                     .build();
             schedules.add(schedule);
         }
 
         for (int i = 0; i < 18; i++) {
-            List<LocalDate> dates = new ArrayList<>();
-            dates.add(currentDate.plusDays(i));
-            dates.add(currentDate.plusDays(i + 1));
+            List<ScheduleDateTime> dates = new ArrayList<>();
+            dates.add(ScheduleDateTime.builder().date(currentDate.plusDays(i)).build());
+            dates.add(ScheduleDateTime.builder().date(currentDate.plusDays(i + 1)).build());
 
             Schedule schedule = Schedule.builder()
-                    .dates(dates)
+                    .scheduleDateTimes(dates)
                     .build();
             schedules.add(schedule);
         }

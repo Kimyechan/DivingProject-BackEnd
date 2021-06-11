@@ -5,22 +5,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
+import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleCreateInfo {
+public class ScheduleDateTimeCreateInfo {
     @NotNull
-    private Long lectureId;
+    private LocalTime startTime;
 
     @NotNull
-    private Integer maxNumber;
+    private LocalTime endTime;
 
-    @NotEmpty
-    private List<ScheduleDateTimeCreateInfo> dateTimeCreateInfos;
+    @NotNull
+    private LocalDate date;
 }
