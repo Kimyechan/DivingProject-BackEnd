@@ -6,19 +6,24 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateResult;
+import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -48,67 +53,15 @@ public class ScheduleController {
         return ResponseEntity.created(linkBuilder.toUri()).body(model);
     }
 
-//    @GetMapping
-//    public ResponseEntity<?> read(@RequestParam Long lectureId) {
-//        List<Schedule> newScheduleList = scheduleService.filterListByCheckingPast(lectureId);
-//
-//        List<ScheduleDto> scheduleDtoList = mapToScheduleDtoList(newScheduleList);
-//
-//        CollectionModel<ScheduleDto> model = CollectionModel.of(scheduleDtoList);
-//        model.add(linkTo(methodOn(ScheduleController.class).read(lectureId)).withSelfRel());
-//        return ResponseEntity.ok().body(model);
-//    }
-//
-//
-//    public List<ScheduleDto> mapToScheduleDtoList(List<Schedule> scheduleList) {
-//        List<ScheduleDto> schedules = new ArrayList<>();
-//
-//        for (Schedule schedule : scheduleList) {
-//            List<ScheduleDetailDto> scheduleDetails = mapToScheduleDetailDtoList(schedule);
-//
-//            ScheduleDto dto = ScheduleDto.builder()
-//                    .scheduleId(schedule.getId())
-//                    .period(schedule.getPeriod())
-//                    .maxNumber(schedule.getMaxNumber())
-//                    .scheduleDetails(scheduleDetails)
-//                    .build();
-//            schedules.add(dto);
-//        }
-//
-//        return schedules;
-//    }
-//
-//    public List<ScheduleDetailDto> mapToScheduleDetailDtoList(Schedule schedule) {
-//        List<ScheduleDetailDto> scheduleDetails = new ArrayList<>();
-//
-//        for (ScheduleDate scheduleDate : schedule.getScheduleDates()) {
-//            List<ScheduleTimeDto> scheduleTimeDtoList = mapToScheduleTimeDtoList(scheduleDate.getScheduleTimes());
-//
-//            ScheduleDetailDto detailDto = ScheduleDetailDto.builder()
-//                    .scheduleDetailId(scheduleDate.getId())
-//                    .date(scheduleDate.getDate())
-//                    .scheduleTimeDtoList(scheduleTimeDtoList)
-//                    .lectureTime(scheduleDate.getLectureTime())
-//                    .location(scheduleDate.getLocation())
-//                    .build();
-//            scheduleDetails.add(detailDto);
-//        }
-//
-//        return scheduleDetails;
-//    }
-//
-//    private List<ScheduleTimeDto> mapToScheduleTimeDtoList(List<ScheduleTime> scheduleTimes) {
-//        List<ScheduleTimeDto> scheduleTimeDtoList = new ArrayList<>();
-//
-//        for (ScheduleTime scheduleTime : scheduleTimes) {
-//            ScheduleTimeDto scheduleTimeDto = ScheduleTimeDto.builder()
-//                    .scheduleTimeId(scheduleTime.getId())
-//                    .startTime(scheduleTime.getStartTime())
-//                    .currentNumber(scheduleTime.getCurrentNumber())
-//                    .build();
-//            scheduleTimeDtoList.add(scheduleTimeDto);
-//        }
-//
-//        return scheduleTimeDtoList;
-//    }
+    @GetMapping
+    public ResponseEntity<?> findScheduleByMonth(@NotNull @RequestParam Long lectureId,
+                                                 @NotNull @RequestParam int month) {
+        List<Schedule> schedules = scheduleService.findLectureScheduleByMonth(lectureId, Month.of(month), LocalDate.now());
+        List<ScheduleInfo> scheduleInfos = scheduleService.mapToScheduleInfos(schedules);
+
+        CollectionModel<ScheduleInfo> model = CollectionModel.of(scheduleInfos);
+        model.add(linkTo(methodOn(ScheduleController.class).findScheduleByMonth(lectureId, month)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-schedule-read-list").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
 }
