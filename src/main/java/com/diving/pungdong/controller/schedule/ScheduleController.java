@@ -11,6 +11,7 @@ import com.diving.pungdong.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,7 @@ public class ScheduleController {
 
         CollectionModel<ScheduleInfo> model = CollectionModel.of(scheduleInfos);
         model.add(linkTo(methodOn(ScheduleController.class).findScheduleByMonth(lectureId, month)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-schedule-read-list").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 }

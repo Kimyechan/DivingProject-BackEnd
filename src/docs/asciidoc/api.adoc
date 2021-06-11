@@ -237,9 +237,10 @@ operation::review-find-list[]
 === 강의 일정 생성
 operation::schedule-create[]
 
-[[resource-schedule-read]]
+[[resource-schedule-read-list]]
 === 강의 일정 목록 읽기
-operation::schedule-read[]
+operation::schedule-read-list[]
+
 //
 //[[resource-reservation]]
 //== 강의 예약

@@ -108,22 +108,22 @@ class ScheduleControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(
                         document("schedule-create",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                headerWithName("Authorization").description("강의 생성자 access token 값")
-                        ),
-                        requestFields(
-                                fieldWithPath("lectureId").description("강의 식별자 값"),
-                                fieldWithPath("period").description("강의 기간"),
-                                fieldWithPath("maxNumber").description("수강 제한 인원 수"),
-                                fieldWithPath("startTime").description("강의 시작 시간"),
-                                fieldWithPath("dates[]").description("강의 날짜 목록")
-                        ),
-                        responseFields(
-                                fieldWithPath("scheduleId").description("일정 식별자 값"),
-                                fieldWithPath("_links.self.href").description("해당 API 주소")
-                        )
-                ));
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName("Authorization").description("강의 생성자 access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값"),
+                                        fieldWithPath("period").description("강의 기간"),
+                                        fieldWithPath("maxNumber").description("수강 제한 인원 수"),
+                                        fieldWithPath("startTime").description("강의 시작 시간"),
+                                        fieldWithPath("dates[]").description("강의 날짜 목록")
+                                ),
+                                responseFields(
+                                        fieldWithPath("scheduleId").description("일정 식별자 값"),
+                                        fieldWithPath("_links.self.href").description("해당 API 주소")
+                                )
+                        ));
     }
 
 
@@ -153,6 +153,24 @@ class ScheduleControllerTest {
                 .param("lectureId", String.valueOf(lectureId))
                 .param("month", String.valueOf(month.getValue())))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document("schedule-read-list",
+                                requestParameters(
+                                        parameterWithName("lectureId").description("강의 식별자 값"),
+                                        parameterWithName("month").description("조회할 일정의 월 지정")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.scheduleInfoList[].scheduleId").description("강의 일정 식별자 값"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].period").description("강의 기간"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].startTime").description("강의 시작 시간"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].currentNumber").description("현재 일정에 등록된 수강생 수"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].maxNumber").description("해당 일정에 가능한 최대 수강생 수"),
+                                        fieldWithPath("_embedded.scheduleInfoList[].dates[]").description("강의 일정 날짜 목록"),
+                                        fieldWithPath("_links.self.href").description("해당 API 주소"),
+                                        fieldWithPath("_links.profile.href").description("해당 API 문서 주소")
+                                )
+                        )
+                );
     }
 }
