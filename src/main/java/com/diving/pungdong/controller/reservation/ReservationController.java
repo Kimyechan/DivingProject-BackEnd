@@ -5,7 +5,6 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.dto.reservation.*;
-import com.diving.pungdong.dto.schedule.read.ScheduleTimeInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ReservationService;

@@ -1,8 +1,6 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.repo.ScheduleJpaRepo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +11,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,53 +30,47 @@ class ScheduleServiceTest {
     @Mock
     private ScheduleJpaRepo scheduleJpaRepo;
 
-//    @Test
-//    @DisplayName("오늘 이전 수업은 제외해서 수업 리스트 출력")
-//    public void filterListByCheckingPast() {
-//        Long lectureId = 1L;
-//        List<Schedule> scheduleList = createSchedules();
-//
-//        doReturn(scheduleList).when(scheduleService).getByLectureId(lectureId);
-//
-//        List<Schedule> result = scheduleService.filterListByCheckingPast(lectureId);
-//
-//        assertThat(result.size()).isEqualTo(0);
-//    }
-//
-//    public List<Schedule> createSchedules() {
-//        List<Schedule> schedules = new ArrayList<>();
-//        Schedule schedule = Schedule.builder()
-//                .period(3)
-//                .maxNumber(10)
-//                .build();
-//
-//        Location location = Location.builder()
-//                .latitude(37.0)
-//                .longitude(127.0)
-//                .address("상세 주소")
-//                .build();
-//
-//        List<ScheduleDate> scheduleDates = createPastScheduleDetails(location, schedule.getPeriod());
-//
-//        schedule.setScheduleDates(scheduleDates);
-//        schedules.add(schedule);
-//        return schedules;
-//    }
-//
-//    public List<ScheduleDate> createPastScheduleDetails(Location location, Integer period) {
-//        List<ScheduleDate> scheduleDates = new ArrayList<>();
-//
-//        for (int i = -1; i < period-1; i++) {
-//            ScheduleDate scheduleDate = ScheduleDate.builder()
-//                    .date(LocalDate.now().plusDays(i))
-//                    .lectureTime(LocalTime.of(1, 30))
-//                    .location(location)
-//                    .build();
-//            scheduleDates.add(scheduleDate);
-//        }
-//        return scheduleDates;
-//    }
-//
+    @Test
+    @DisplayName("오늘 이전 수업은 제외해서 해당 달의 강의 일정 목록 출력")
+    public void filterListByCheckingPast() {
+        Long lectureId = 1L;
+        LocalDate currentDate = LocalDate.of(2021, 1, 15);
+        List<Schedule> schedules = createSchedules(currentDate);
+
+        doReturn(schedules).when(scheduleService).findByLectureId(lectureId);
+
+        List<Schedule> possibleSchedule = scheduleService.findLectureScheduleByMonth(lectureId, Month.JANUARY, currentDate);
+
+        assertThat(possibleSchedule.size()).isEqualTo(16);
+    }
+
+    private List<Schedule> createSchedules(LocalDate currentDate) {
+        List<Schedule> schedules = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            List<LocalDate> dates = new ArrayList<>();
+            dates.add(currentDate.minusDays(i));
+            dates.add(currentDate.minusDays(i + 1));
+
+            Schedule schedule = Schedule.builder()
+                    .dates(dates)
+                    .build();
+            schedules.add(schedule);
+        }
+
+        for (int i = 0; i < 18; i++) {
+            List<LocalDate> dates = new ArrayList<>();
+            dates.add(currentDate.plusDays(i));
+            dates.add(currentDate.plusDays(i + 1));
+
+            Schedule schedule = Schedule.builder()
+                    .dates(dates)
+                    .build();
+            schedules.add(schedule);
+        }
+
+        return schedules;
+    }
+
 //    @Test
 //    @DisplayName("강의 예약 인원 수가 가득 찾는지 체크 - 가득 안 참")
 //    public void isReservationFullFalse() {

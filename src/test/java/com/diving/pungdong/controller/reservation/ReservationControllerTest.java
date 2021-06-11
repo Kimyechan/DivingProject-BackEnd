@@ -14,7 +14,6 @@ import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationDateDto;
 import com.diving.pungdong.dto.reservation.ReservationInfo;
 import com.diving.pungdong.dto.reservation.ReservationSubInfo;
-import com.diving.pungdong.dto.schedule.read.ScheduleTimeInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ReservationService;

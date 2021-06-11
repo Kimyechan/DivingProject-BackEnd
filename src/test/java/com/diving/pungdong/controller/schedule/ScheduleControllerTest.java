@@ -7,12 +7,10 @@ import com.diving.pungdong.domain.Location;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
-import com.diving.pungdong.dto.schedule.create.ScheduleCreateResult;
+import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.service.account.AccountService;
-import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ScheduleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -25,18 +23,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -59,8 +54,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ScheduleControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -70,12 +67,26 @@ class ScheduleControllerTest {
     @MockBean
     private ScheduleService scheduleService;
 
-    @MockBean
-    private LectureService lectureService;
+    public Account createAccount() {
+        Account account = Account.builder()
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password("1234")
+                .nickName("yechan")
+                .birth("1999-09-11")
+                .gender(Gender.MALE)
+                .roles(Set.of(Role.INSTRUCTOR))
+                .build();
+
+        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
+                .willReturn(new UserAccount(account));
+
+        return account;
+    }
 
     @Test
     @DisplayName("일정 등록")
-    public void create() throws Exception {
+    public void createSchedule() throws Exception {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.INSTRUCTOR));
 
@@ -115,113 +126,33 @@ class ScheduleControllerTest {
                 ));
     }
 
-    public Account createAccount() {
-        Account account = Account.builder()
-                .id(1L)
-                .email("yechan@gmail.com")
-                .password("1234")
-                .nickName("yechan")
-                .birth("1999-09-11")
-                .gender(Gender.MALE)
-                .roles(Set.of(Role.INSTRUCTOR))
-                .build();
 
-        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
-                .willReturn(new UserAccount(account));
+    @Test
+    @DisplayName("해당 강의 일정 조회")
+    public void findSchedulesByLectureId() throws Exception {
+        Long lectureId = 1L;
+        Month month = Month.JANUARY;
 
-        return account;
+        List<ScheduleInfo> scheduleInfos = new ArrayList<>();
+        for (int i = 1; i <= 2; i++) {
+            ScheduleInfo scheduleInfo = ScheduleInfo.builder()
+                    .scheduleId((long) i)
+                    .period(2)
+                    .startTime(LocalTime.of(i, 30))
+                    .currentNumber(5)
+                    .maxNumber(10)
+                    .dates(List.of(LocalDate.now().plusDays(1), LocalDate.now().plusDays(2)))
+                    .build();
+            scheduleInfos.add(scheduleInfo);
+        }
+
+        given(scheduleService.findLectureScheduleByMonth(lectureId, month, LocalDate.now())).willReturn(new ArrayList<>());
+        given(scheduleService.mapToScheduleInfos(any())).willReturn(scheduleInfos);
+
+        mockMvc.perform(get("/schedule")
+                .param("lectureId", String.valueOf(lectureId))
+                .param("month", String.valueOf(month.getValue())))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
-
-    private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
-        return roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
-                .collect(Collectors.toList());
-    }
-//
-//    @Test
-//    @DisplayName("해당 강의 일정 조회")
-//    public void getScheduleByLectureId() throws Exception {
-//        Long lectureId = 1L;
-//
-//        List<Schedule> schedules = createSchedules();
-//
-//        given(scheduleService.filterListByCheckingPast(lectureId)).willReturn(schedules);
-//
-//        mockMvc.perform(get("/schedule")
-//                .param("lectureId", String.valueOf(lectureId)))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andDo(document("schedule-read",
-//                        requestParameters(
-//                                parameterWithName("lectureId").description("강의 식별자 값")
-//                        ),
-//                        responseHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleId").description("해당 일정 식별자 값"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].period").description("총 강의 회차"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].maxNumber").description("강의 최대 인원"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleDetailId").description("상세 일정 식별자 값"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].date").description("강의 날짜"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].scheduleTimeId").description("강의 시간 식별자 값"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].startTime").description("강의 시작 시간"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].scheduleTimeDtoList[].currentNumber").description("현재 신청한 인원 수"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].lectureTime").description("강의 진행 시간"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.latitude").description("강의 장소 위도"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.longitude").description("강의 장소 경도"),
-//                                fieldWithPath("_embedded.scheduleDtoList[].scheduleDetails[].location.address").description("강의 장소 주소"),
-//                                fieldWithPath("_links.self.href").description("해당 API URL")
-//                        )
-//                ));
-//    }
-//
-//    public List<Schedule> createSchedules() {
-//        List<Schedule> schedules = new ArrayList<>();
-//        Schedule schedule = Schedule.builder()
-//                .id(1L)
-//                .period(3)
-//                .maxNumber(10)
-//                .build();
-//
-//        Location location = Location.builder()
-//                .latitude(37.0)
-//                .longitude(127.0)
-//                .address("상세 주소")
-//                .build();
-//
-//        List<ScheduleDate> scheduleDates = createScheduleDetails(location, schedule.getPeriod());
-//
-//        schedule.setScheduleDates(scheduleDates);
-//        schedules.add(schedule);
-//        return schedules;
-//    }
-//
-//    public List<ScheduleDate> createScheduleDetails(Location location, Integer period) {
-//        List<ScheduleDate> scheduleDates = new ArrayList<>();
-//        List<ScheduleTime> scheduleTimes = createScheduleTimes();
-//        for (int i = 0; i < period; i++) {
-//            ScheduleDate scheduleDate = ScheduleDate.builder()
-//                    .id(2L)
-//                    .date(LocalDate.of(2021, 3, 1).plusDays(i))
-//                    .scheduleTimes(scheduleTimes)
-//                    .lectureTime(LocalTime.of(1, 30))
-//                    .location(location)
-//                    .build();
-//            scheduleDates.add(scheduleDate);
-//        }
-//        return scheduleDates;
-//    }
-//
-//    public List<ScheduleTime> createScheduleTimes() {
-//        List<ScheduleTime> scheduleTimes = new ArrayList<>();
-//        ScheduleTime scheduleTime = ScheduleTime.builder()
-//                .id(3L)
-//                .startTime(LocalTime.of(13, 0))
-//                .currentNumber(5)
-//                .build();
-//
-//        scheduleTimes.add(scheduleTime);
-//        return scheduleTimes;
-//    }
 }
