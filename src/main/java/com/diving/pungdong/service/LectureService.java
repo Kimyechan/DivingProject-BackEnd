@@ -6,7 +6,6 @@ import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,7 +141,7 @@ public class LectureService {
                     .organization(lecture.getOrganization())
                     .level(lecture.getLevel())
                     .region(lecture.getRegion())
-                    .maxNumber(lecture.getMaxNumber())
+                    .period(lecture.getPeriod())
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
                     .isMarked(isMarked)
@@ -194,7 +192,7 @@ public class LectureService {
                     .organization(lecture.getOrganization())
                     .level(lecture.getLevel())
                     .region(lecture.getRegion())
-                    .maxNumber(lecture.getMaxNumber())
+                    .period(lecture.getPeriod())
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
                     .reviewCount(lecture.getReviewCount())
@@ -238,7 +236,7 @@ public class LectureService {
                 .level(lectureCreateInfo.getLevel())
                 .description(lectureCreateInfo.getDescription())
                 .price(lectureCreateInfo.getPrice())
-                .maxNumber(lectureCreateInfo.getMaxNumber())
+                .period(lectureCreateInfo.getPeriod())
                 .lectureTime(lectureCreateInfo.getLectureTime())
                 .build();
 
@@ -288,6 +286,7 @@ public class LectureService {
                 .classKind(lecture.getClassKind())
                 .organization(lecture.getOrganization())
                 .level(lecture.getLevel())
+                .period(lecture.getPeriod())
                 .description(lecture.getDescription())
                 .price(lecture.getPrice())
                 .region(lecture.getRegion())

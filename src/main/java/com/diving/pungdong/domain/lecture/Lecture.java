@@ -43,7 +43,7 @@ public class Lecture {
 
     private LocalDateTime registrationDate;
 
-    private Integer maxNumber;
+    private Integer period;
 
     private LocalTime lectureTime;
 

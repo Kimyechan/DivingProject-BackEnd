@@ -37,7 +37,7 @@ public class LectureCreateInfo {
     private Integer price;
 
     @NotNull
-    private Integer maxNumber;
+    private Integer period;
 
     @NotNull
     private LocalTime lectureTime;
