@@ -45,6 +45,8 @@ public class Lecture {
 
     private Integer maxNumber;
 
+    private Integer period;
+
     private LocalTime lectureTime;
 
     private Float reviewTotalAvg;

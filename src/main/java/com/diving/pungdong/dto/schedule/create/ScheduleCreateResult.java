@@ -1,4 +1,4 @@
-package com.diving.pungdong.dto.schedule.read;
+package com.diving.pungdong.dto.schedule.create;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ScheduleTimeInfo {
-    private Long lectureId;
-    private Long scheduleTimeId;
+public class ScheduleCreateResult {
+    private Long scheduleId;
 }

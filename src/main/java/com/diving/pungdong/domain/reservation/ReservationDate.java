@@ -1,7 +1,5 @@
 package com.diving.pungdong.domain.reservation;
 
-import com.diving.pungdong.domain.schedule.ScheduleDetail;
-import com.diving.pungdong.domain.schedule.ScheduleTime;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,12 +17,6 @@ public class ReservationDate {
     private Long id;
     private LocalDate date;
     private LocalTime time;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private ScheduleDetail scheduleDetail;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private ScheduleTime scheduleTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Reservation reservation;

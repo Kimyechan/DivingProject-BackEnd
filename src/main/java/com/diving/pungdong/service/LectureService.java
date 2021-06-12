@@ -6,9 +6,6 @@ import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.Organization;
-import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.domain.schedule.ScheduleDetail;
 import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
@@ -25,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,54 +63,54 @@ public class LectureService {
         lectureJpaRepo.deleteById(id);
     }
 
-    public Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> getMyLectureInfoList(Account instructor, Pageable pageable) {
-        Page<Lecture> lecturePage = lectureJpaRepo.findByInstructor(instructor, pageable);
-        List<Lecture> lectureList = lecturePage.getContent();
+//    public Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> getMyLectureInfoList(Account instructor, Pageable pageable) {
+//        Page<Lecture> lecturePage = lectureJpaRepo.findByInstructor(instructor, pageable);
+//        List<Lecture> lectureList = lecturePage.getContent();
+//
+//        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = mapToLectureInfoList(lectureList);
+//
+//        return new PageImpl<>(lectureInfoList, pageable, lecturePage.getTotalElements());
+//    }
+//
+//    public List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> mapToLectureInfoList(List<Lecture> lectureList) {
+//        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = new ArrayList<>();
+//
+//        for (Lecture lecture : lectureList) {
+//            Integer upcomingScheduleCount = countUpcomingSchedule(lecture);
+//
+//            com.diving.pungdong.dto.lecture.list.mylist.LectureInfo lectureInfo = com.diving.pungdong.dto.lecture.list.mylist.LectureInfo.builder()
+//                    .lectureId(lecture.getId())
+//                    .title(lecture.getTitle())
+//                    .organization(lecture.getOrganization())
+//                    .level(lecture.getLevel())
+//                    .cost(lecture.getPrice())
+//                    .isRentEquipment(!lecture.getEquipmentList().isEmpty())
+//                    .upcomingScheduleCount(upcomingScheduleCount)
+//                    .build();
+//
+//            lectureInfoList.add(lectureInfo);
+//        }
+//
+//        return lectureInfoList;
+//    }
 
-        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = mapToLectureInfoList(lectureList);
-
-        return new PageImpl<>(lectureInfoList, pageable, lecturePage.getTotalElements());
-    }
-
-    public List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> mapToLectureInfoList(List<Lecture> lectureList) {
-        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = new ArrayList<>();
-
-        for (Lecture lecture : lectureList) {
-            Integer upcomingScheduleCount = countUpcomingSchedule(lecture);
-
-            com.diving.pungdong.dto.lecture.list.mylist.LectureInfo lectureInfo = com.diving.pungdong.dto.lecture.list.mylist.LectureInfo.builder()
-                    .lectureId(lecture.getId())
-                    .title(lecture.getTitle())
-                    .organization(lecture.getOrganization())
-                    .level(lecture.getLevel())
-                    .cost(lecture.getPrice())
-                    .isRentEquipment(!lecture.getEquipmentList().isEmpty())
-                    .upcomingScheduleCount(upcomingScheduleCount)
-                    .build();
-
-            lectureInfoList.add(lectureInfo);
-        }
-
-        return lectureInfoList;
-    }
-
-    public Integer countUpcomingSchedule(Lecture lecture) {
-        Integer upcomingScheduleCount = 0;
-
-        for (Schedule schedule : lecture.getSchedules()) {
-            exitFor:
-            for (ScheduleDetail scheduleDetail : schedule.getScheduleDetails()) {
-                LocalDate upcomingScheduleDate = LocalDate.now().plusDays(14);
-                if (scheduleDetail.getDate().isAfter(LocalDate.now().minusDays(1))
-                        && scheduleDetail.getDate().isBefore(upcomingScheduleDate.plusDays(1))) {
-                    upcomingScheduleCount += 1;
-                    break exitFor;
-                }
-            }
-        }
-
-        return upcomingScheduleCount;
-    }
+//    public Integer countUpcomingSchedule(Lecture lecture) {
+//        Integer upcomingScheduleCount = 0;
+//
+//        for (Schedule schedule : lecture.getSchedules()) {
+//            exitFor:
+//            for (ScheduleDate scheduleDate : schedule.getScheduleDates()) {
+//                LocalDate upcomingScheduleDate = LocalDate.now().plusDays(14);
+//                if (scheduleDate.getDate().isAfter(LocalDate.now().minusDays(1))
+//                        && scheduleDate.getDate().isBefore(upcomingScheduleDate.plusDays(1))) {
+//                    upcomingScheduleCount += 1;
+//                    break exitFor;
+//                }
+//            }
+//        }
+//
+//        return upcomingScheduleCount;
+//    }
 
     public void checkRightInstructor(Account account, Long lectureId) {
         Lecture lecture = getLectureById(lectureId);
@@ -145,7 +141,7 @@ public class LectureService {
                     .organization(lecture.getOrganization())
                     .level(lecture.getLevel())
                     .region(lecture.getRegion())
-                    .maxNumber(lecture.getMaxNumber())
+                    .period(lecture.getPeriod())
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
                     .isMarked(isMarked)
@@ -197,6 +193,7 @@ public class LectureService {
                     .level(lecture.getLevel())
                     .region(lecture.getRegion())
                     .maxNumber(lecture.getMaxNumber())
+                    .period(lecture.getPeriod())
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
                     .reviewCount(lecture.getReviewCount())
@@ -241,6 +238,7 @@ public class LectureService {
                 .description(lectureCreateInfo.getDescription())
                 .price(lectureCreateInfo.getPrice())
                 .maxNumber(lectureCreateInfo.getMaxNumber())
+                .period(lectureCreateInfo.getPeriod())
                 .lectureTime(lectureCreateInfo.getLectureTime())
                 .build();
 
@@ -290,6 +288,8 @@ public class LectureService {
                 .classKind(lecture.getClassKind())
                 .organization(lecture.getOrganization())
                 .level(lecture.getLevel())
+                .maxNumber(lecture.getMaxNumber())
+                .period(lecture.getPeriod())
                 .description(lecture.getDescription())
                 .price(lecture.getPrice())
                 .region(lecture.getRegion())

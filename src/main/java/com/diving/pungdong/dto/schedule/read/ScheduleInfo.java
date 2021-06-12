@@ -9,9 +9,9 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
-public class ScheduleDto {
+public class ScheduleInfo {
     private Long scheduleId;
-    private Integer period;
+    private Integer currentNumber;
     private Integer maxNumber;
-    private List<ScheduleDetailDto> scheduleDetails;
+    private List<ScheduleDateTimeInfo> dateTimeInfos;
 }

@@ -4,13 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
 @Builder
 @AllArgsConstructor
-public class ScheduleTimeDto {
-    private Long scheduleTimeId;
+public class ScheduleDateTimeInfo {
+    private Long scheduleDateTimeId;
     private LocalTime startTime;
-    private Integer currentNumber;
+    private LocalTime endTime;
+    private LocalDate date;
 }

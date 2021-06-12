@@ -40,5 +40,8 @@ public class LectureCreateInfo {
     private Integer maxNumber;
 
     @NotNull
+    private Integer period;
+
+    @NotNull
     private LocalTime lectureTime;
 }

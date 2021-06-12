@@ -5,15 +5,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleCreateReq {
+public class ScheduleCreateInfo {
+    @NotNull
     private Long lectureId;
-    private Integer period;
-    private Integer maxNumber;
-    List<ScheduleDetailReq> detailReqList;
+
+    @NotEmpty
+    private List<ScheduleDateTimeCreateInfo> dateTimeCreateInfos;
 }

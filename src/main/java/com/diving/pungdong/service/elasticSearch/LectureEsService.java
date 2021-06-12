@@ -36,7 +36,7 @@ public class LectureEsService {
                 .title(lecture.getTitle())
                 .region(lecture.getRegion())
                 .level(lecture.getLevel())
-                .maxNumber(lecture.getMaxNumber())
+                .maxNumber(lecture.getPeriod())
                 .lectureTime(lecture.getLectureTime())
                 .price(lecture.getPrice())
                 .organization(lecture.getOrganization())

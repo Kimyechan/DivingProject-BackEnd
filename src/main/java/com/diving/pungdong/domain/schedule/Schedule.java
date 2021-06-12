@@ -16,13 +16,16 @@ public class Schedule {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer period;
+    private Integer currentNumber;
 
-    private Integer maxNumber;
+    @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ScheduleDateTime> scheduleDateTimes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;
 
-    @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
-    private List<ScheduleDetail> scheduleDetails;
+    @PrePersist
+    public void prePersist() {
+        this.currentNumber = this.currentNumber == null ? 0 : this.currentNumber;
+    }
 }

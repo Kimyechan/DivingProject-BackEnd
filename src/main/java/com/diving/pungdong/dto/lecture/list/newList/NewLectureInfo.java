@@ -18,6 +18,7 @@ public class NewLectureInfo {
     private String level;
     private String region;
     private Integer maxNumber;
+    private Integer period;
     private LocalTime lectureTime;
     private String imageUrl;
     private Boolean isMarked;
