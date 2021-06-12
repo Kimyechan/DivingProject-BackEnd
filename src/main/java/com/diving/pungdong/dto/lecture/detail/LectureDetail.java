@@ -14,6 +14,7 @@ public class LectureDetail {
     private String classKind;
     private Organization organization;
     private String level;
+    private Integer maxNumber;
     private Integer period;
     private String description;
     private Integer price;

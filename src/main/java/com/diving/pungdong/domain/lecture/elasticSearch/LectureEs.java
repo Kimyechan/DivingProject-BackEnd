@@ -25,6 +25,7 @@ public class LectureEs {
     private Organization organization;
     private String level;
     private String region;
+    private Integer period;
     private Integer maxNumber;
 
     @Field(type = FieldType.Date, format = DateFormat.basic_time)

@@ -95,7 +95,6 @@ public class ScheduleService {
 
         Schedule schedule = Schedule.builder()
                 .lecture(lecture)
-                .maxNumber(scheduleCreateInfo.getMaxNumber())
                 .build();
         Schedule savedSchedule = scheduleJpaRepo.save(schedule);
 
@@ -113,7 +112,6 @@ public class ScheduleService {
             ScheduleInfo scheduleInfo = ScheduleInfo.builder()
                     .scheduleId(schedule.getId())
                     .currentNumber(schedule.getCurrentNumber())
-                    .maxNumber(schedule.getMaxNumber())
                     .dateTimeInfos(scheduleDateTimeInfos)
                     .build();
             scheduleInfos.add(scheduleInfo);

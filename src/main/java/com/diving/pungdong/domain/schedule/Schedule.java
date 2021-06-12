@@ -18,8 +18,6 @@ public class Schedule {
 
     private Integer currentNumber;
 
-    private Integer maxNumber;
-
     @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ScheduleDateTime> scheduleDateTimes;
 

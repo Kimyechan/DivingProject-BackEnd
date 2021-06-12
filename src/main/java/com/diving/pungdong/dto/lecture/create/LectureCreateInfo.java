@@ -37,6 +37,9 @@ public class LectureCreateInfo {
     private Integer price;
 
     @NotNull
+    private Integer maxNumber;
+
+    @NotNull
     private Integer period;
 
     @NotNull

@@ -100,7 +100,6 @@ class ScheduleControllerTest {
 
         ScheduleCreateInfo scheduleCreateInfo = ScheduleCreateInfo.builder()
                 .lectureId(1L)
-                .maxNumber(5)
                 .dateTimeCreateInfos(List.of(scheduleDateTimeCreateInfo))
                 .build();
 
@@ -120,7 +119,6 @@ class ScheduleControllerTest {
                                 ),
                                 requestFields(
                                         fieldWithPath("lectureId").description("강의 식별자 값"),
-                                        fieldWithPath("maxNumber").description("수강 제한 인원 수"),
                                         fieldWithPath("dateTimeCreateInfos[].startTime").description("강의 한 날짜의 시작 시간"),
                                         fieldWithPath("dateTimeCreateInfos[].endTime").description("강의 한 날짜의 종료 시간"),
                                         fieldWithPath("dateTimeCreateInfos[].date").description("강의 날짜")
@@ -151,7 +149,6 @@ class ScheduleControllerTest {
             ScheduleInfo scheduleInfo = ScheduleInfo.builder()
                     .scheduleId((long) i)
                     .currentNumber(5)
-                    .maxNumber(10)
                     .dateTimeInfos(List.of(scheduleDateTimeInfo))
                     .build();
             scheduleInfos.add(scheduleInfo);
@@ -174,7 +171,6 @@ class ScheduleControllerTest {
                                 responseFields(
                                         fieldWithPath("_embedded.scheduleInfoList[].scheduleId").description("강의 일정 식별자 값"),
                                         fieldWithPath("_embedded.scheduleInfoList[].currentNumber").description("현재 일정에 등록된 수강생 수"),
-                                        fieldWithPath("_embedded.scheduleInfoList[].maxNumber").description("해당 일정에 가능한 최대 수강생 수"),
                                         fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].scheduleDateTimeId").description("강의 일정 날짜 식별자 값"),
                                         fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].startTime").description("강의 일정 한 날짜의 시작 시간"),
                                         fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].endTime").description("강의 일정 한 날짜의 종료 시간"),

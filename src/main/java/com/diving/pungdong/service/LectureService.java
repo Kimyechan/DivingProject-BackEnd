@@ -192,6 +192,7 @@ public class LectureService {
                     .organization(lecture.getOrganization())
                     .level(lecture.getLevel())
                     .region(lecture.getRegion())
+                    .maxNumber(lecture.getMaxNumber())
                     .period(lecture.getPeriod())
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
@@ -236,6 +237,7 @@ public class LectureService {
                 .level(lectureCreateInfo.getLevel())
                 .description(lectureCreateInfo.getDescription())
                 .price(lectureCreateInfo.getPrice())
+                .maxNumber(lectureCreateInfo.getMaxNumber())
                 .period(lectureCreateInfo.getPeriod())
                 .lectureTime(lectureCreateInfo.getLectureTime())
                 .build();
@@ -286,6 +288,7 @@ public class LectureService {
                 .classKind(lecture.getClassKind())
                 .organization(lecture.getOrganization())
                 .level(lecture.getLevel())
+                .maxNumber(lecture.getMaxNumber())
                 .period(lecture.getPeriod())
                 .description(lecture.getDescription())
                 .price(lecture.getPrice())

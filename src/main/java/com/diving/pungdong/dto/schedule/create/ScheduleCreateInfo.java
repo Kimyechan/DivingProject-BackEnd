@@ -18,9 +18,6 @@ public class ScheduleCreateInfo {
     @NotNull
     private Long lectureId;
 
-    @NotNull
-    private Integer maxNumber;
-
     @NotEmpty
     private List<ScheduleDateTimeCreateInfo> dateTimeCreateInfos;
 }

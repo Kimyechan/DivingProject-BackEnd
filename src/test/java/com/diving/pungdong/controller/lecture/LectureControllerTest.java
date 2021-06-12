@@ -401,6 +401,7 @@ class LectureControllerTest {
                 .level("Level1")
                 .description("프리 다이빙 Level1 자격증을 쉽게 가져가세요")
                 .price(100000)
+                .maxNumber(5)
                 .period(3)
                 .region("서울")
                 .build();
@@ -426,6 +427,7 @@ class LectureControllerTest {
                 .level("Level1")
                 .description("프리 다이빙 Level1 자격증을 쉽게 가져가세요")
                 .price(100000)
+                .maxNumber(5)
                 .period(3)
                 .region("서울")
                 .lectureTime(LocalTime.of(2, 30))
@@ -458,6 +460,7 @@ class LectureControllerTest {
                                         fieldWithPath("level").description("강의 자격증 레벨"),
                                         fieldWithPath("description").description("강의 설명"),
                                         fieldWithPath("price").description("강의 비용"),
+                                        fieldWithPath("maxNumber").description("강의 수강생 최대 인원 수"),
                                         fieldWithPath("period").description("강의 기간"),
                                         fieldWithPath("lectureTime").description("강의 총 소요 시간")
                                 ),
@@ -486,6 +489,7 @@ class LectureControllerTest {
                     .organization(Organization.AIDA)
                     .level("Level1")
                     .region("Seoul")
+                    .maxNumber(5)
                     .period(5)
                     .lectureTime(LocalTime.of(1, 30))
                     .imageUrl("Url" + i)
@@ -524,6 +528,7 @@ class LectureControllerTest {
                                         fieldWithPath("_embedded.newLectureInfoList[].organization").description("신규 강의 자격증 단체 이"),
                                         fieldWithPath("_embedded.newLectureInfoList[].level").description("신규 강의 자격증 레벨"),
                                         fieldWithPath("_embedded.newLectureInfoList[].region").description("신규 강의 지역명"),
+                                        fieldWithPath("_embedded.newLectureInfoList[].maxNumber").description("강의 수강생 최대 인원 수"),
                                         fieldWithPath("_embedded.newLectureInfoList[].period").description("신규 강의 기간"),
                                         fieldWithPath("_embedded.newLectureInfoList[].lectureTime").description("신규 강의 총 강의 시간"),
                                         fieldWithPath("_embedded.newLectureInfoList[].isMarked").description("신규 강의 찜 여부"),
@@ -556,6 +561,7 @@ class LectureControllerTest {
                     .organization(Organization.AIDA)
                     .level("Level1")
                     .region("Seoul")
+                    .maxNumber(5)
                     .period(5)
                     .lectureTime(LocalTime.of(1, 30))
                     .imageUrl("Url" + i)
@@ -594,6 +600,7 @@ class LectureControllerTest {
                                         fieldWithPath("_embedded.lectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
                                         fieldWithPath("_embedded.lectureInfoList[].level").description("인기 강의 자격증 레벨"),
                                         fieldWithPath("_embedded.lectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("강의 수강생 최대 인원 수"),
                                         fieldWithPath("_embedded.lectureInfoList[].period").description("인기 강의 기간"),
                                         fieldWithPath("_embedded.lectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
                                         fieldWithPath("_embedded.lectureInfoList[].isMarked").description("인기 강의 찜 여부"),
@@ -638,6 +645,7 @@ class LectureControllerTest {
                     .organization(Organization.AIDA)
                     .level("Level1")
                     .region("Seoul")
+                    .maxNumber(5)
                     .period(5)
                     .lectureTime(LocalTime.of(1, 30))
                     .imageUrl("Url" + i)
@@ -685,6 +693,7 @@ class LectureControllerTest {
                                         fieldWithPath("_embedded.lectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
                                         fieldWithPath("_embedded.lectureInfoList[].level").description("인기 강의 자격증 레벨"),
                                         fieldWithPath("_embedded.lectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("강의 수강생 최대 인원 수"),
                                         fieldWithPath("_embedded.lectureInfoList[].period").description("인기 강의 기간"),
                                         fieldWithPath("_embedded.lectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
                                         fieldWithPath("_embedded.lectureInfoList[].isMarked").description("인기 강의 찜 여부"),
@@ -721,6 +730,7 @@ class LectureControllerTest {
                     .organization(Organization.AIDA)
                     .level("Level1")
                     .region("Seoul")
+                    .maxNumber(5)
                     .period(5)
                     .lectureTime(LocalTime.of(1, 30))
                     .imageUrl("Url" + i)
@@ -760,6 +770,7 @@ class LectureControllerTest {
                                         fieldWithPath("_embedded.lectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
                                         fieldWithPath("_embedded.lectureInfoList[].level").description("인기 강의 자격증 레벨"),
                                         fieldWithPath("_embedded.lectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.lectureInfoList[].maxNumber").description("강의 수강생 최대 인원 수"),
                                         fieldWithPath("_embedded.lectureInfoList[].period").description("인기 강의 기간"),
                                         fieldWithPath("_embedded.lectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
                                         fieldWithPath("_embedded.lectureInfoList[].isMarked").description("인기 강의 찜 여부"),
@@ -829,6 +840,7 @@ class LectureControllerTest {
                 .organization(Organization.AIDA)
                 .level("강의 자격증 레벨")
                 .description("강의 설명")
+                .maxNumber(5)
                 .price(100000)
                 .region("서울")
                 .period(5)
@@ -860,6 +872,7 @@ class LectureControllerTest {
                                         fieldWithPath("organization").description("강의 관련 자격증 단체"),
                                         fieldWithPath("level").description("강의 자격증 종류"),
                                         fieldWithPath("description").description("강의 설명"),
+                                        fieldWithPath("maxNumber").description("강의 수강생 최대 인원 수"),
                                         fieldWithPath("period").description("강의 기간"),
                                         fieldWithPath("price").description("강의 1인당 가격"),
                                         fieldWithPath("region").description("강의 지역"),
