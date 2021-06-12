@@ -12,5 +12,6 @@ import java.util.List;
 public class ScheduleInfo {
     private Long scheduleId;
     private Integer currentNumber;
+    private Integer maxNumber;
     private List<ScheduleDateTimeInfo> dateTimeInfos;
 }

@@ -104,14 +104,17 @@ public class ScheduleService {
         return savedSchedule;
     }
 
+    @Transactional(readOnly = true)
     public List<ScheduleInfo> mapToScheduleInfos(List<Schedule> schedules) {
         List<ScheduleInfo> scheduleInfos = new ArrayList<>();
         for (Schedule schedule : schedules) {
             List<ScheduleDateTimeInfo> scheduleDateTimeInfos = mapToScheduleDateTimeInfos(schedule.getScheduleDateTimes());
+            Integer maxNumber = schedule.getLecture().getMaxNumber();
 
             ScheduleInfo scheduleInfo = ScheduleInfo.builder()
                     .scheduleId(schedule.getId())
                     .currentNumber(schedule.getCurrentNumber())
+                    .maxNumber(maxNumber)
                     .dateTimeInfos(scheduleDateTimeInfos)
                     .build();
             scheduleInfos.add(scheduleInfo);
@@ -120,7 +123,8 @@ public class ScheduleService {
         return scheduleInfos;
     }
 
-    private List<ScheduleDateTimeInfo> mapToScheduleDateTimeInfos(List<ScheduleDateTime> scheduleDateTimes) {
+    @Transactional(readOnly = true)
+    public List<ScheduleDateTimeInfo> mapToScheduleDateTimeInfos(List<ScheduleDateTime> scheduleDateTimes) {
         List<ScheduleDateTimeInfo> scheduleDateTimeInfos = new ArrayList<>();
         for (ScheduleDateTime scheduleDateTime : scheduleDateTimes) {
             ScheduleDateTimeInfo scheduleDateTimeInfo = ScheduleDateTimeInfo.builder()
