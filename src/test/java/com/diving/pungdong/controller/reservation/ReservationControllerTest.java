@@ -8,7 +8,6 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.reservation.Reservation;
-import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.dto.reservation.ReservationDateDto;

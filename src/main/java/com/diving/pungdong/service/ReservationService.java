@@ -5,7 +5,6 @@ import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
-import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
 import com.diving.pungdong.repo.ReservationJpaRepo;
@@ -25,11 +24,9 @@ import java.time.LocalDate;
 public class ReservationService {
     private final ReservationJpaRepo reservationJpaRepo;
     private final ScheduleService scheduleService;
-    private final ScheduleDetailService scheduleDetailService;
     private final ReservationDateService reservationDateService;
     private final PaymentService paymentService;
     private final AccountService accountService;
-    private final ScheduleTimeService scheduleTimeService;
 
 //    public Reservation makeReservation(Account account, ReservationCreateReq req) {
 //        Schedule schedule = scheduleService.getScheduleById(req.getScheduleId());
@@ -52,18 +49,18 @@ public class ReservationService {
 //        return reservation;
 //    }
 
-    public Reservation saveReservation(Account account, Schedule schedule, Payment payment, ReservationCreateReq req) {
-        Reservation reservation = Reservation.builder()
-                .schedule(schedule)
-                .account(account)
-                .payment(payment)
-                .equipmentList(req.getEquipmentList())
-                .description(req.getDescription())
-                .dateOfReservation(LocalDate.now())
-                .build();
-
-        return reservationJpaRepo.save(reservation);
-    }
+//    public Reservation saveReservation(Account account, Schedule schedule, Payment payment, ReservationCreateReq req) {
+//        Reservation reservation = Reservation.builder()
+//                .schedule(schedule)
+//                .account(account)
+//                .payment(payment)
+//                .equipmentList(req.getEquipmentList())
+//                .description(req.getDescription())
+//                .dateOfReservation(LocalDate.now())
+//                .build();
+//
+//        return reservationJpaRepo.save(reservation);
+//    }
 
 //    public Page<ReservationSubInfo> findMyReservationList(Long id, Pageable pageable) {
 //        Account account = accountService.findAccountById(id);

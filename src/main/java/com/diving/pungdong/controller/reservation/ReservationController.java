@@ -1,31 +1,13 @@
 package com.diving.pungdong.controller.reservation;
 
-import com.diving.pungdong.config.security.CurrentUser;
-import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.reservation.Reservation;
-import com.diving.pungdong.domain.reservation.ReservationDate;
-import com.diving.pungdong.dto.reservation.*;
-import com.diving.pungdong.service.account.AccountService;
+
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.ReservationService;
+import com.diving.pungdong.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

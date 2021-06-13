@@ -4,9 +4,11 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +29,9 @@ public class Reservation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Schedule schedule;
+
+    @OneToMany(mappedBy = "reservation", fetch = FetchType.LAZY)
+    private List<ReservationEquipment> reservationEquipmentList;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Payment payment;
