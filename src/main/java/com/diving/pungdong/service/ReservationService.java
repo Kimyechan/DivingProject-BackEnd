@@ -1,8 +1,6 @@
 package com.diving.pungdong.service;
 
-import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
-import com.diving.pungdong.advice.exception.ReservationFullException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.payment.Payment;
@@ -10,20 +8,16 @@ import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.reservation.ReservationDate;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.reservation.ReservationCreateReq;
-import com.diving.pungdong.dto.reservation.ReservationInfo;
-import com.diving.pungdong.dto.reservation.ReservationSubInfo;
 import com.diving.pungdong.repo.ReservationJpaRepo;
 import com.diving.pungdong.service.account.AccountService;
+import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

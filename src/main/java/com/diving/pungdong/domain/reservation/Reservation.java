@@ -7,7 +7,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Getter
@@ -19,15 +18,9 @@ public class Reservation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "reservation",fetch = FetchType.LAZY)
-    private List<ReservationDate> reservationDateList;
-
-    @ElementCollection
-    private List<String> equipmentList;
+    private Integer numberOfPeople;
 
     private LocalDate dateOfReservation;
-
-    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account account;

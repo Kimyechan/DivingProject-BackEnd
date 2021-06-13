@@ -7,7 +7,7 @@ import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateResult;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
-import com.diving.pungdong.service.ScheduleService;
+import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;

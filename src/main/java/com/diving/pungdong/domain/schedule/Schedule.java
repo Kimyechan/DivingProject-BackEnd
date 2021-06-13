@@ -1,5 +1,6 @@
 package com.diving.pungdong.domain.schedule;
 
+import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
 import lombok.*;
 
@@ -17,6 +18,9 @@ public class Schedule {
     private Long id;
 
     private Integer currentNumber;
+
+    @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Equipment> equipment;
 
     @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ScheduleDateTime> scheduleDateTimes;
