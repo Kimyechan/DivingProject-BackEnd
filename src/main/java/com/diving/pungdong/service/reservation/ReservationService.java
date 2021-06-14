@@ -1,14 +1,17 @@
-package com.diving.pungdong.service;
+package com.diving.pungdong.service.reservation;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.domain.reservation.ReservationEquipment;
 import com.diving.pungdong.domain.schedule.Schedule;
-import com.diving.pungdong.dto.reservation.ReservationCreateReq;
-import com.diving.pungdong.repo.ReservationJpaRepo;
-import com.diving.pungdong.service.account.AccountService;
+import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
+import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
+import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
+import com.diving.pungdong.repo.reservation.ReservationJpaRepo;
+import com.diving.pungdong.service.schedule.ScheduleEquipmentStockService;
 import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,43 +29,7 @@ import java.time.LocalDate;
 public class ReservationService {
     private final ReservationJpaRepo reservationJpaRepo;
     private final ScheduleService scheduleService;
-    private final ReservationDateService reservationDateService;
-    private final PaymentService paymentService;
-    private final AccountService accountService;
-
-//    public Reservation makeReservation(Account account, ReservationCreateReq req) {
-//        Schedule schedule = scheduleService.getScheduleById(req.getScheduleId());
-//        if (!scheduleService.checkValidReservationDate(schedule.getScheduleDates(), req.getReservationDateList())) {
-//            throw new BadRequestException();
-//        }
-//
-//        if (scheduleService.isReservationFull(schedule, req.getReservationDateList())) {
-//            throw new ReservationFullException();
-//        }
-//
-//        Integer cost = paymentService.calcCost(req.getEquipmentList(), schedule.getLecture());
-//        Payment payment = paymentService.savePayment(cost);
-//
-//        Reservation reservation = saveReservation(account, schedule, payment, req);
-//        reservationDateService.saveReservationDates(reservation, req);
-//
-//        scheduleDetailService.plusCurrentStudentNumber(req.getReservationDateList(), schedule.getScheduleDates());
-//
-//        return reservation;
-//    }
-
-//    public Reservation saveReservation(Account account, Schedule schedule, Payment payment, ReservationCreateReq req) {
-//        Reservation reservation = Reservation.builder()
-//                .schedule(schedule)
-//                .account(account)
-//                .payment(payment)
-//                .equipmentList(req.getEquipmentList())
-//                .description(req.getDescription())
-//                .dateOfReservation(LocalDate.now())
-//                .build();
-//
-//        return reservationJpaRepo.save(reservation);
-//    }
+    private final ReservationEquipmentService reservationEquipmentService;
 
 //    public Page<ReservationSubInfo> findMyReservationList(Long id, Pageable pageable) {
 //        Account account = accountService.findAccountById(id);
@@ -109,6 +78,32 @@ public class ReservationService {
 
     public void cancelReservation(Long id) {
         reservationJpaRepo.deleteById(id);
+    }
+
+    @Transactional
+    public Reservation saveReservation(Account account, ReservationCreateInfo reservationCreateInfo) {
+        Schedule schedule = scheduleService.findScheduleById(reservationCreateInfo.getScheduleId());
+        checkNumberOfRemainingReservation(schedule, reservationCreateInfo.getNumberOfPeople());
+
+        Reservation reservation = Reservation.builder()
+                .account(account)
+                .schedule(schedule)
+                .dateOfReservation(LocalDate.now())
+                .numberOfPeople(reservationCreateInfo.getNumberOfPeople())
+                .build();
+        Reservation savedReservation = reservationJpaRepo.save(reservation);
+
+        reservationEquipmentService.saveReservationEquipmentList(reservationCreateInfo, savedReservation);
+
+        return savedReservation;
+    }
+
+    public void checkNumberOfRemainingReservation(Schedule schedule, Integer numberOfPeople) {
+        int numberOfRemaining = schedule.getLecture().getMaxNumber() - schedule.getCurrentNumber();
+
+        if (numberOfRemaining < numberOfPeople) {
+            throw new BadRequestException("수강 신청 인원 수 제한되었습니다.");
+        }
     }
 
 //    public List<ReservationInfo> getReservationForSchedule(Long scheduleTimeId) {

@@ -11,9 +11,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReservationCreateReq {
+public class ReservationCreateInfo {
     private Long scheduleId;
-    private List<ReservationDateDto> reservationDateList;
-    private List<String> equipmentList;
-    private String description;
+    private Integer numberOfPeople;
+    private List<RentEquipmentInfo> rentEquipmentInfos;
 }

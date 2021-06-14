@@ -90,7 +90,7 @@ public class ScheduleService {
 //        return correctCount.equals(scheduleDates.size());
 //    }
 
-    public Schedule getScheduleById(Long scheduleId) {
+    public Schedule findScheduleById(Long scheduleId) {
         return scheduleJpaRepo.findById(scheduleId).orElseThrow(ResourceNotFoundException::new);
     }
 

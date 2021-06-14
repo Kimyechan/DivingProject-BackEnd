@@ -1,11 +1,18 @@
 package com.diving.pungdong.controller.reservation;
 
 
+import com.diving.pungdong.config.security.CurrentUser;
+import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.service.LectureService;
-import com.diving.pungdong.service.ReservationService;
+import com.diving.pungdong.service.reservation.ReservationService;
 import com.diving.pungdong.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,27 +24,12 @@ public class ReservationController {
     private final AccountService accountService;
     private final LectureService lectureService;
 
-//    @PostMapping
-//    public ResponseEntity<?> create(Authentication authentication, @RequestBody ReservationCreateReq req) {
-//        Account account = accountService.findAccountByEmail(authentication.getName());
-//        Reservation reservation = reservationService.makeReservation(account, req);
-//
-//        ReservationCreateRes res = mapToReservationCreateRes(reservation);
-//
-//        WebMvcLinkBuilder selfLink = linkTo(methodOn(ReservationController.class).create(authentication, req));
-//        EntityModel<ReservationCreateRes> model = EntityModel.of(res);
-//        model.add(selfLink.withSelfRel());
-//
-//        return ResponseEntity.created(selfLink.toUri()).body(model);
-//    }
-//
-//    public ReservationCreateRes mapToReservationCreateRes(Reservation reservation) {
-//        return ReservationCreateRes.builder()
-//                .reservationId(reservation.getId())
-//                .accountId(reservation.getAccount().getId())
-//                .scheduleId(reservation.getSchedule().getId())
-//                .build();
-//    }
+    @PostMapping
+    public ResponseEntity<?> create(@CurrentUser Account account,
+                                    @RequestBody ReservationCreateInfo reservationCreateInfo) {
+        Reservation reservation = reservationService.saveReservation(account, reservationCreateInfo);
+        return ResponseEntity.created(null).body(null);
+    }
 //
 //    @GetMapping("/list")
 //    public ResponseEntity<?> getList(@CurrentUser Account account,

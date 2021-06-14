@@ -1,7 +1,9 @@
 package com.diving.pungdong.domain.schedule;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.domain.reservation.ReservationEquipment;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.List;
@@ -32,5 +34,13 @@ public class ScheduleEquipmentStock {
     @PrePersist
     public void prePersist() {
         this.totalRentNumber = this.totalRentNumber == null ? 0 : this.totalRentNumber;
+    }
+
+    public void checkRemainingStock(ScheduleEquipmentStock scheduleEquipmentStock, Integer rentNumber) {
+        int remainingStock = scheduleEquipmentStock.getQuantity() - scheduleEquipmentStock.getTotalRentNumber();
+
+        if (remainingStock < rentNumber) {
+           throw new BadRequestException("남은 재고 수량이 없습니다");
+        }
     }
 }
