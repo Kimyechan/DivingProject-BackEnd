@@ -25,7 +25,7 @@ public class ReservationEquipmentService {
         List<ReservationEquipment> reservationEquipmentList = new ArrayList<>();
         for (RentEquipmentInfo rentEquipmentInfo : reservationCreateInfo.getRentEquipmentInfos()) {
             ScheduleEquipmentStock scheduleEquipmentStock = scheduleEquipmentStockService.findById(rentEquipmentInfo.getScheduleEquipmentStockId());
-            scheduleEquipmentStock.checkRemainingStock(scheduleEquipmentStock, rentEquipmentInfo.getRentNumber());
+            scheduleEquipmentStockService.updateEquipmentRentNumber(scheduleEquipmentStock, rentEquipmentInfo.getRentNumber());
 
             ReservationEquipment reservationEquipment = ReservationEquipment.builder()
                     .reservation(savedReservation)

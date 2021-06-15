@@ -1,5 +1,6 @@
 package com.diving.pungdong.service.schedule;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
@@ -56,40 +57,6 @@ public class ScheduleService {
         return possibleMonthSchedules;
     }
 
-//
-//    public Boolean isReservationFull(Schedule schedule, List<ReservationDateDto> reservationDateList) {
-//        ReservationDateDto reservationDateDto = reservationDateList.get(0);
-//
-//        for (ScheduleDate scheduleDate : schedule.getScheduleDates()) {
-//            if (reservationDateDto.getDate().equals(scheduleDate.getDate())) {
-//                for (ScheduleTime scheduleTime : scheduleDate.getScheduleTimes()) {
-//                    if (scheduleTime.getStartTime().equals(reservationDateDto.getTime()) && scheduleTime.getCurrentNumber() >= schedule.getMaxNumber()) {
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return false;
-//    }
-
-//    public Boolean checkValidReservationDate(List<ScheduleDate> scheduleDates, List<ReservationDateDto> reservationDateList) {
-//        Integer correctCount = 0;
-//        for (ReservationDateDto datetime : reservationDateList) {
-//            exit_for:
-//            for (ScheduleDate scheduleDate : scheduleDates) {
-//                for (ScheduleTime scheduleTime : scheduleDate.getScheduleTimes()) {
-//                    if (scheduleDate.getDate().equals(datetime.getDate()) && scheduleTime.getStartTime().equals(datetime.getTime())) {
-//                        correctCount += 1;
-//                        break exit_for;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return correctCount.equals(scheduleDates.size());
-//    }
-
     public Schedule findScheduleById(Long scheduleId) {
         return scheduleJpaRepo.findById(scheduleId).orElseThrow(ResourceNotFoundException::new);
     }
@@ -144,5 +111,17 @@ public class ScheduleService {
         }
 
         return scheduleDateTimeInfos;
+    }
+
+    @Transactional
+    public void updateScheduleReservationNumber(Schedule schedule, Integer numberOfPeople) {
+        int numberOfRemaining = schedule.getLecture().getMaxNumber() - schedule.getCurrentNumber();
+
+        if (numberOfRemaining < numberOfPeople) {
+            throw new BadRequestException("수강 신청 인원 수를 초과 하였습니다.");
+        }
+
+        schedule.setCurrentNumber(schedule.getCurrentNumber() + numberOfPeople);
+        scheduleJpaRepo.save(schedule);
     }
 }

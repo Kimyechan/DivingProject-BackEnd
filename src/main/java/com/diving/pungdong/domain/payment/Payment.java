@@ -18,5 +18,5 @@ public class Payment {
 
     private Integer lectureCost;
 
-    private Integer rentEquipmentCost;
+    private Integer equipmentRentCost;
 }

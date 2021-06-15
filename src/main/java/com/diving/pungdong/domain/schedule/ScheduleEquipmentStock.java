@@ -35,12 +35,4 @@ public class ScheduleEquipmentStock {
     public void prePersist() {
         this.totalRentNumber = this.totalRentNumber == null ? 0 : this.totalRentNumber;
     }
-
-    public void checkRemainingStock(ScheduleEquipmentStock scheduleEquipmentStock, Integer rentNumber) {
-        int remainingStock = scheduleEquipmentStock.getQuantity() - scheduleEquipmentStock.getTotalRentNumber();
-
-        if (remainingStock < rentNumber) {
-           throw new BadRequestException("남은 재고 수량이 없습니다");
-        }
-    }
 }

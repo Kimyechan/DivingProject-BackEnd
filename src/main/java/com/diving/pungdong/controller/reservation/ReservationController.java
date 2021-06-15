@@ -21,13 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/reservation", produces = MediaTypes.HAL_JSON_VALUE)
 public class ReservationController {
     private final ReservationService reservationService;
-    private final AccountService accountService;
-    private final LectureService lectureService;
 
     @PostMapping
     public ResponseEntity<?> create(@CurrentUser Account account,
                                     @RequestBody ReservationCreateInfo reservationCreateInfo) {
         Reservation reservation = reservationService.saveReservation(account, reservationCreateInfo);
+
         return ResponseEntity.created(null).body(null);
     }
 //

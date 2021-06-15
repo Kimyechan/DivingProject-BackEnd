@@ -6,6 +6,8 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
+import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.reservation.ReservationService;
@@ -25,7 +27,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -94,27 +98,35 @@ class ReservationControllerTest {
         Account account = createAccount(Role.STUDENT);
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
 
+        List<RentEquipmentInfo> rentEquipmentInfos = new ArrayList<>();
+        RentEquipmentInfo equipmentInfo = RentEquipmentInfo.builder()
+                .scheduleEquipmentStockId(1L)
+                .rentNumber(4)
+                .build();
+        rentEquipmentInfos.add(equipmentInfo);
+
+        ReservationCreateInfo reservationCreateInfo = ReservationCreateInfo.builder()
+                .scheduleId(1L)
+                .numberOfPeople(4)
+                .rentEquipmentInfos(rentEquipmentInfos)
+                .build();
 
         mockMvc.perform(post("/reservation")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(req)))
+                .content(objectMapper.writeValueAsString(reservationCreateInfo)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andDo(document("reservation-create",
                         requestHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-                                headerWithName("Authorization").description("access token 값"),
-                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
                         ),
                         requestFields(
                                 fieldWithPath("scheduleId").description("강의 일정 식별자 값"),
-                                fieldWithPath("reservationDateList[].scheduleDetailId").description("강의 상세 정보 식별자 값"),
-                                fieldWithPath("reservationDateList[].scheduleTimeId").description("강의 시간 정보 식별자 값"),
-                                fieldWithPath("reservationDateList[].date").description("예약 날짜"),
-                                fieldWithPath("reservationDateList[].time").description("예약 시간"),
-                                fieldWithPath("equipmentList[]").description("대여 장비 이름 리스트"),
-                                fieldWithPath("description").description("대여 장비 관련 사이즈 정보 및 요청 사항")
+                                fieldWithPath("numberOfPeople").description("강의 예약 인원 수"),
+                                fieldWithPath("rentEquipmentInfos[].scheduleEquipmentStockId").description("대여 장비 식별자 값"),
+                                fieldWithPath("rentEquipmentInfos[].rentNumber").description("대여 장비 수")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
