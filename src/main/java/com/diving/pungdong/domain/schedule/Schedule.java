@@ -19,6 +19,9 @@ public class Schedule {
     private Integer currentNumber;
 
     @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ScheduleEquipment> scheduleEquipments;
+
+    @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ScheduleDateTime> scheduleDateTimes;
 
     @ManyToOne(fetch = FetchType.LAZY)

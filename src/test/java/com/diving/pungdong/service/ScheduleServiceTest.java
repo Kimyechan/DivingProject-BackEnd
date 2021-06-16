@@ -2,8 +2,8 @@ package com.diving.pungdong.service;
 
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
-import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
-import com.diving.pungdong.repo.ScheduleJpaRepo;
+import com.diving.pungdong.repo.schedule.ScheduleJpaRepo;
+import com.diving.pungdong.service.schedule.ScheduleService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

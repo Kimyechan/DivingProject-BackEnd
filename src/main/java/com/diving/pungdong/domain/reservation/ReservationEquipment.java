@@ -1,10 +1,9 @@
 package com.diving.pungdong.domain.reservation;
 
+import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -12,12 +11,15 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReservationDate {
+public class ReservationEquipment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDate date;
-    private LocalTime time;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Reservation reservation;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ScheduleEquipmentStock scheduleEquipmentStock;
+
+    private Integer rentNumber;
 }

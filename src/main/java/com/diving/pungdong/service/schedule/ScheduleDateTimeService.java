@@ -1,10 +1,9 @@
-package com.diving.pungdong.service;
+package com.diving.pungdong.service.schedule;
 
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
-import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.create.ScheduleDateTimeCreateInfo;
-import com.diving.pungdong.repo.ScheduleDateTimeJpaRepo;
+import com.diving.pungdong.repo.schedule.ScheduleDateTimeJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

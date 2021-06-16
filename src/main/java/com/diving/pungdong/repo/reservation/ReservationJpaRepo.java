@@ -1,4 +1,4 @@
-package com.diving.pungdong.repo;
+package com.diving.pungdong.repo.reservation;
 
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;

@@ -241,13 +241,12 @@ operation::schedule-create[]
 === 강의 일정 목록 읽기
 operation::schedule-read-list[]
 
-//
-//[[resource-reservation]]
-//== 강의 예약
-//
-//[[resource-reservation-create]]
-//== 강의 예약하기
-//operation::reservation-create[]
+[[resource-reservation]]
+== 강의 예약
+
+[[resource-reservation-create]]
+== 강의 예약하기
+operation::reservation-create[]
 //
 //[[resource-reservation-read-list]]
 //== 나의 강의 예약목록 보기
