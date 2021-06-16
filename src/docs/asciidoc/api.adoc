@@ -241,6 +241,10 @@ operation::schedule-create[]
 === 강의 일정 목록 읽기
 operation::schedule-read-list[]
 
+[[resource-schedule-read-equipment-list]]
+=== 강의 대여 장비 목록 조회
+operation::schedule-read-equipment-list[]
+
 [[resource-reservation]]
 == 강의 예약
 

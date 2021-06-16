@@ -6,6 +6,7 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateResult;
+import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @RequestMapping(value = "/schedule", produces = MediaTypes.HAL_JSON_VALUE)
 public class ScheduleController {
-
     private final ScheduleService scheduleService;
 
     @PostMapping
@@ -62,6 +62,16 @@ public class ScheduleController {
         CollectionModel<ScheduleInfo> model = CollectionModel.of(scheduleInfos);
         model.add(linkTo(methodOn(ScheduleController.class).findScheduleByMonth(lectureId, month)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-schedule-read-list").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/equipments")
+    public ResponseEntity<?> readScheduleEquipments(@NotNull @RequestParam Long scheduleId) {
+        List<RentEquipmentInfo> rentEquipmentInfos = scheduleService.findScheduleEquipments(scheduleId);
+
+        CollectionModel<RentEquipmentInfo> model = CollectionModel.of(rentEquipmentInfos);
+        model.add(linkTo(methodOn(ScheduleController.class).readScheduleEquipments(scheduleId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-schedule-read-rentEquipment-lis").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 }
