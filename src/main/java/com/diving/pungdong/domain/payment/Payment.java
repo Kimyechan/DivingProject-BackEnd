@@ -16,5 +16,7 @@ public class Payment {
     @Id @GeneratedValue
     private Long id;
 
-    private Integer cost;
+    private Integer lectureCost;
+
+    private Integer equipmentRentCost;
 }

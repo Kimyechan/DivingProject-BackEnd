@@ -1,8 +1,12 @@
 package com.diving.pungdong.domain.schedule;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
+import com.diving.pungdong.domain.reservation.ReservationEquipment;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,13 +23,16 @@ public class ScheduleEquipmentStock {
 
     private Integer quantity;
 
-    private Integer lentNumber;
+    private Integer totalRentNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ScheduleEquipment scheduleEquipment;
 
+    @OneToMany(mappedBy = "scheduleEquipmentStock", fetch = FetchType.LAZY)
+    private List<ReservationEquipment> reservationEquipmentList;
+
     @PrePersist
     public void prePersist() {
-        this.lentNumber = this.lentNumber == null ? 0 : this.lentNumber;
+        this.totalRentNumber = this.totalRentNumber == null ? 0 : this.totalRentNumber;
     }
 }

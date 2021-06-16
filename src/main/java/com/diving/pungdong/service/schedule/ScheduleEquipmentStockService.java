@@ -1,11 +1,14 @@
 package com.diving.pungdong.service.schedule;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.equipment.EquipmentStock;
 import com.diving.pungdong.domain.schedule.ScheduleEquipment;
 import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import com.diving.pungdong.repo.schedule.ScheduleEquipmentStockJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,5 +27,21 @@ public class ScheduleEquipmentStockService {
 
             scheduleEquipmentStockJpaRepo.save(scheduleEquipmentStock);
         }
+    }
+
+    public ScheduleEquipmentStock findById(Long scheduleEquipmentStockId) {
+        return scheduleEquipmentStockJpaRepo.findById(scheduleEquipmentStockId).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    @Transactional
+    public void updateEquipmentRentNumber(ScheduleEquipmentStock scheduleEquipmentStock, Integer rentNumber) {
+        int remainingStock = scheduleEquipmentStock.getQuantity() - scheduleEquipmentStock.getTotalRentNumber();
+
+        if (remainingStock < rentNumber) {
+            throw new BadRequestException("남은 재고 수량이 없습니다");
+        }
+
+        scheduleEquipmentStock.setTotalRentNumber(scheduleEquipmentStock.getTotalRentNumber() + rentNumber);
+        scheduleEquipmentStockJpaRepo.save(scheduleEquipmentStock);
     }
 }
