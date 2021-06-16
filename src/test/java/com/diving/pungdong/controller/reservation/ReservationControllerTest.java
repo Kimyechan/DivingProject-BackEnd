@@ -123,7 +123,7 @@ class ReservationControllerTest {
                         requestFields(
                                 fieldWithPath("scheduleId").description("강의 일정 식별자 값"),
                                 fieldWithPath("numberOfPeople").description("강의 예약 인원 수"),
-                                fieldWithPath("rentEquipmentInfos[].scheduleEquipmentStockId").description("대여 장비 식별자 값"),
+                                fieldWithPath("rentEquipmentInfos[].scheduleEquipmentStockId").description("대여 장비 재고 식별자 값"),
                                 fieldWithPath("rentEquipmentInfos[].rentNumber").description("대여 장비 수")
                         ),
                         responseHeaders(
