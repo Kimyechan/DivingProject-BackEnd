@@ -6,10 +6,11 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
-import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.reservation.ReservationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -37,9 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -65,9 +64,6 @@ class ReservationControllerTest {
 
     @MockBean
     private ReservationService reservationService;
-
-    @MockBean
-    private LectureService lectureService;
 
     public Account createAccount(Role role) {
         Account account = Account.builder()
@@ -111,6 +107,8 @@ class ReservationControllerTest {
                 .rentEquipmentInfos(rentEquipmentInfos)
                 .build();
 
+        given(reservationService.saveReservation(any(), any())).willReturn(Reservation.builder().id(1L).build());
+
         mockMvc.perform(post("/reservation")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -133,8 +131,6 @@ class ReservationControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("reservationId").description("강의 예약 식별자"),
-                                fieldWithPath("scheduleId").description("강의 예약 일정 식별자"),
-                                fieldWithPath("accountId").description("예약 수강생 식별자"),
                                 fieldWithPath("_links.self.href").description("해당 API URL")
                         )
                 ));

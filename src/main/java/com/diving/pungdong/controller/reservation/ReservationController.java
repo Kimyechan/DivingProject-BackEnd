@@ -1,20 +1,26 @@
 package com.diving.pungdong.controller.reservation;
 
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
-import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.dto.reservation.ReservationResult;
 import com.diving.pungdong.service.reservation.ReservationService;
-import com.diving.pungdong.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,10 +30,20 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<?> create(@CurrentUser Account account,
-                                    @RequestBody ReservationCreateInfo reservationCreateInfo) {
+                                    @RequestBody ReservationCreateInfo reservationCreateInfo,
+                                    BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
         Reservation reservation = reservationService.saveReservation(account, reservationCreateInfo);
 
-        return ResponseEntity.created(null).body(null);
+        ReservationResult reservationResult = new ReservationResult(reservation.getId());
+        EntityModel<ReservationResult> model = EntityModel.of(reservationResult);
+        WebMvcLinkBuilder selfLink = linkTo(methodOn(ReservationController.class).create(account, reservationCreateInfo, result));
+        model.add(selfLink.withSelfRel());
+
+        return ResponseEntity.created(selfLink.toUri()).body(model);
     }
 //
 //    @GetMapping("/list")
