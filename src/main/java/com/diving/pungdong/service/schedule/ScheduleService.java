@@ -3,18 +3,13 @@ package com.diving.pungdong.service.schedule;
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.equipment.Equipment;
-import com.diving.pungdong.domain.equipment.EquipmentStock;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
-import com.diving.pungdong.domain.schedule.ScheduleEquipment;
-import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
+import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
-import com.diving.pungdong.repo.schedule.ScheduleEquipmentJpaRepo;
-import com.diving.pungdong.repo.schedule.ScheduleEquipmentStockJpaRepo;
 import com.diving.pungdong.repo.schedule.ScheduleJpaRepo;
 import com.diving.pungdong.service.LectureService;
 import lombok.RequiredArgsConstructor;
@@ -123,5 +118,12 @@ public class ScheduleService {
 
         schedule.setCurrentNumber(schedule.getCurrentNumber() + numberOfPeople);
         scheduleJpaRepo.save(schedule);
+    }
+
+    public List<RentEquipmentInfo> findScheduleEquipments(Long scheduleId) {
+        Schedule schedule = findScheduleById(scheduleId);
+        List<RentEquipmentInfo> rentEquipmentInfos = scheduleEquipmentService.mapToRentEquipmentInfo(schedule.getScheduleEquipments());
+
+        return rentEquipmentInfos;
     }
 }

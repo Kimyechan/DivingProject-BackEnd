@@ -9,6 +9,8 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.create.ScheduleDateTimeCreateInfo;
+import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
+import com.diving.pungdong.dto.schedule.equipment.RentEquipmentStockInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.service.account.AccountService;
@@ -176,6 +178,54 @@ class ScheduleControllerTest {
                                         fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].startTime").description("강의 일정 한 날짜의 시작 시간"),
                                         fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].endTime").description("강의 일정 한 날짜의 종료 시간"),
                                         fieldWithPath("_embedded.scheduleInfoList[].dateTimeInfos[].date").description("강의 일정 날짜"),
+                                        fieldWithPath("_links.self.href").description("해당 API 주소"),
+                                        fieldWithPath("_links.profile.href").description("해당 API 문서 주소")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("해당 일정의 대여 장비 정보 조회")
+    public void readScheduleEquipments() throws Exception {
+        Long scheduleId = 1L;
+
+        RentEquipmentStockInfo rentEquipmentStockInfo = RentEquipmentStockInfo.builder()
+                .scheduleEquipmentStockId(1L)
+                .size("L")
+                .quantity(10)
+                .totalRentNumber(4)
+                .build();
+
+        RentEquipmentInfo rentEquipmentInfo = RentEquipmentInfo.builder()
+                .scheduleEquipmentId(1L)
+                .name("오리발")
+                .price(10000)
+                .stockInfoList(List.of(rentEquipmentStockInfo))
+                .build();
+
+        List<RentEquipmentInfo> rentEquipmentInfos = new ArrayList<>();
+        rentEquipmentInfos.add(rentEquipmentInfo);
+
+        given(scheduleService.findScheduleEquipments(scheduleId)).willReturn(rentEquipmentInfos);
+
+        mockMvc.perform(get("/schedule/equipments")
+                .param("scheduleId", String.valueOf(scheduleId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document("schedule-read-equipment-list",
+                                requestParameters(
+                                        parameterWithName("scheduleId").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.rentEquipmentInfoList[].scheduleEquipmentId").description("대여 장비 식별자 값"),
+                                        fieldWithPath("_embedded.rentEquipmentInfoList[].name").description("대여 장비 이름"),
+                                        fieldWithPath("_embedded.rentEquipmentInfoList[].price").description("대여 장비 가격"),
+                                        fieldWithPath("_embedded.rentEquipmentInfoList[].stockInfoList[].scheduleEquipmentStockId").description("대여 장비 재고 식별자 값"),
+                                        fieldWithPath("_embedded.rentEquipmentInfoList[].stockInfoList[].size").description("대여 장비 사이즈"),
+                                        fieldWithPath("_embedded.rentEquipmentInfoList[].stockInfoList[].quantity").description("대여 장비 갯수"),
+                                        fieldWithPath("_embedded.rentEquipmentInfoList[].stockInfoList[].totalRentNumber").description("현재 대여 장비 대여 수"),
                                         fieldWithPath("_links.self.href").description("해당 API 주소"),
                                         fieldWithPath("_links.profile.href").description("해당 API 문서 주소")
                                 )
