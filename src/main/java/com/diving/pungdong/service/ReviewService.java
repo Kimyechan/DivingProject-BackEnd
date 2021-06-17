@@ -57,7 +57,7 @@ public class ReviewService {
             reviewInfos.add(reviewInfo);
         }
 
-        return new PageImpl<>(reviewInfos,reviewPage.getPageable(), reviewPage.getTotalElements());
+        return new PageImpl<>(reviewInfos, reviewPage.getPageable(), reviewPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -105,9 +105,10 @@ public class ReviewService {
         scheduleDateTimes.sort(Comparator.comparing(ScheduleDateTime::getDate).reversed());
 
         ScheduleDateTime lastDateTime = scheduleDateTimes.get(0);
-        if (!(lastDateTime.getDate().isBefore(LocalDate.now()) ||
-                (lastDateTime.getDate().isEqual(LocalDate.now()) && lastDateTime.getEndTime().isBefore(LocalTime.now())))) {
+        if (lastDateTime.getDate().isAfter(LocalDate.now()) ||
+                (lastDateTime.getDate().isEqual(LocalDate.now()) && lastDateTime.getEndTime().isAfter(LocalTime.now()))) {
             throw new BadRequestException("지금은 리뷰를 작성하지 못합니다");
         }
+
     }
 }
