@@ -41,8 +41,7 @@ public class Review {
 
     @PrePersist
     public void prePersist() {
-        this.totalStarAvg = (this.instructorStar +  this.lectureStar + this.locationStar) / 3;
+        this.totalStarAvg = (this.instructorStar + this.lectureStar + this.locationStar) / 3;
         this.writeDate = this.writeDate == null ? LocalDate.now() : this.writeDate;
     }
-
 }

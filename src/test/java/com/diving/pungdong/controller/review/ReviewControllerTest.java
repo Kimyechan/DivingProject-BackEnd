@@ -1,8 +1,17 @@
 package com.diving.pungdong.controller.review;
 
 import com.diving.pungdong.config.RestDocsConfiguration;
+import com.diving.pungdong.config.security.JwtTokenProvider;
+import com.diving.pungdong.config.security.UserAccount;
+import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.account.Gender;
+import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.review.Review;
 import com.diving.pungdong.dto.review.ReviewInfo;
+import com.diving.pungdong.dto.review.create.ReviewCreateInfo;
 import com.diving.pungdong.service.ReviewService;
+import com.diving.pungdong.service.account.AccountService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +21,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -26,6 +38,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,10 +49,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class ReviewControllerTest {
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private ReviewService reviewService;
+
+    @MockBean
+    private AccountService accountService;
+
+    public Account createAccount(Role role) {
+        Account account = Account.builder()
+                .id(1L)
+                .email("yechan@gmail.com")
+                .password("1234")
+                .nickName("yechan")
+                .birth("1999-09-11")
+                .gender(Gender.MALE)
+                .roles(Set.of(role))
+                .build();
+
+        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
+                .willReturn(new UserAccount(account));
+
+        return account;
+    }
 
     @Test
     @DisplayName("한 강의의 리뷰 목록 정렬 조건 변경하여 조회")
@@ -102,4 +141,27 @@ class ReviewControllerTest {
                 );
     }
 
+    @Test
+    @DisplayName("리뷰 정보 작성하기")
+    public void createReviewInfo() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        ReviewCreateInfo reviewCreateInfo = ReviewCreateInfo.builder()
+                .reservationId(1L)
+                .instructorStar(4.5f)
+                .lectureStar(4.5f)
+                .locationStar(4.5f)
+                .description("잘 가르쳐 주십니다")
+                .build();
+
+        given(reviewService.saveReviewInfo(any(), any())).willReturn(Review.builder().id(1L).build());
+
+        mockMvc.perform(post("/review")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(reviewCreateInfo)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
 }
