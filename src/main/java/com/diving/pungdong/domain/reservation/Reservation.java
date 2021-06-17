@@ -2,9 +2,9 @@ package com.diving.pungdong.domain.reservation;
 
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.payment.Payment;
+import com.diving.pungdong.domain.review.Review;
 import com.diving.pungdong.domain.schedule.Schedule;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -33,6 +33,9 @@ Reservation {
 
     @OneToMany(mappedBy = "reservation", fetch = FetchType.LAZY)
     private List<ReservationEquipment> reservationEquipmentList;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Review review;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Payment payment;

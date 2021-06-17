@@ -245,12 +245,21 @@ operation::schedule-read-list[]
 === 강의 대여 장비 목록 조회
 operation::schedule-read-equipment-list[]
 
+
 [[resource-reservation]]
 == 강의 예약
 
 [[resource-reservation-create]]
 == 강의 예약하기
 operation::reservation-create[]
+
+
+[[resource-review]]
+== 강의 리뷰
+
+[[resource-review-create]]
+=== 강의 리뷰 작성
+operation::review-create[]
 //
 //[[resource-reservation-read-list]]
 //== 나의 강의 예약목록 보기

@@ -66,4 +66,8 @@ public class ReservationService {
 
         return savedReservation;
     }
+
+    public Reservation findById(Long reservationId) {
+        return reservationJpaRepo.findById(reservationId).orElseThrow(ResourceNotFoundException::new);
+    }
 }
