@@ -106,7 +106,7 @@ public class ReviewService {
 
         ScheduleDateTime lastDateTime = scheduleDateTimes.get(0);
         if (!(lastDateTime.getDate().isBefore(LocalDate.now()) ||
-                (lastDateTime.getDate().isEqual(LocalDate.now()) && lastDateTime.getEndTime().isAfter(LocalTime.now())))) {
+                (lastDateTime.getDate().isEqual(LocalDate.now()) && lastDateTime.getEndTime().isBefore(LocalTime.now())))) {
             throw new BadRequestException("지금은 리뷰를 작성하지 못합니다");
         }
     }

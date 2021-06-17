@@ -32,9 +32,10 @@ import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -162,6 +163,25 @@ class ReviewControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(reviewCreateInfo)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(
+                        document("review-create",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("reservationId").description("예약 식별자 값"),
+                                        fieldWithPath("instructorStar").description("강사 평점"),
+                                        fieldWithPath("lectureStar").description("강의 평점"),
+                                        fieldWithPath("locationStar").description("장소 평점"),
+                                        fieldWithPath("description").description("평가 상세 내용")
+                                ),
+                                responseFields(
+                                        fieldWithPath("reviewId").description("리뷰 식별자 값"),
+                                        fieldWithPath("_links.self.href").description("해당 API URL")
+                                )
+                        )
+                );
     }
 }
