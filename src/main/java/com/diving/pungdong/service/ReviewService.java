@@ -2,6 +2,7 @@ package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.reservation.Reservation;
@@ -31,6 +32,11 @@ public class ReviewService {
     private final ReviewJpaRepo reviewJpaRepo;
     private final LectureService lectureService;
     private final ReservationService reservationService;
+
+    @Transactional(readOnly = true)
+    public Review findByReviewId(Long reviewId) {
+        return reviewJpaRepo.findById(reviewId).orElseThrow(ResourceNotFoundException::new);
+    }
 
     @Transactional(readOnly = true)
     public Page<Review> findByLectureAndSortCondition(Long lectureId, Pageable pageable) {
@@ -109,6 +115,5 @@ public class ReviewService {
                 (lastDateTime.getDate().isEqual(LocalDate.now()) && lastDateTime.getEndTime().isAfter(LocalTime.now()))) {
             throw new BadRequestException("지금은 리뷰를 작성하지 못합니다");
         }
-
     }
 }

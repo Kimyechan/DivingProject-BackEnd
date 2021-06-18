@@ -9,8 +9,10 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.review.Review;
 import com.diving.pungdong.dto.review.ReviewInfo;
 import com.diving.pungdong.dto.review.create.ReviewCreateInfo;
+import com.diving.pungdong.dto.review.image.create.ReviewImageInfo;
 import com.diving.pungdong.service.ReviewService;
 import com.diving.pungdong.service.account.AccountService;
+import com.diving.pungdong.service.review.ReviewImageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,10 +39,9 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -60,6 +62,9 @@ class ReviewControllerTest {
 
     @MockBean
     private ReviewService reviewService;
+
+    @MockBean
+    private ReviewImageService reviewImageService;
 
     @MockBean
     private AccountService accountService;
@@ -180,6 +185,59 @@ class ReviewControllerTest {
                                 responseFields(
                                         fieldWithPath("reviewId").description("리뷰 식별자 값"),
                                         fieldWithPath("_links.self.href").description("해당 API URL")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 리뷰 이미지 등록")
+    public void createReviewImages() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        Long reviewId = 1L;
+        Long reservationId = 1L;
+
+        MockMultipartFile file1 = new MockMultipartFile("reviewImages", "test1", "image/png", "test data".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("reviewImages", "test2", "image/png", "test data".getBytes());
+
+        List<ReviewImageInfo> reviewImageInfos = new ArrayList<>();
+        ReviewImageInfo reviewImageInfo = ReviewImageInfo.builder()
+                .reviewImageId(1L)
+                .imageUrl("url 1")
+                .build();
+        reviewImageInfos.add(reviewImageInfo);
+
+        given(reviewImageService.saveReviewImages(any(), any(), any(), any())).willReturn(reviewImageInfos);
+
+        mockMvc.perform(multipart("/review/image/list")
+                .file(file1)
+                .file(file2)
+                .param("reservationId", String.valueOf(reservationId))
+                .param("reviewId", String.valueOf(reviewId))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andDo(
+                        document(
+                                "review-images-create",
+                                requestHeaders(
+                                        headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("reviewId").description("리뷰 식별자 값"),
+                                        parameterWithName("reservationId").description("예약 식별자 값")
+                                ),
+                                requestParts(
+                                        partWithName("reviewImages").description("리뷰 이미지들")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.reviewImageInfoList[].reviewImageId").description("강의 이미지 식별자 값"),
+                                        fieldWithPath("_embedded.reviewImageInfoList[].imageUrl").description("강의 이미지 Url"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url")
                                 )
                         )
                 );

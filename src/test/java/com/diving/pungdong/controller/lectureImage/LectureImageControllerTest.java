@@ -103,7 +103,7 @@ class LectureImageControllerTest {
                         document(
                                 "lectureImage-create-list",
                                 requestHeaders(
-                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
                                         headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
                                 ),
                                 requestParameters(
