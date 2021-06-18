@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-class ReviewServiceTest {
+class ReviewImageServiceTest {
     @InjectMocks
     private ReviewService reviewService;
 
