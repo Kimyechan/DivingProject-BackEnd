@@ -39,8 +39,8 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -219,6 +219,27 @@ class ReviewControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(
+                        document(
+                                "review-images-create",
+                                requestHeaders(
+                                        headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("reviewId").description("리뷰 식별자 값"),
+                                        parameterWithName("reservationId").description("예약 식별자 값")
+                                ),
+                                requestParts(
+                                        partWithName("reviewImages").description("리뷰 이미지들")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.reviewImageInfoList[].reviewImageId").description("강의 이미지 식별자 값"),
+                                        fieldWithPath("_embedded.reviewImageInfoList[].imageUrl").description("강의 이미지 Url"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url")
+                                )
+                        )
+                );
     }
 }

@@ -260,7 +260,11 @@ operation::reservation-create[]
 [[resource-review-create]]
 === 강의 리뷰 작성
 operation::review-create[]
-//
+
+[[resource-review-image-create]]
+=== 강의 리뷰 이미지 추가
+operation::review-images-create[]
+
 //[[resource-reservation-read-list]]
 //== 나의 강의 예약목록 보기
 //operation::reservation-get-list[]
