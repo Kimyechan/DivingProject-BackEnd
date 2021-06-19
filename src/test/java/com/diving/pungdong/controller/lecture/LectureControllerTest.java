@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
+import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
@@ -47,6 +48,7 @@ import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -882,6 +884,80 @@ class LectureControllerTest {
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
                                         fieldWithPath("_links.profile.href").description("API 문서 링크")
                                 )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("/찜한 강의 목록 조회")
+    public void findLikeLectureList() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Pageable pageable = PageRequest.of(0, 2);
+        List<LikeLectureInfo> likeLectureInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            LikeLectureInfo likeLectureInfo = LikeLectureInfo.builder()
+                    .id((long) i)
+                    .title("프리 다이빙")
+                    .organization(Organization.AIDA)
+                    .level("Level1")
+                    .region("Seoul")
+                    .maxNumber(5)
+                    .period(5)
+                    .lectureTime(LocalTime.of(1, 30))
+                    .imageUrl("Url" + i)
+                    .price(100000)
+                    .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                    .starAvg(4.5f)
+                    .reviewCount(100)
+                    .build();
+            likeLectureInfos.add(likeLectureInfo);
+        }
+        Page<LikeLectureInfo> likeLectureInfoPage = new PageImpl<>(likeLectureInfos, pageable, likeLectureInfos.size());
+
+        given(lectureService.findLikeLectures(any(), any())).willReturn(Page.empty());
+        given(lectureService.mapToLikeLectureInfos(any())).willReturn(likeLectureInfoPage);
+
+        mockMvc.perform(get("/lecture/like/list")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-read-like-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.likeLectureInfoList[].id").description("인기 강의 식별자 값"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].title").description("인기 강의 제목"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].organization").description("인기 강의 자격증 단체 이"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].level").description("인기 강의 자격증 레벨"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].region").description("인기 강의 지역명"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].maxNumber").description("강의 수강생 최대 인원 수"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].period").description("인기 강의 기간"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].lectureTime").description("인기 강의 총 강의 시간"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].price").description("인기 강의 강의 비용"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].imageUrl").description("인기 강의 대표 이미지"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].equipmentNames[]").description("인기 강의 대여 장비 목록"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].starAvg").description("인기 강의 리뷰 종합 평점"),
+                                        fieldWithPath("_embedded.likeLectureInfoList[].reviewCount").description("인기 강의 리뷰 갯수"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+
                         )
                 );
     }

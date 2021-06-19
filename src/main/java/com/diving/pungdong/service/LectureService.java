@@ -10,6 +10,7 @@ import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
+import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -30,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectureService {
     private final LectureJpaRepo lectureJpaRepo;
+    private final LectureMarkService lectureMarkService;
 
     public Lecture saveLecture(Lecture lecture) {
         return lectureJpaRepo.save(lecture);
@@ -155,6 +157,7 @@ public class LectureService {
         return newLectureInfos;
     }
 
+    @Transactional(readOnly = true)
     public boolean isLectureMarked(Account account, Long lectureId) {
         if (account == null) {
             return false;
@@ -278,6 +281,7 @@ public class LectureService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public LectureDetail findLectureDetailInfo(Long id, Account account) {
         Lecture lecture = getLectureById(id);
         Boolean isMarked = isLectureMarked(account, id);
@@ -297,5 +301,45 @@ public class LectureService {
                 .reviewCount(lecture.getReviewCount())
                 .isMarked(isMarked)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Lecture> findLikeLectures(Account account, Pageable pageable) {
+        Page<LectureMark> lectureMarks = lectureMarkService.findLectureMarksByAccount(account, pageable);
+
+        List<Lecture> likeLectureList = new ArrayList<>();
+        for (LectureMark lectureMark : lectureMarks) {
+            likeLectureList.add(lectureMark.getLecture());
+        }
+
+        return new PageImpl<>(likeLectureList, lectureMarks.getPageable(), lectureMarks.getTotalElements());
+    }
+
+    public Page<LikeLectureInfo> mapToLikeLectureInfos(Page<Lecture> likeLecturePage) {
+        List<LikeLectureInfo> likeLectureInfos = new ArrayList<>();
+        for (Lecture lecture : likeLecturePage.getContent()) {
+            String lectureImageUrl = getMainLectureImage(lecture);
+            List<String> equipmentNames = mapToEquipmentNames(lecture);
+
+            LikeLectureInfo lectureInfo = LikeLectureInfo.builder()
+                    .id(lecture.getId())
+                    .title(lecture.getTitle())
+                    .organization(lecture.getOrganization())
+                    .level(lecture.getLevel())
+                    .region(lecture.getRegion())
+                    .maxNumber(lecture.getMaxNumber())
+                    .period(lecture.getPeriod())
+                    .lectureTime(lecture.getLectureTime())
+                    .imageUrl(lectureImageUrl)
+                    .reviewCount(lecture.getReviewCount())
+                    .starAvg(lecture.getReviewTotalAvg())
+                    .price(lecture.getPrice())
+                    .equipmentNames(equipmentNames)
+                    .build();
+
+            likeLectureInfos.add(lectureInfo);
+        }
+
+        return new PageImpl<>(likeLectureInfos, likeLecturePage.getPageable(), likeLecturePage.getTotalElements());
     }
 }
