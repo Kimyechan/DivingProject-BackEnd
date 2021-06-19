@@ -250,7 +250,7 @@ operation::schedule-read-equipment-list[]
 == 강의 예약
 
 [[resource-reservation-create]]
-== 강의 예약하기
+=== 강의 예약하기
 operation::reservation-create[]
 
 

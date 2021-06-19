@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
+import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -225,6 +226,17 @@ public class LectureController {
         EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
         model.add(linkTo(methodOn(LectureController.class).findLecture(account, id)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-find-info").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/like/list")
+    public ResponseEntity<?> findLikeLectureList(@CurrentUser Account account,
+                                                 Pageable pageable,
+                                                 PagedResourcesAssembler<LikeLectureInfo> assembler) {
+        Page<Lecture> likeLecturePage = lectureService.findLikeLectures(account, pageable);
+        Page<LikeLectureInfo> likeLectureInfoPage = lectureService.mapToLikeLectureInfos(likeLecturePage);
+
+        PagedModel<EntityModel<LikeLectureInfo>> model = assembler.toModel(likeLectureInfoPage);
         return ResponseEntity.ok().body(model);
     }
 }
