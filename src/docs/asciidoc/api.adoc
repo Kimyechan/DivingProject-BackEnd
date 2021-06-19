@@ -199,7 +199,7 @@ operation::lecture-read-like-list[]
 operation::lecture-unmark-like[]
 
 [[resource-lecture-find-my-list]]
-//=== 강사 자신의 강의 리스트 조회
+=== 강사 자신의 강의 리스트 조회
 operation::lecture-find-my-list[]
 
 
