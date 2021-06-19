@@ -2,6 +2,7 @@ package com.diving.pungdong.repo;
 
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
+import com.diving.pungdong.domain.lecture.Lecture;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

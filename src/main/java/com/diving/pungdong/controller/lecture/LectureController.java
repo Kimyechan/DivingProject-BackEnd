@@ -13,6 +13,7 @@ import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
 import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
+import com.diving.pungdong.dto.lecture.like.unmark.UnmarkLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -242,6 +243,19 @@ public class LectureController {
         model.add(linkTo(methodOn(LectureController.class).markLikeLecture(account, markLectureInfo, result)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-mark-like").withRel("profile"));
         return ResponseEntity.ok().body(model);
+    }
+
+    @DeleteMapping("/unlike")
+    public ResponseEntity<?> unmarkLikeLecture(@CurrentUser Account account,
+                                               @Valid @RequestBody UnmarkLectureInfo unmarkLectureInfo,
+                                               BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        lectureService.unmarkLecture(account.getId(), unmarkLectureInfo.getLectureId());
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/like/list")

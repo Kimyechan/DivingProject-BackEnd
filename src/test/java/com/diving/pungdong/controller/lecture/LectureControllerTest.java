@@ -15,6 +15,7 @@ import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
 import com.diving.pungdong.dto.lecture.like.mark.MarkLectureInfo;
 import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
+import com.diving.pungdong.dto.lecture.like.unmark.UnmarkLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
@@ -928,6 +929,36 @@ class LectureControllerTest {
                                         fieldWithPath("page.number").description("현재 페이지 번호")
                                 )
 
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 찜하기 취소")
+    public void unmarkLikeLecture() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        UnmarkLectureInfo unmarkLectureInfo = UnmarkLectureInfo.builder()
+                .lectureId(1L)
+                .build();
+
+        mockMvc.perform(delete("/lecture/unlike")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(unmarkLectureInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-unmark-like",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값")
+                                )
                         )
                 );
     }

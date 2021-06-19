@@ -357,4 +357,9 @@ public class LectureService {
                 .lectureId(lecture.getId())
                 .build();
     }
+
+    @Transactional
+    public void unmarkLecture(Long accountId, Long lectureId) {
+        lectureMarkService.deleteMarkLecture(accountId, lectureId);
+    }
 }

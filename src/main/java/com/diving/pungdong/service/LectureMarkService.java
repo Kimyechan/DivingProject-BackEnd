@@ -1,6 +1,7 @@
 package com.diving.pungdong.service;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -38,5 +39,12 @@ public class LectureMarkService {
         if (lectureMarkOptional.isPresent()) {
             throw new BadRequestException("이미 찜한 강의입니다");
         }
+    }
+
+    @Transactional
+    public void deleteMarkLecture(Long accountId, Long lectureId) {
+        LectureMark lectureMark = lectureMarkJpaRepo.findByAccountAndLecture(accountId, lectureId).orElseThrow(ResourceNotFoundException::new);
+
+        lectureMarkJpaRepo.deleteById(lectureMark.getId());
     }
 }
