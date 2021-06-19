@@ -8,10 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface LectureMarkJpaRepo extends JpaRepository<LectureMark, Long> {
     @Query(
             value = "select lm from LectureMark lm join fetch lm.lecture where lm.account = :account",
             countQuery = "select count(lm) from LectureMark lm"
     )
     Page<LectureMark> findByAccount(@Param("account") Account account, Pageable pageable);
+
+    @Query("select lm from LectureMark lm where lm.account.id = :accountId and lm.lecture.id = :lectureId")
+    Optional<LectureMark> findByAccountAndLecture(@Param("accountId") Long accountId, @Param("lectureId") Long lectureId);
 }

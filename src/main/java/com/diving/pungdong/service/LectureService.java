@@ -11,6 +11,7 @@ import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
+import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -37,7 +38,7 @@ public class LectureService {
         return lectureJpaRepo.save(lecture);
     }
 
-    public Lecture getLectureById(Long id) {
+    public Lecture findLectureById(Long id) {
         return lectureJpaRepo.findById(id).orElseThrow(BadRequestException::new);
     }
 
@@ -115,7 +116,7 @@ public class LectureService {
 //    }
 
     public void checkRightInstructor(Account account, Long lectureId) {
-        Lecture lecture = getLectureById(lectureId);
+        Lecture lecture = findLectureById(lectureId);
         if (!account.getId().equals(lecture.getInstructor().getId())) {
             throw new NoPermissionsException();
         }
@@ -254,7 +255,7 @@ public class LectureService {
 
     @Transactional(readOnly = true)
     public void checkLectureCreator(Account account, Long lectureId) {
-        Lecture lecture = getLectureById(lectureId);
+        Lecture lecture = findLectureById(lectureId);
 
         if (!lecture.getInstructor().getId().equals(account.getId())) {
             throw new BadRequestException();
@@ -270,7 +271,7 @@ public class LectureService {
     }
 
     public LectureCreatorInfo findLectureCreatorInfo(Long lectureId) {
-        Lecture lecture = getLectureById(lectureId);
+        Lecture lecture = findLectureById(lectureId);
         Account account = lecture.getInstructor();
 
         return LectureCreatorInfo.builder()
@@ -283,7 +284,7 @@ public class LectureService {
 
     @Transactional(readOnly = true)
     public LectureDetail findLectureDetailInfo(Long id, Account account) {
-        Lecture lecture = getLectureById(id);
+        Lecture lecture = findLectureById(id);
         Boolean isMarked = isLectureMarked(account, id);
 
         return LectureDetail.builder()
@@ -341,5 +342,19 @@ public class LectureService {
         }
 
         return new PageImpl<>(likeLectureInfos, likeLecturePage.getPageable(), likeLecturePage.getTotalElements());
+    }
+
+    @Transactional
+    public MarkLectureResult markLecture(Account account, Long lectureId) {
+        lectureMarkService.checkMarkLecture(account.getId(), lectureId);
+        Lecture lecture = findLectureById(lectureId);
+
+        LectureMark lectureMark = lectureMarkService.saveLectureMark(account, lecture);
+
+        return MarkLectureResult.builder()
+                .lectureMarkId(lectureMark.getId())
+                .accountId(account.getId())
+                .lectureId(lecture.getId())
+                .build();
     }
 }

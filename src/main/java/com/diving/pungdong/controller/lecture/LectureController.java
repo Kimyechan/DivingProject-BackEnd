@@ -3,16 +3,16 @@ package com.diving.pungdong.controller.lecture;
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.security.CurrentUser;
-import com.diving.pungdong.controller.sign.SignController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.dto.account.signUp.SignUpResult;
+import com.diving.pungdong.dto.lecture.like.mark.MarkLectureInfo;
 import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.delete.LectureDeleteRes;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
+import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -45,7 +45,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @RequestMapping(value = "/lecture")
 public class LectureController {
-
     private final LectureService lectureService;
     private final LectureEsService lectureEsService;
     private final S3Uploader s3Uploader;
@@ -92,7 +91,7 @@ public class LectureController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<EntityModel<LectureDeleteRes>> deleteLecture(@CurrentUser Account account, @RequestParam("id") Long id) {
-        Lecture lecture = lectureService.getLectureById(id);
+        Lecture lecture = lectureService.findLectureById(id);
         if (!lecture.getInstructor().getEmail().equals(account.getEmail())) {
             throw new NoPermissionsException();
         }
@@ -226,6 +225,22 @@ public class LectureController {
         EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
         model.add(linkTo(methodOn(LectureController.class).findLecture(account, id)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-find-info").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<?> markLikeLecture(@CurrentUser Account account,
+                                             @Valid @RequestBody MarkLectureInfo markLectureInfo,
+                                             BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        MarkLectureResult markLectureResult = lectureService.markLecture(account, markLectureInfo.getLectureId());
+
+        EntityModel<MarkLectureResult> model = EntityModel.of(markLectureResult);
+        model.add(linkTo(methodOn(LectureController.class).markLikeLecture(account, markLectureInfo, result)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-lecture-mark-like").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 

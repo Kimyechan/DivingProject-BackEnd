@@ -5,7 +5,6 @@ import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
-import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
@@ -19,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -264,7 +262,7 @@ class LectureServiceTest {
                 .instructor(Account.builder().id(1L).build())
                 .build();
 
-        doReturn(lecture).when(lectureService).getLectureById(lectureId);
+        doReturn(lecture).when(lectureService).findLectureById(lectureId);
 
         assertThrows(BadRequestException.class, () -> lectureService.checkLectureCreator(account, lectureId));
     }
@@ -281,7 +279,7 @@ class LectureServiceTest {
                 .instructor(Account.builder().id(2L).build())
                 .build();
 
-        doReturn(lecture).when(lectureService).getLectureById(lectureId);
+        doReturn(lecture).when(lectureService).findLectureById(lectureId);
 
         assertDoesNotThrow(() -> lectureService.checkLectureCreator(account, lectureId));
     }
