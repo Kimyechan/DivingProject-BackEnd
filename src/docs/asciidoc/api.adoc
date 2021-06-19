@@ -198,9 +198,9 @@ operation::lecture-read-like-list[]
 === 강의 찜하기 취소
 operation::lecture-unmark-like[]
 
-//[[resource-lecture-get-instructor-own-list]]
-//=== 강사 자신의 강의 리스트 조회
-//operation::lecture-get-list-per-instructor[]
+[[resource-lecture-find-my-list]]
+=== 강사 자신의 강의 리스트 조회
+operation::lecture-find-my-list[]
 
 
 [[resource-location]]
