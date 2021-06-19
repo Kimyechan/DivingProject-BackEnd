@@ -26,7 +26,7 @@ public class LectureEsService {
 
     @Transactional
     public void saveLectureInfo(Long lectureId) {
-        Lecture lecture = lectureService.getLectureById(lectureId);
+        Lecture lecture = lectureService.findLectureById(lectureId);
         String lectureImageUrl = lectureService.getMainLectureImage(lecture);
         List<String> equipmentNames = lectureService.mapToEquipmentNames(lecture);
 

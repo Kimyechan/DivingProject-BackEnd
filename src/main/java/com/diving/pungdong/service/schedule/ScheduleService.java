@@ -58,7 +58,7 @@ public class ScheduleService {
 
     @Transactional
     public Schedule saveScheduleInfo(Account account, ScheduleCreateInfo scheduleCreateInfo) {
-        Lecture lecture = lectureService.getLectureById(scheduleCreateInfo.getLectureId());
+        Lecture lecture = lectureService.findLectureById(scheduleCreateInfo.getLectureId());
         lectureService.checkLectureCreator(account, lecture.getId());
 
         Schedule schedule = Schedule.builder()
