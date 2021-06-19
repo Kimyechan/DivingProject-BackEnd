@@ -60,7 +60,7 @@ public class LectureImageService {
     @Transactional
     public LectureImageInfo saveImages(Long lectureId, Account account, List<MultipartFile> images) throws IOException {
         lectureService.checkLectureCreator(account, lectureId);
-        Lecture lecture = lectureService.getLectureById(lectureId);
+        Lecture lecture = lectureService.findLectureById(lectureId);
 
         List<String> imageUris = new ArrayList<>();
         for (MultipartFile image : images) {

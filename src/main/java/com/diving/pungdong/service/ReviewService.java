@@ -40,7 +40,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Page<Review> findByLectureAndSortCondition(Long lectureId, Pageable pageable) {
-        Lecture lecture = lectureService.getLectureById(lectureId);
+        Lecture lecture = lectureService.findLectureById(lectureId);
 
         return reviewJpaRepo.findByLecture(lecture, pageable);
     }

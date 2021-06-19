@@ -13,6 +13,9 @@ import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
 import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
+import com.diving.pungdong.dto.lecture.like.mark.MarkLectureInfo;
+import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
+import com.diving.pungdong.dto.lecture.like.unmark.UnmarkLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
@@ -248,83 +251,6 @@ class LectureControllerTest {
 //                ));
 //
 //        verify(lectureService, times(1)).deleteLectureById(anyLong());
-//    }
-//
-//    @Test
-//    @DisplayName("이미지 파일 업로드")
-//    public void upload() throws Exception {
-//        Account account = createAccount();
-//        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-//        MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test data".getBytes());
-//        given(s3Uploader.upload(file, "lecture", account.getEmail())).willReturn("image file aws s3 url");
-//
-//        mockMvc.perform(multipart("/lecture/upload")
-//                .file(file)
-//                .header(HttpHeaders.AUTHORIZATION, accessToken)
-//                .header("IsRefreshToken", "false"))
-//                .andDo(print())
-//                .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    @DisplayName("강의 상세 정보 조회")
-//    public void getLectureDetail() throws Exception {
-//        Account account = createAccount();
-//        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-//
-//        Lecture lecture = Lecture.builder()
-//                .title("강의1")
-//                .classKind("스쿠버다이빙")
-//                .organization(Organization.AIDA)
-//                .level("Level1")
-//                .description("강의 설명")
-//                .price(300000)
-//                .region("서울")
-//                .instructor(Account.builder().id(10L).build())
-//                .lectureImages(List.of(LectureImage.builder().fileURI("File URL1").build()))
-//                .equipmentList(List.of(Equipment.builder().name("장비1").price(3000).build()))
-//                .build();
-//
-//        given(lectureService.getLectureById(1L)).willReturn(lecture);
-//
-//        mockMvc.perform(get("/lecture/detail")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .header(HttpHeaders.AUTHORIZATION, accessToken)
-//                .header("IsRefreshToken", "false")
-//                .param("id", "1"))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andDo(document("get-lecture-detail",
-//                        requestHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-//                                headerWithName("Authorization").description("access token 값"),
-//                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-//                        ),
-//                        requestParameters(
-//                                parameterWithName("id").description("lecture 식별자 값")
-//                        ),
-//                        responseHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL JSON 타입")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("id").description("강의 식별자 ID"),
-//                                fieldWithPath("title").description("강의 제목"),
-//                                fieldWithPath("classKind").description("강의 분야"),
-//                                fieldWithPath("groupName").description("강사 소속 그룹"),
-//                                fieldWithPath("certificateKind").description("해당 강의 후 취득 자격증"),
-//                                fieldWithPath("description").description("강의 설명"),
-//                                fieldWithPath("price").description("강의 비용"),
-//                                fieldWithPath("period").description("강의 기간"),
-//                                fieldWithPath("studentCount").description("최대 제한 인원수"),
-//                                fieldWithPath("region").description("강의 지역"),
-//                                fieldWithPath("instructorId").description("강사 식별자 ID"),
-//                                fieldWithPath("lectureUrlList[0]").description("강의 이미지 URL"),
-//                                fieldWithPath("equipmentList[0].name").description("대여 장비 이름"),
-//                                fieldWithPath("equipmentList[0].price").description("대여 장비 가격"),
-//                                fieldWithPath("_links.self.href").description("해당 API URL")
-//                        )
-//
-//                ));
 //    }
 //
 //    @Test
@@ -889,7 +815,52 @@ class LectureControllerTest {
     }
 
     @Test
-    @DisplayName("/찜한 강의 목록 조회")
+    @DisplayName("강의 찜하기")
+    public void markLikeLecture() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        MarkLectureInfo markLectureInfo = MarkLectureInfo.builder()
+                .lectureId(1L)
+                .build();
+
+        MarkLectureResult markLectureResult = MarkLectureResult.builder()
+                .lectureMarkId(1L)
+                .lectureId(1L)
+                .accountId(1L)
+                .build();
+
+        given(lectureService.markLecture(any(), any())).willReturn(markLectureResult);
+
+        mockMvc.perform(post("/lecture/like")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(markLectureInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-mark-like",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("lectureMarkId").description("강의 좋아요 식별자 값"),
+                                        fieldWithPath("accountId").description("계정 식별자 값"),
+                                        fieldWithPath("lectureId").description("강의 식별자 값"),
+                                        fieldWithPath("_links.self.href").description("해당 API 링크"),
+                                        fieldWithPath("_links.profile.href").description("API 문서 링크")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("찜한 강의 목록 조회")
     public void findLikeLectureList() throws Exception {
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
@@ -958,6 +929,36 @@ class LectureControllerTest {
                                         fieldWithPath("page.number").description("현재 페이지 번호")
                                 )
 
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 찜하기 취소")
+    public void unmarkLikeLecture() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        UnmarkLectureInfo unmarkLectureInfo = UnmarkLectureInfo.builder()
+                .lectureId(1L)
+                .build();
+
+        mockMvc.perform(delete("/lecture/unlike")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(unmarkLectureInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "lecture-unmark-like",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값")
+                                )
                         )
                 );
     }

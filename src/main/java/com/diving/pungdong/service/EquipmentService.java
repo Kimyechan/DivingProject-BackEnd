@@ -49,7 +49,7 @@ public class EquipmentService {
     @Transactional
     public EquipmentCreateResult saveRentEquipmentInfos(Account account, EquipmentCreateInfo equipmentCreateInfo) {
         lectureService.checkLectureCreator(account, equipmentCreateInfo.getLectureId());
-        Lecture lecture = lectureService.getLectureById(equipmentCreateInfo.getLectureId());
+        Lecture lecture = lectureService.findLectureById(equipmentCreateInfo.getLectureId());
 
         List<EquipmentResult> equipmentResults = new ArrayList<>();
         for (EquipmentInfo equipmentInfo : equipmentCreateInfo.getEquipmentInfos()) {

@@ -20,7 +20,7 @@ public class LocationService {
     @Transactional
     public LocationCreateResult saveLocationWithLecture(Account account, LocationCreateInfo locationCreateInfo) {
         lectureService.checkLectureCreator(account, locationCreateInfo.getLectureId());
-        Lecture lecture = lectureService.getLectureById(locationCreateInfo.getLectureId());
+        Lecture lecture = lectureService.findLectureById(locationCreateInfo.getLectureId());
 
         Location location = Location.builder()
                 .address(locationCreateInfo.getAddress())
