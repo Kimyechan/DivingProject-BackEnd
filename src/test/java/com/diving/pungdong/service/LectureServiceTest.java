@@ -5,6 +5,8 @@ import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDateTime;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
@@ -18,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,53 +70,6 @@ class LectureServiceTest {
         assertThat(savedLecture.getTitle()).isEqualTo(savedLecture.getTitle());
     }
 
-//    @Test
-//    @DisplayName("강의 생성 (강의 이미지, 강의 장비 정보)")
-//    public void createLecture() throws IOException {
-//        Lecture lecture = Lecture.builder()
-//                .id(1L)
-//                .title("강의1")
-//                .description("내용1")
-//                .classKind("스쿠버 다이빙")
-//                .organization(Organization.AIDA)
-//                .level("Level1")
-//                .price(100000)
-//                .instructor(new Account())
-//                .build();
-//
-//        String email = "kkk@gmail.com";
-//        List<MultipartFile > fileList = new ArrayList<>();
-//        MockMultipartFile file1 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
-//        MockMultipartFile file2 = new MockMultipartFile("fileList", "test1.txt", "image/*", "test data".getBytes());
-//        fileList.add(file1);
-//        fileList.add(file2);
-//
-//        List<Equipment> equipmentList = new ArrayList<>();
-//        Equipment equipment1 = Equipment.builder()
-//                .name("물안경")
-//                .price(3000)
-//                .build();
-//
-//        Equipment equipment2 = Equipment.builder()
-//                .name("수영모")
-//                .price(3000)
-//                .build();
-//
-//        equipmentList.add(equipment1);
-//        equipmentList.add(equipment2);
-//
-//        given(lectureService.saveLecture(any())).willReturn(lecture);
-//        given(s3Uploader.upload(file1, "lecture", email)).willReturn("fil1S3UploadUrl");
-//        given(s3Uploader.upload(file2, "lecture", email)).willReturn("fil2S3UploadUrl");
-//
-//        Lecture savedLecture = lectureService.createLecture(email, fileList, lecture, equipmentList);
-//
-//        assertThat(savedLecture).isEqualTo(lecture);
-//        assertThat(savedLecture.getLectureImages()).isNotEmpty();
-//
-//        verify(lectureImageService, times(fileList.size())).saveLectureImage(any());
-//    }
-
     @Test
     @DisplayName("강의 수정")
     public void updateLecture() throws IOException {
@@ -158,49 +114,6 @@ class LectureServiceTest {
 
         assertThat(returnLecture).isNotNull();
     }
-
-//    @Test
-//    @DisplayName("강의 일정중 14일 이내에 있는 강의 갯수 조회")
-//    public void countUpcomingSchedule() {
-//        List<Schedule> schedules = new ArrayList<>();
-//
-//        List<ScheduleDate> scheduleDetails1 = createScheduleDetails(LocalDate.now());
-//        Schedule schedule1 = Schedule.builder()
-//                .scheduleDates(scheduleDetails1)
-//                .build();
-//        schedules.add(schedule1);
-//
-//        List<ScheduleDate> scheduleDetails2 = createScheduleDetails(LocalDate.now().plusDays(15));
-//        Schedule schedule2 = Schedule.builder()
-//                .scheduleDates(scheduleDetails2)
-//                .build();
-//        schedules.add(schedule2);
-//
-//        Lecture lecture = Lecture.builder()
-//                .schedules(schedules)
-//                .build();
-//
-//        Integer upcomingScheduleCount = lectureService.countUpcomingSchedule(lecture);
-//
-//        assertThat(upcomingScheduleCount).isEqualTo(1);
-//    }
-//
-//    public List<ScheduleDate> createScheduleDetails(LocalDate startDate) {
-//        List<ScheduleDate> scheduleDates = new ArrayList<>();
-//
-//        ScheduleDate scheduleDate1 = ScheduleDate.builder()
-//                .date(startDate)
-//                .build();
-//
-//        ScheduleDate scheduleDate2 = ScheduleDate.builder()
-//                .date(startDate.plusDays(14))
-//                .build();
-//
-//        scheduleDates.add(scheduleDate1);
-//        scheduleDates.add(scheduleDate2);
-//
-//        return scheduleDates;
-//    }
 
     @Test
     @DisplayName("회원이 해당 강의를 찜 했을 때")
@@ -283,4 +196,27 @@ class LectureServiceTest {
 
         assertDoesNotThrow(() -> lectureService.checkLectureCreator(account, lectureId));
     }
+
+    @Test
+    @DisplayName("강의의 최신 일정이 남은 날짜 계산")
+    public void calcLeftScheduleDate() {
+        List<ScheduleDateTime> scheduleDateTimes = new ArrayList<>();
+        for (int i = 5; i < 10; i++) {
+            ScheduleDateTime scheduleDateTime = ScheduleDateTime.builder()
+                    .date(LocalDate.now().plusDays(i))
+                    .build();
+            scheduleDateTimes.add(scheduleDateTime);
+        }
+
+        Schedule schedule = Schedule.builder()
+                .scheduleDateTimes(scheduleDateTimes)
+                .build();
+        List<Schedule> schedules = new ArrayList<>();
+        schedules.add(schedule);
+
+        Long leftScheduleDate = lectureService.calcLeftScheduleDate(schedules);
+
+        assertThat(leftScheduleDate).isEqualTo(5);
+    }
+
 }
