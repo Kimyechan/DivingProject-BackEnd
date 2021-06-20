@@ -594,37 +594,4 @@ class SignControllerTest {
                         )
                 );
     }
-
-//    @Test
-//    @DisplayName("금지된 토큰으로 접근시 실패 테스트")
-//    public void forbidden() throws Exception {
-//        Account account = Account.builder()
-//                .id(1L)
-//                .email("yechan@gmail.com")
-//                .password("1234")
-//                .roles(Set.of(Role.INSTRUCTOR))
-//                .build();
-//
-//        given(accountService.loadUserByUsername(String.valueOf(account.getId())))
-//                .willReturn(new User(account.getEmail(), account.getPassword(), authorities(account.getRoles())));
-//
-//        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-//        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(account.getId()));
-//
-//        given(accountService.checkValidToken(accessToken)).willReturn("false");
-//
-//        LogoutReq logoutReq = LogoutReq.builder()
-//                .accessToken(accessToken)
-//                .refreshToken(refreshToken)
-//                .build();
-//
-//        mockMvc.perform(get("/sign/logout")
-//                .header("Authorization", accessToken)
-//                .header("IsRefreshToken", "false")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(logoutReq)))
-//                .andDo(print())
-//                .andExpect(status().isForbidden())
-//                .andExpect(jsonPath("code").value(-1007));
-//    }
 }
