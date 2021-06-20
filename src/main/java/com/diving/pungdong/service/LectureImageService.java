@@ -64,7 +64,7 @@ public class LectureImageService {
 
         List<String> imageUris = new ArrayList<>();
         for (MultipartFile image : images) {
-            String fileUri = s3Uploader.upload(image, "profile-photo", account.getEmail());
+            String fileUri = s3Uploader.upload(image, "lecture-image", account.getEmail());
             LectureImage lectureImage = LectureImage.builder()
                     .fileURI(fileUri)
                     .lecture(lecture)

@@ -137,6 +137,14 @@ operation::account-instructor-get-request-list[]
 === 강사 신청자 중 강사 권한 부여
 operation::account-instructor-confirm[]
 
+
+[[resource-profilePhoto]]
+== 회원 프로필 이미지
+
+[[resource-profilePhoto-update]]
+== 프로필 이미지 수정
+operation::profilePhoto-update[]
+
 [[resource-lecture]]
 == 강의
 
@@ -145,22 +153,6 @@ operation::account-instructor-confirm[]
 [[resource-lecture-create]]
 === 강의 생성
 operation::lecture-create[]
-
-//[[resource-lecture-update]]
-//=== 강의 수정
-//operation::update-lecture[]
-//
-//[[resource-lecture-delete]]
-//=== 강의 삭제
-//operation::delete-lecture[]
-//
-//[[resource-get-lecture-detail]]
-//=== 강의 단건 상세조회
-//operation::get-lecture-detail[]
-//
-//[[resource-lecture-get-by-region]]
-//=== 조건별 강의 조회
-//operation::get-lecture-by-condition[]
 
 [[resource-lecture-get-new-list]]
 === 신규 강의 목록 조회
