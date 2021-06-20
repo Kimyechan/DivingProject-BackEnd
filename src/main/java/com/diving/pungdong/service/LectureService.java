@@ -95,6 +95,7 @@ public class LectureService {
                     .organization(lecture.getOrganization())
                     .level(lecture.getLevel())
                     .region(lecture.getRegion())
+                    .maxNumber(lecture.getMaxNumber())
                     .period(lecture.getPeriod())
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
