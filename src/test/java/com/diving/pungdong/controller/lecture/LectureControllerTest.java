@@ -17,6 +17,7 @@ import com.diving.pungdong.dto.lecture.like.mark.MarkLectureInfo;
 import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
 import com.diving.pungdong.dto.lecture.like.unmark.UnmarkLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.dto.lecture.list.mylist.MyLectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
@@ -102,7 +103,8 @@ class LectureControllerTest {
 
         return account;
     }
-//
+
+    //
 //    @Test
 //    @DisplayName("강의 정보 수정")
 //    public void update() throws Exception {
@@ -253,68 +255,76 @@ class LectureControllerTest {
 //        verify(lectureService, times(1)).deleteLectureById(anyLong());
 //    }
 //
-//    @Test
-//    @DisplayName("강사 자신의 강의 목록 조회")
-//    public void getLectureList() throws Exception {
-//        Account account = createAccount();
-//        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
-//
-//        Pageable pageable = PageRequest.of(0, 5);
-//        Page<LectureInfo> lectureInfoPage = createLectureInfoPage(pageable);
-//
-//        given(lectureService.getMyLectureInfoList(account, pageable)).willReturn(lectureInfoPage);
-//
-//        mockMvc.perform(get("/lecture/manage/list")
-//                .param("page", String.valueOf(pageable.getPageNumber()))
-//                .param("size", String.valueOf(pageable.getPageSize()))
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .header(HttpHeaders.AUTHORIZATION, accessToken)
-//                .header("IsRefreshToken", "false"))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andDo(document("lecture-get-list-per-instructor",
-//                        requestHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-//                                headerWithName("Authorization").description("access token 값"),
-//                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-//                        ),
-//                        requestParameters(
-//                                parameterWithName("page").description("몇 번째 페이지"),
-//                                parameterWithName("size").description("한 페이지당 크기")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("_embedded.lectureInfoList[].lectureId").description("강의 식별자 값"),
-//                                fieldWithPath("_embedded.lectureInfoList[].title").description("강의 제목"),
-//                                fieldWithPath("_embedded.lectureInfoList[].groupName").description("소속 그룹"),
-//                                fieldWithPath("_embedded.lectureInfoList[].certificateKind").description("자격증 종류"),
-//                                fieldWithPath("_embedded.lectureInfoList[].cost").description("강의 비용"),
-//                                fieldWithPath("_embedded.lectureInfoList[].isRentEquipment").description("장비 대여 여부"),
-//                                fieldWithPath("_embedded.lectureInfoList[].upcomingScheduleCount").description("다가오는 일정의 수"),
-//                                fieldWithPath("_links.self.href").description("현재 페이지 URL"),
-//                                fieldWithPath("page.size").description("한 페이지당 크기"),
-//                                fieldWithPath("page.totalElements").description("해당 지역 전체 강의 수"),
-//                                fieldWithPath("page.totalPages").description("전체 페이지 수"),
-//                                fieldWithPath("page.number").description("현재 페이지 번호")
-//                        )
-//                ));
-//    }
-//
-//    private Page<LectureInfo> createLectureInfoPage(Pageable pageable) {
-//        List<LectureInfo> lectureInfoList = new ArrayList<>();
-//
-//        LectureInfo lectureInfo = LectureInfo.builder()
-//                .title("프리 다이빙 세상")
-//                .organization(Organization.AIDA)
-//                .level("Level1")
-//                .cost(100000)
-//                .upcomingScheduleCount(5)
-//                .isRentEquipment(true)
-//                .build();
-//
-//        lectureInfoList.add(lectureInfo);
-//
-//        return new PageImpl<>(lectureInfoList, pageable, lectureInfoList.size());
-//    }
+    @Test
+    @DisplayName("강사 자신의 강의 목록 조회")
+    public void getLectureList() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<MyLectureInfo> myLectureInfos = createMyLectureInfoPage(pageable);
+
+        given(lectureService.findMyLectureInfoList(account, pageable)).willReturn(myLectureInfos);
+
+        mockMvc.perform(get("/lecture/manage/list")
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("lecture-find-my-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("몇 번째 페이지"),
+                                parameterWithName("size").description("한 페이지당 크기")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.myLectureInfoList[].id").description("자신의 강의 식별자 값"),
+                                fieldWithPath("_embedded.myLectureInfoList[].title").description("자신의 강의 제목"),
+                                fieldWithPath("_embedded.myLectureInfoList[].organization").description("자신의 강의 자격증 단체 이"),
+                                fieldWithPath("_embedded.myLectureInfoList[].level").description("자신의 강의 자격증 레벨"),
+                                fieldWithPath("_embedded.myLectureInfoList[].region").description("자신의 강의 지역명"),
+                                fieldWithPath("_embedded.myLectureInfoList[].maxNumber").description("강의 수강생 최대 인원 수"),
+                                fieldWithPath("_embedded.myLectureInfoList[].period").description("자신의 강의 기간"),
+                                fieldWithPath("_embedded.myLectureInfoList[].lectureTime").description("자신의 강의 총 강의 시간"),
+                                fieldWithPath("_embedded.myLectureInfoList[].price").description("자신의 강의 강의 비용"),
+                                fieldWithPath("_embedded.myLectureInfoList[].imageUrl").description("자신의 강의 대표 이미지"),
+                                fieldWithPath("_embedded.myLectureInfoList[].equipmentNames[]").description("자신의 강의 대여 장비 목록"),
+                                fieldWithPath("_embedded.myLectureInfoList[].leftScheduleDate").description("자신의 강의의 최신 일정 남은 날짜"),
+                                fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                fieldWithPath("page.number").description("현재 페이지 번호")
+                        )
+                ));
+    }
+
+    private Page<MyLectureInfo> createMyLectureInfoPage(Pageable pageable) {
+        List<MyLectureInfo> myLectureInfos = new ArrayList<>();
+
+        MyLectureInfo myLectureInfo = MyLectureInfo.builder()
+                .id(1L)
+                .title("title")
+                .organization(Organization.AIDA)
+                .level("Level1")
+                .region("Seoul")
+                .maxNumber(5)
+                .period(5)
+                .lectureTime(LocalTime.of(1, 30))
+                .imageUrl("Url")
+                .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
+                .leftScheduleDate(3L)
+                .build();
+
+        myLectureInfos.add(myLectureInfo);
+
+        return new PageImpl<>(myLectureInfos, pageable, myLectureInfos.size());
+    }
 
     @Test
     @DisplayName("강의 개설하기 실패 - 정보 기입 누락")

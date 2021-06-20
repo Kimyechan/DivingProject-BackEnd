@@ -15,6 +15,7 @@ import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
 import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
 import com.diving.pungdong.dto.lecture.like.unmark.UnmarkLectureInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.dto.lecture.list.mylist.MyLectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.service.LectureService;
@@ -109,48 +110,6 @@ public class LectureController {
         return ResponseEntity.ok().body(model);
     }
 
-//    @GetMapping("/detail")
-//    public ResponseEntity<EntityModel<LectureDetail>> getLectureDetail(@RequestParam Long id) {
-//        Lecture lecture = lectureService.getLectureById(id);
-//
-//        LectureDetail lectureDetail = mapToLectureDetail(lecture);
-//
-//        EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
-//        model.add(linkTo(methodOn(LectureController.class).getLectureDetail(id)).withSelfRel());
-//
-//        return ResponseEntity.ok().body(model);
-//    }
-//
-//    public LectureDetail mapToLectureDetail(Lecture lecture) {
-//        LectureDetail lectureDetail = LectureDetail.builder()
-//                .id(lecture.getId())
-//                .title(lecture.getTitle())
-//                .classKind(lecture.getClassKind())
-//                .organization(lecture.getOrganization())
-//                .level(lecture.getLevel())
-//                .description(lecture.getDescription())
-//                .price(lecture.getPrice())
-//                .region(lecture.getRegion())
-//                .instructorId(lecture.getInstructor().getId())
-//                .lectureUrlList(new ArrayList<>())
-//                .equipmentList(new ArrayList<>())
-//                .build();
-//
-//        for (LectureImage lectureImage : lecture.getLectureImages()) {
-//            lectureDetail.getLectureUrlList().add(lectureImage.getFileURI());
-//        }
-//
-//        for (Equipment equipment : lecture.getEquipmentList()) {
-//            EquipmentDto equipmentDto = EquipmentDto.builder()
-//                    .name(equipment.getName())
-//                    .price(equipment.getPrice())
-//                    .build();
-//
-//            lectureDetail.getEquipmentList().add(equipmentDto);
-//        }
-//        return lectureDetail;
-//    }
-
     @PostMapping("/list/search/filter")
     public ResponseEntity<?> searchListByFilter(@CurrentUser Account account,
                                                 @RequestBody FilterSearchCondition condition,
@@ -193,15 +152,15 @@ public class LectureController {
         return ResponseEntity.ok().body(model);
     }
 
-//    @GetMapping("/manage/list")
-//    public ResponseEntity<?> manageList(@CurrentUser Account account,
-//                                        Pageable pageable,
-//                                        PagedResourcesAssembler<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> assembler) {
-//        Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoPage = lectureService.getMyLectureInfoList(account, pageable);
-//
-//        PagedModel<EntityModel<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo>> model = assembler.toModel(lectureInfoPage);
-//        return ResponseEntity.ok().body(model);
-//    }
+    @GetMapping("/manage/list")
+    public ResponseEntity<?> manageList(@CurrentUser Account account,
+                                        Pageable pageable,
+                                        PagedResourcesAssembler<MyLectureInfo> assembler) {
+        Page<MyLectureInfo> lectureInfoPage = lectureService.findMyLectureInfoList(account, pageable);
+
+        PagedModel<EntityModel<MyLectureInfo>> model = assembler.toModel(lectureInfoPage);
+        return ResponseEntity.ok().body(model);
+    }
 
     @PostMapping("/upload")
     public String upload(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {

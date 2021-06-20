@@ -6,6 +6,8 @@ import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDateTime;
 import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateResult;
@@ -13,6 +15,7 @@ import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.lecture.like.list.LikeLectureInfo;
 import com.diving.pungdong.dto.lecture.like.mark.MarkLectureResult;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.dto.lecture.list.mylist.MyLectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
@@ -24,8 +27,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -66,54 +72,61 @@ public class LectureService {
         lectureJpaRepo.deleteById(id);
     }
 
-//    public Page<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> getMyLectureInfoList(Account instructor, Pageable pageable) {
-//        Page<Lecture> lecturePage = lectureJpaRepo.findByInstructor(instructor, pageable);
-//        List<Lecture> lectureList = lecturePage.getContent();
-//
-//        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = mapToLectureInfoList(lectureList);
-//
-//        return new PageImpl<>(lectureInfoList, pageable, lecturePage.getTotalElements());
-//    }
-//
-//    public List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> mapToLectureInfoList(List<Lecture> lectureList) {
-//        List<com.diving.pungdong.dto.lecture.list.mylist.LectureInfo> lectureInfoList = new ArrayList<>();
-//
-//        for (Lecture lecture : lectureList) {
-//            Integer upcomingScheduleCount = countUpcomingSchedule(lecture);
-//
-//            com.diving.pungdong.dto.lecture.list.mylist.LectureInfo lectureInfo = com.diving.pungdong.dto.lecture.list.mylist.LectureInfo.builder()
-//                    .lectureId(lecture.getId())
-//                    .title(lecture.getTitle())
-//                    .organization(lecture.getOrganization())
-//                    .level(lecture.getLevel())
-//                    .cost(lecture.getPrice())
-//                    .isRentEquipment(!lecture.getEquipmentList().isEmpty())
-//                    .upcomingScheduleCount(upcomingScheduleCount)
-//                    .build();
-//
-//            lectureInfoList.add(lectureInfo);
-//        }
-//
-//        return lectureInfoList;
-//    }
+    public Page<MyLectureInfo> findMyLectureInfoList(Account instructor, Pageable pageable) {
+        Page<Lecture> lecturePage = lectureJpaRepo.findByInstructor(instructor, pageable);
+        List<Lecture> lectureList = lecturePage.getContent();
 
-//    public Integer countUpcomingSchedule(Lecture lecture) {
-//        Integer upcomingScheduleCount = 0;
-//
-//        for (Schedule schedule : lecture.getSchedules()) {
-//            exitFor:
-//            for (ScheduleDate scheduleDate : schedule.getScheduleDates()) {
-//                LocalDate upcomingScheduleDate = LocalDate.now().plusDays(14);
-//                if (scheduleDate.getDate().isAfter(LocalDate.now().minusDays(1))
-//                        && scheduleDate.getDate().isBefore(upcomingScheduleDate.plusDays(1))) {
-//                    upcomingScheduleCount += 1;
-//                    break exitFor;
-//                }
-//            }
-//        }
-//
-//        return upcomingScheduleCount;
-//    }
+        List<MyLectureInfo> myLectureInfoList = mapToMyLectureInfoList(lectureList);
+
+        return new PageImpl<>(myLectureInfoList, pageable, lecturePage.getTotalElements());
+    }
+
+    public List<MyLectureInfo> mapToMyLectureInfoList(List<Lecture> lectureList) {
+        List<MyLectureInfo> myLectureInfoList = new ArrayList<>();
+
+        for (Lecture lecture : lectureList) {
+            String lectureImageUrl = getMainLectureImage(lecture);
+            List<String> equipmentNames = mapToEquipmentNames(lecture);
+            Long leftScheduleDate = calcLeftScheduleDate(lecture.getSchedules());
+
+            MyLectureInfo myLectureInfo = MyLectureInfo.builder()
+                    .id(lecture.getId())
+                    .title(lecture.getTitle())
+                    .organization(lecture.getOrganization())
+                    .level(lecture.getLevel())
+                    .region(lecture.getRegion())
+                    .maxNumber(lecture.getMaxNumber())
+                    .period(lecture.getPeriod())
+                    .lectureTime(lecture.getLectureTime())
+                    .imageUrl(lectureImageUrl)
+                    .price(lecture.getPrice())
+                    .equipmentNames(equipmentNames)
+                    .leftScheduleDate(leftScheduleDate)
+                    .build();
+
+            myLectureInfoList.add(myLectureInfo);
+        }
+
+        myLectureInfoList.sort(Comparator.comparing(MyLectureInfo::getLeftScheduleDate));
+
+        return myLectureInfoList;
+    }
+
+    public Long calcLeftScheduleDate(List<Schedule> schedules) {
+        Long latestLeftScheduleDate = 365L;
+
+        for (Schedule schedule : schedules) {
+            for (ScheduleDateTime scheduleDateTime : schedule.getScheduleDateTimes()) {
+                if (scheduleDateTime.getDate().isBefore(LocalDate.now())) {
+                    continue;
+                } else if (latestLeftScheduleDate > ChronoUnit.DAYS.between(LocalDate.now(), scheduleDateTime.getDate())) {
+                    latestLeftScheduleDate = ChronoUnit.DAYS.between(LocalDate.now(), scheduleDateTime.getDate());
+                }
+            }
+        }
+
+        return latestLeftScheduleDate;
+    }
 
     public void checkRightInstructor(Account account, Long lectureId) {
         Lecture lecture = findLectureById(lectureId);

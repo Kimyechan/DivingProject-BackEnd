@@ -6,16 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LectureInfo {
-    private Long lectureId;
+public class MyLectureInfo {
+    private Long id;
     private String title;
     private Organization organization;
     private String level;
-    private Integer cost;
-    private Boolean isRentEquipment;
-    private Integer upcomingScheduleCount;
+    private String region;
+    private Integer maxNumber;
+    private Integer period;
+    private LocalTime lectureTime;
+    private String imageUrl;
+    private Integer price;
+    private List<String> equipmentNames;
+    private Long leftScheduleDate;
 }
