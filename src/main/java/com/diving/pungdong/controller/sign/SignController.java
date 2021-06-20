@@ -19,6 +19,7 @@ import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.AuthService;
 import com.diving.pungdong.service.InstructorCertificateService;
+import com.diving.pungdong.service.account.ProfilePhotoService;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +53,7 @@ public class SignController {
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
     private final InstructorCertificateService instructorCertificateService;
+    private final ProfilePhotoService profilePhotoService;
 
     @PostMapping("/check/email")
     public ResponseEntity<?> checkEmailExistence(@RequestBody EmailInfo emailInfo) {
