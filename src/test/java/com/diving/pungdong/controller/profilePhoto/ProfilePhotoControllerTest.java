@@ -6,6 +6,7 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.profilePhoto.ProfilePhotoInfo;
 import com.diving.pungdong.dto.profilePhoto.ProfilePhotoUpdateInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.account.ProfilePhotoService;
@@ -34,6 +35,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -111,5 +113,25 @@ class ProfilePhotoControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("프로필 이미지 조회")
+    public void readProfilePhoto() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        ProfilePhotoInfo profilePhotoInfo = ProfilePhotoInfo.builder()
+                .profilePhotoId(1L)
+                .imageUrl("프로필 이미지 URL")
+                .build();
+
+        given(profilePhotoService.findByAccount(any())).willReturn(profilePhotoInfo);
+
+        mockMvc.perform(get("/profile-photo")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
