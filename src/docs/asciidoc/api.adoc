@@ -141,6 +141,10 @@ operation::account-instructor-confirm[]
 [[resource-profilePhoto]]
 == 회원 프로필 이미지
 
+[[resource-profilePhoto-read]]
+=== 프로필 이미지 조회
+operation::profilePhoto-read[]
+
 [[resource-profilePhoto-update]]
 == 프로필 이미지 수정
 operation::profilePhoto-update[]

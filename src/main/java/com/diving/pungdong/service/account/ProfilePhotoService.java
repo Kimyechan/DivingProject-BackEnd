@@ -3,6 +3,7 @@ package com.diving.pungdong.service.account;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.ProfilePhoto;
+import com.diving.pungdong.dto.profilePhoto.ProfilePhotoInfo;
 import com.diving.pungdong.dto.profilePhoto.ProfilePhotoUpdateInfo;
 import com.diving.pungdong.repo.ProfilePhotoJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
@@ -43,6 +44,16 @@ public class ProfilePhotoService {
         return ProfilePhotoUpdateInfo.builder()
                 .profilePhotoId(profilePhoto.getId())
                 .url(profilePhoto.getImageUrl())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public ProfilePhotoInfo findByAccount(Account account) {
+        ProfilePhoto profilePhoto = findByProfilePhotoId(account.getProfilePhoto().getId());
+
+        return ProfilePhotoInfo.builder()
+                .profilePhotoId(profilePhoto.getId())
+                .imageUrl(profilePhoto.getImageUrl())
                 .build();
     }
 }

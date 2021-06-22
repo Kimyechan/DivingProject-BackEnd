@@ -6,6 +6,7 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.profilePhoto.ProfilePhotoInfo;
 import com.diving.pungdong.dto.profilePhoto.ProfilePhotoUpdateInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.account.ProfilePhotoService;
@@ -34,6 +35,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -99,7 +101,7 @@ class ProfilePhotoControllerTest {
                                 "profilePhoto-update",
                                 requestHeaders(
                                         headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("multipart form data 타입"),
-                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).description("access token 값")
                                 ),
                                 requestParts(
                                         partWithName("image").description("회원 프로필 이미지")
@@ -107,6 +109,39 @@ class ProfilePhotoControllerTest {
                                 responseFields(
                                         fieldWithPath("profilePhotoId").description("프로필 사진 식별자 값"),
                                         fieldWithPath("url").description("프로필 사진 url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("프로필 이미지 조회")
+    public void readProfilePhoto() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        ProfilePhotoInfo profilePhotoInfo = ProfilePhotoInfo.builder()
+                .profilePhotoId(1L)
+                .imageUrl("프로필 이미지 URL")
+                .build();
+
+        given(profilePhotoService.findByAccount(any())).willReturn(profilePhotoInfo);
+
+        mockMvc.perform(get("/profile-photo")
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "profilePhoto-read",
+                                requestHeaders(
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("profilePhotoId").description("프로필 사진 식별자 값"),
+                                        fieldWithPath("imageUrl").description("프로필 사진 url"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                                 )
                         )
