@@ -53,7 +53,6 @@ public class SignController {
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
     private final InstructorCertificateService instructorCertificateService;
-    private final ProfilePhotoService profilePhotoService;
 
     @PostMapping("/check/email")
     public ResponseEntity<?> checkEmailExistence(@RequestBody EmailInfo emailInfo) {

@@ -54,6 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/lectureImage/list").permitAll()
                         .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
                         .antMatchers("/sign/instructor/request/list", "/sign/instructor/confirm").hasRole("ADMIN")
+                        .antMatchers("/account/instructor/**").hasRole("INSTRUCTOR")
                         .antMatchers("/lecture/create", "/lecture/update", "/lecture/delete", "/lecture/manage/list"
                                 , "/location/create", "/lectureImage/create/list", "/equipment/create/list").authenticated()
                         .anyRequest().authenticated()

@@ -129,6 +129,10 @@ operation::account-add-instructorInfo[]
 === 강사 자격증 추가
 operation::account-add-instructor-certificate[]
 
+[[resource-account-instructor-certificate-read-list]]
+=== 강사 자격증 조회
+operation::account-instructor-certificate-read-list[]
+
 [[resource-account-instructor-get-request-list]]
 === 강사 신청자 조회
 operation::account-instructor-get-request-list[]
@@ -136,6 +140,14 @@ operation::account-instructor-get-request-list[]
 [[resource-account-instructor-confirm]]
 === 강사 신청자 중 강사 권한 부여
 operation::account-instructor-confirm[]
+
+[[resource-account-read]]
+=== 회원 정보 조회
+operation::account-read[]
+
+[[resource-account-instructor-read]]
+== 강사 정보 조회
+operation::account-instructor-read[]
 
 
 [[resource-profilePhoto]]
@@ -146,7 +158,7 @@ operation::account-instructor-confirm[]
 operation::profilePhoto-read[]
 
 [[resource-profilePhoto-update]]
-== 프로필 이미지 수정
+=== 프로필 이미지 수정
 operation::profilePhoto-update[]
 
 [[resource-lecture]]
