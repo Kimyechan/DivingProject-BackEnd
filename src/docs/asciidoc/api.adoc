@@ -137,6 +137,10 @@ operation::account-instructor-get-request-list[]
 === 강사 신청자 중 강사 권한 부여
 operation::account-instructor-confirm[]
 
+[[resource-account-read]]
+=== 회원 정보 조회
+operation::account-read[]
+
 
 [[resource-profilePhoto]]
 == 회원 프로필 이미지
@@ -146,7 +150,7 @@ operation::account-instructor-confirm[]
 operation::profilePhoto-read[]
 
 [[resource-profilePhoto-update]]
-== 프로필 이미지 수정
+=== 프로필 이미지 수정
 operation::profilePhoto-update[]
 
 [[resource-lecture]]
