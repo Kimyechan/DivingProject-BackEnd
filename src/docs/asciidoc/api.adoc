@@ -146,7 +146,7 @@ operation::account-instructor-confirm[]
 operation::profilePhoto-read[]
 
 [[resource-profilePhoto-update]]
-== 프로필 이미지 수정
+=== 프로필 이미지 수정
 operation::profilePhoto-update[]
 
 [[resource-lecture]]

@@ -569,7 +569,8 @@ class SignControllerTest {
         given(accountService.addInstructorRole(any())).willReturn(Account.builder().build());
         given(accountService.mapToInstructorConfirmResult(any())).willReturn(instructorConfirmResult);
 
-        mockMvc.perform(put("/sign/instructor/confirm")
+        mockMvc.perform(
+                put("/sign/instructor/confirm")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(instructorConfirmInfo)))

@@ -20,6 +20,7 @@ import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.EmailService;
+import com.diving.pungdong.service.account.read.AccountBasicInfo;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -190,6 +191,17 @@ public class AccountService implements UserDetailsService {
         return InstructorConfirmResult.builder()
                 .email(account.getEmail())
                 .nickName(account.getNickName())
+                .build();
+    }
+
+    public AccountBasicInfo mapToAccountBasicInfo(Account account) {
+        return AccountBasicInfo.builder()
+                .id(account.getId())
+                .email(account.getEmail())
+                .nickName(account.getNickName())
+                .birth(account.getBirth())
+                .phoneNumber(account.getPhoneNumber())
+                .gender(account.getGender())
                 .build();
     }
 }
