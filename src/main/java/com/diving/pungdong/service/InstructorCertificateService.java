@@ -3,6 +3,7 @@ package com.diving.pungdong.service;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.domain.account.InstructorImgCategory;
+import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.repo.InstructorCertificateJpaRepo;
 import com.diving.pungdong.service.account.AccountService;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -57,5 +59,22 @@ public class InstructorCertificateService {
         return SuccessResult.builder()
                 .success(true)
                 .build();
+    }
+
+    public List<InstructorCertificate> findInstructorCertificates(Account account) {
+        return instructorCertificateJpaRepo.findByInstructor(account);
+    }
+
+    public List<InstructorCertificateInfo> mapToInstructorCertificateInfos(List<InstructorCertificate> instructorCertificateList) {
+        List<InstructorCertificateInfo> certificateInfos = new ArrayList<>();
+        for (InstructorCertificate instructorCertificate : instructorCertificateList) {
+            InstructorCertificateInfo certificateInfo = InstructorCertificateInfo.builder()
+                    .id(instructorCertificate.getId())
+                    .imageUrl(instructorCertificate.getFileURL())
+                    .build();
+            certificateInfos.add(certificateInfo);
+        }
+
+        return certificateInfos;
     }
 }

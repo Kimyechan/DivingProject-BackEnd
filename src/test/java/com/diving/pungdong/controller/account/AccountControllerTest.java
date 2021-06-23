@@ -7,7 +7,9 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
+import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.dto.account.read.AccountBasicInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +25,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,6 +58,9 @@ class AccountControllerTest {
 
     @MockBean
     private AccountService accountService;
+
+    @MockBean
+    private InstructorCertificateService instructorCertificateService;
 
 
     public Account createAccount(Role role) {
@@ -143,6 +151,42 @@ class AccountControllerTest {
                                         fieldWithPath("id").description("계정 식별자 값"),
                                         fieldWithPath("organization").description("소속 단체"),
                                         fieldWithPath("selfIntroduction").description("강사 자기 소개"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강사 자격증 목록 조회")
+    public void readInstructorCertificates() throws Exception {
+        Account account = createAccount(Role.INSTRUCTOR);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        List<InstructorCertificateInfo> certificateInfoList = new ArrayList<>();
+        InstructorCertificateInfo certificateInfo = InstructorCertificateInfo.builder()
+                .id(1L)
+                .imageUrl("자격증 이미지 URL")
+                .build();
+        certificateInfoList.add(certificateInfo);
+
+        given(instructorCertificateService.findInstructorCertificates(any())).willReturn(Collections.emptyList());
+        given(instructorCertificateService.mapToInstructorCertificateInfos(any())).willReturn(certificateInfoList);
+
+        mockMvc.perform(get("/account/instructor/certificate/list")
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-instructor-certificate-read-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.instructorCertificateInfoList[].id").description("강사 자격증 사진 식별자 값"),
+                                        fieldWithPath("_embedded.instructorCertificateInfoList[].imageUrl").description("자격증 사진 Url"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                                 )
