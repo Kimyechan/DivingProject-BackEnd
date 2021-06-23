@@ -141,6 +141,10 @@ operation::account-instructor-confirm[]
 === 회원 정보 조회
 operation::account-read[]
 
+[[resource-account-instructor-read]]
+== 강사 정보 조회
+operation::account-instructor-read[]
+
 
 [[resource-profilePhoto]]
 == 회원 프로필 이미지

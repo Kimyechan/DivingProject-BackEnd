@@ -9,18 +9,20 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.domain.account.ProfilePhoto;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
+import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.EmailService;
-import com.diving.pungdong.service.account.read.AccountBasicInfo;
+import com.diving.pungdong.dto.account.read.AccountBasicInfo;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -202,6 +204,14 @@ public class AccountService implements UserDetailsService {
                 .birth(account.getBirth())
                 .phoneNumber(account.getPhoneNumber())
                 .gender(account.getGender())
+                .build();
+    }
+
+    public InstructorBasicInfo mapToInstructorBasicInfo(Account account) {
+        return InstructorBasicInfo.builder()
+                .id(account.getId())
+                .organization(account.getOrganization())
+                .selfIntroduction(account.getSelfIntroduction())
                 .build();
     }
 }

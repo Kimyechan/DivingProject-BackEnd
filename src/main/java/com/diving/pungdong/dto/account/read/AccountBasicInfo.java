@@ -1,4 +1,4 @@
-package com.diving.pungdong.service.account.read;
+package com.diving.pungdong.dto.account.read;
 
 import com.diving.pungdong.domain.account.Gender;
 import lombok.AllArgsConstructor;
