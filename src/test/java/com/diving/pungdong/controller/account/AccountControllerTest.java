@@ -28,8 +28,12 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
-@Import({RestDocsConfiguration.class, EmbeddedRedisConfig.class})
+@Import({RestDocsConfiguration.class})
 class AccountControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -88,7 +92,25 @@ class AccountControllerTest {
         mockMvc.perform(get("/account")
                 .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-read",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("id").description("계정 식별자 값"),
+                                        fieldWithPath("email").description("이메일"),
+                                        fieldWithPath("nickName").description("닉네임"),
+                                        fieldWithPath("phoneNumber").description("폰 번호"),
+                                        fieldWithPath("birth").description("생년월일"),
+                                        fieldWithPath("gender").description("성별"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
 
     }
 }
