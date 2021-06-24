@@ -9,9 +9,13 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
+import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
+import com.diving.pungdong.dto.account.update.NickNameInfo;
+import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
 import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.dto.account.read.AccountBasicInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,9 +40,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -187,6 +191,117 @@ class AccountControllerTest {
                                 responseFields(
                                         fieldWithPath("_embedded.instructorCertificateInfoList[].id").description("강사 자격증 사진 식별자 값"),
                                         fieldWithPath("_embedded.instructorCertificateInfoList[].imageUrl").description("자격증 사진 Url"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("계정 정보 변경")
+    public void updateAccountInfo() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        AccountUpdateInfo accountUpdateInfo = AccountUpdateInfo.builder()
+                .birth("1998-01-10")
+                .gender(Gender.MALE)
+                .phoneNumber("010-2222-3333")
+                .build();
+
+        mockMvc.perform(put("/account")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(accountUpdateInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-update",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("birth").description("셍년월일"),
+                                        fieldWithPath("gender").description("성별"),
+                                        fieldWithPath("phoneNumber").description("휴대폰 번호")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("닉네임 변경")
+    public void updateAccountNickName() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        NickNameInfo nickNameInfo = NickNameInfo.builder()
+                .nickName("newNickName")
+                .build();
+
+        mockMvc.perform(patch("/account/nickName")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(nickNameInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-update-nickName",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("nickName").description("닉네임")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("패스워드 변경")
+    public void updateAccountPassword() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        PasswordUpdateInfo passwordUpdateInfo = PasswordUpdateInfo.builder()
+                .currentPassword("abcd1234")
+                .newPassword("zxcv4321")
+                .build();
+
+        mockMvc.perform(patch("/account/password")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(passwordUpdateInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-update-password",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("currentPassword").description("현재 패스워드"),
+                                        fieldWithPath("newPassword").description("새로운 패스워드")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                                 )
