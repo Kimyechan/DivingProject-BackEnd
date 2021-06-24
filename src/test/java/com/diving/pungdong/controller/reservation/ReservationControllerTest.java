@@ -9,7 +9,7 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
-import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.reservation.ReservationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,6 +29,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +41,9 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -136,60 +141,67 @@ class ReservationControllerTest {
                 ));
     }
 
-//
-//    @Test
-//    @DisplayName("수강생의 예약 리스트 검색")
-//    public void searchReservationList() throws Exception {
-//        Account account = createAccount(Role.STUDENT);
-//        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
-//
-//        List<ReservationSubInfo> reservationSubInfoList = new ArrayList<>();
-//        ReservationSubInfo reservationSubInfo = ReservationSubInfo.builder()
-//                .reservationId(1L)
-//                .lectureTitle("프리 다이빙 강의 1")
-//                .isMultipleCourse(false)
-//                .totalCost(100000)
-//                .dateOfReservation(LocalDate.of(2021, 3, 4))
-//                .build();
-//        reservationSubInfoList.add(reservationSubInfo);
-//        Pageable pageable = PageRequest.of(0, 5);
-//        Page<ReservationSubInfo> reservationSubInfoPage = new PageImpl<>(reservationSubInfoList, pageable, reservationSubInfoList.size());
-//
-//        given(reservationService.findMyReservationList(account.getId(), pageable)).willReturn(reservationSubInfoPage);
-//
-//        mockMvc.perform(get("/reservation/list")
-//                .header(HttpHeaders.AUTHORIZATION, accessToken)
-//                .header("IsRefreshToken", "false")
-//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                .param("page", String.valueOf(pageable.getPageNumber()))
-//                .param("size", String.valueOf(pageable.getPageSize())))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andDo(document("reservation-get-list",
-//                        requestHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-//                                headerWithName("Authorization").description("access token 값"),
-//                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-//                        ),
-//                        requestParameters(
-//                                parameterWithName("page").description("페이지 번호"),
-//                                parameterWithName("size").description("한 페이지당 사이즈")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("_embedded.reservationSubInfoList[].reservationId").description("예약 식별자 값"),
-//                                fieldWithPath("_embedded.reservationSubInfoList[].lectureTitle").description("예약 강의 제목"),
-//                                fieldWithPath("_embedded.reservationSubInfoList[].totalCost").description("예약 비용"),
-//                                fieldWithPath("_embedded.reservationSubInfoList[].isMultipleCourse").description("다회차 인지 아닌지의 여부"),
-//                                fieldWithPath("_embedded.reservationSubInfoList[].dateOfReservation").description("예약 날짜"),
-//                                fieldWithPath("_links.self.href").description("해당 API URL"),
-//                                fieldWithPath("page.size").description("한 페이지당 크기"),
-//                                fieldWithPath("page.totalElements").description("전체 요소 갯수"),
-//                                fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
-//                                fieldWithPath("page.number").description("현재 페이지 번호")
-//                        )
-//                ));
-//    }
-//
+    @Test
+    @DisplayName("내 강의 예약 목록 보기")
+    public void readMyReservations() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        List<ReservationInfo> reservationInfos = new ArrayList<>();
+        for (int i = 1; i <= 2; i++) {
+            ReservationInfo reservationInfo = ReservationInfo.builder()
+                    .reservationId((long) i)
+                    .remainingDate((long) i)
+                    .reservationDate(LocalDate.now().minusDays(i + 1))
+                    .lectureTitle("강의 타이틀")
+                    .lectureImageUrl("강의 이미지 Url")
+                    .instructorNickname("강사 닉네임")
+                    .build();
+            reservationInfos.add(reservationInfo);
+        }
+        Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "dateOfReservation"));
+        Page<ReservationInfo> reservationInfoPage = new PageImpl<>(reservationInfos, pageable, reservationInfos.size());
+
+        given(reservationService.findMyReservations(any(), any())).willReturn(reservationInfoPage);
+
+        mockMvc.perform(get("/reservation/list")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .param("sort", String.valueOf(pageable.getSort())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "reservation-find-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.reservationInfoList[].reservationId").description("예약 식별자 값"),
+                                        fieldWithPath("_embedded.reservationInfoList[].lectureTitle").description("강의 타이틀"),
+                                        fieldWithPath("_embedded.reservationInfoList[].lectureImageUrl").description("강의 이미지 Url"),
+                                        fieldWithPath("_embedded.reservationInfoList[].instructorNickname").description("강사 닉네임"),
+                                        fieldWithPath("_embedded.reservationInfoList[].reservationDate").description("예약 날짜"),
+                                        fieldWithPath("_embedded.reservationInfoList[].remainingDate").description("예약 최근 일정 남은 날짜"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
+    }
+
+
 //    @Test
 //    @DisplayName("예약 상세 조회")
 //    public void getReservationDetail() throws Exception {

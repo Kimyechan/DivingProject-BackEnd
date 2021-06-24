@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -125,5 +126,19 @@ public class ScheduleService {
         List<RentEquipmentInfo> rentEquipmentInfos = scheduleEquipmentService.mapToRentEquipmentInfo(schedule.getScheduleEquipments());
 
         return rentEquipmentInfos;
+    }
+
+    @Transactional(readOnly = true)
+    public Long calcScheduleRemainingDate(Schedule schedule) {
+        Long latestRemainingDate = 365L;
+        for (ScheduleDateTime scheduleDateTime : schedule.getScheduleDateTimes()) {
+            if (scheduleDateTime.getDate().isAfter(LocalDate.now()) || scheduleDateTime.getDate().isEqual(LocalDate.now())) {
+                if (latestRemainingDate > ChronoUnit.DAYS.between(LocalDate.now(), scheduleDateTime.getDate())) {
+                    latestRemainingDate = ChronoUnit.DAYS.between(LocalDate.now(), scheduleDateTime.getDate());
+                }
+            }
+        }
+
+        return latestRemainingDate;
     }
 }

@@ -7,17 +7,19 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.ReservationResult;
+import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -45,16 +47,16 @@ public class ReservationController {
 
         return ResponseEntity.created(selfLink.toUri()).body(model);
     }
-//
-//    @GetMapping("/list")
-//    public ResponseEntity<?> getList(@CurrentUser Account account,
-//                                     Pageable pageable,
-//                                     PagedResourcesAssembler<ReservationSubInfo> assembler) {
-//        Page<ReservationSubInfo> reservationSubInfoPage = reservationService.findMyReservationList(account.getId(), pageable);
-//
-//        PagedModel<EntityModel<ReservationSubInfo>> models = assembler.toModel(reservationSubInfoPage);
-//        return ResponseEntity.ok().body(models);
-//    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> readMyReservations(@CurrentUser Account account,
+                                                Pageable pageable,
+                                                PagedResourcesAssembler<ReservationInfo> assembler) {
+        Page<ReservationInfo> reservationInfoPage = reservationService.findMyReservations(account, pageable);
+
+        PagedModel<EntityModel<ReservationInfo>> model = assembler.toModel(reservationInfoPage);
+        return ResponseEntity.ok().body(model);
+    }
 //
 //    @GetMapping("/{id}")
 //    public ResponseEntity<?> getDetail(Authentication authentication, @PathVariable("id") Long id) {
