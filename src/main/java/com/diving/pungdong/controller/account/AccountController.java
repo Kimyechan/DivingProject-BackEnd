@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
+import com.diving.pungdong.dto.account.update.NickNameInfo;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.account.AccountService;
@@ -77,6 +78,22 @@ public class AccountController {
         EntityModel<SuccessResult> model = EntityModel.of(new SuccessResult(true));
         model.add(linkTo(methodOn(AccountController.class).updateAccountInfo(account, updateInfo, result)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-update").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @PatchMapping("/nickName")
+    public ResponseEntity<?> updateAccountNickName(@CurrentUser Account account,
+                                                   @Valid @RequestBody NickNameInfo nickNameInfo,
+                                                   BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        accountService.updateNickName(account, nickNameInfo.getNickName());
+
+        EntityModel<SuccessResult> model = EntityModel.of(new SuccessResult(true));
+        model.add(linkTo(methodOn(AccountController.class).updateAccountNickName(account, nickNameInfo, result)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-update-nickName").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 }

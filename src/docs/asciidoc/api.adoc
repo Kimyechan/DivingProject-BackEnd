@@ -153,6 +153,10 @@ operation::account-instructor-read[]
 === 회원 정보 수정
 operation::account-update[]
 
+[[resource-account-update-nickName]]
+=== 닉네임 수정
+operation::account-update-nickName[]
+
 
 [[resource-profilePhoto]]
 == 회원 프로필 이미지

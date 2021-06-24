@@ -10,6 +10,7 @@ import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
+import com.diving.pungdong.dto.account.update.NickNameInfo;
 import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.dto.account.read.AccountBasicInfo;
@@ -38,8 +39,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -233,6 +233,40 @@ class AccountControllerTest {
                                 )
                         )
                 );
+    }
 
+    @Test
+    @DisplayName("닉네임 변경")
+    public void updateAccountNickName() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        NickNameInfo nickNameInfo = NickNameInfo.builder()
+                .nickName("newNickName")
+                .build();
+
+        mockMvc.perform(patch("/account/nickName")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(nickNameInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-update-nickName",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("nickName").description("닉네임")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
     }
 }
