@@ -157,6 +157,10 @@ operation::account-update[]
 === 닉네임 수정
 operation::account-update-nickName[]
 
+[[resource-account-update-password]]
+=== 패스워드 수정
+operation::account-update-password[]
+
 
 [[resource-profilePhoto]]
 == 회원 프로필 이미지

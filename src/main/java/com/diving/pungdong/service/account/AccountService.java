@@ -21,6 +21,7 @@ import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
 import com.diving.pungdong.dto.account.update.NickNameInfo;
+import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.EmailService;
@@ -78,8 +79,8 @@ public class AccountService implements UserDetailsService {
         }
     }
 
-    public void checkCorrectPassword(SignInInfo signInInfo, Account account) {
-        if (!passwordEncoder.matches(signInInfo.getPassword(), account.getPassword())) {
+    public void checkCorrectPassword(String password, Account account) {
+        if (!passwordEncoder.matches(password, account.getPassword())) {
             throw new CEmailSigninFailedException();
         }
     }
@@ -231,6 +232,14 @@ public class AccountService implements UserDetailsService {
         checkDuplicationOfNickName(nickName);
 
         account.setNickName(nickName);
+        accountJpaRepo.save(account);
+    }
+
+    @Transactional
+    public void updatePassword(Account account, PasswordUpdateInfo passwordUpdateInfo) {
+        checkCorrectPassword(passwordUpdateInfo.getCurrentPassword(), account);
+
+        account.setPassword(passwordEncoder.encode(passwordUpdateInfo.getNewPassword()));
         accountJpaRepo.save(account);
     }
 }

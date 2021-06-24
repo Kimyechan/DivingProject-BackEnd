@@ -9,6 +9,7 @@ import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertific
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
 import com.diving.pungdong.dto.account.update.NickNameInfo;
+import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
 import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.account.AccountService;
@@ -94,6 +95,22 @@ public class AccountController {
         EntityModel<SuccessResult> model = EntityModel.of(new SuccessResult(true));
         model.add(linkTo(methodOn(AccountController.class).updateAccountNickName(account, nickNameInfo, result)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-update-nickName").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<?> updateAccountPassword(@CurrentUser Account account,
+                                                   @Valid @RequestBody PasswordUpdateInfo passwordUpdateInfo,
+                                                   BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        accountService.updatePassword(account, passwordUpdateInfo);
+
+        EntityModel<SuccessResult> model = EntityModel.of(new SuccessResult(true));
+        model.add(linkTo(methodOn(AccountController.class).updateAccountPassword(account, passwordUpdateInfo, result)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-account-update-password").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 }
