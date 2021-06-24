@@ -83,7 +83,7 @@ public class SignController {
         }
 
         Account account = accountService.findAccountByEmail(signInInfo.getEmail());
-        accountService.checkCorrectPassword(signInInfo, account);
+        accountService.checkCorrectPassword(signInInfo.getPassword(), account);
 
         AuthToken authToken = authService.getAuthToken(String.valueOf(account.getId()), signInInfo.getPassword());
 
