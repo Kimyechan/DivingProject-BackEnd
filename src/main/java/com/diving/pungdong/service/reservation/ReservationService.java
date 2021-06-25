@@ -6,9 +6,13 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.domain.reservation.ReservationEquipment;
 import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleEquipment;
+import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
+import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation
         .detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
@@ -34,14 +38,6 @@ public class ReservationService {
     private final ScheduleService scheduleService;
     private final ReservationEquipmentService reservationEquipmentService;
     private final PaymentService paymentService;
-
-    public Reservation getDetailById(Long id) {
-        return reservationJpaRepo.findById(id).orElseThrow(ResourceNotFoundException::new);
-    }
-
-    public void cancelReservation(Long id) {
-        reservationJpaRepo.deleteById(id);
-    }
 
     @Transactional
     public Reservation saveReservation(Account account, ReservationCreateInfo reservationCreateInfo) {
@@ -113,5 +109,26 @@ public class ReservationService {
         if (!account.getId().equals(owner.getId())) {
             throw new NoPermissionsException();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<RentEquipmentDetail> findRentEquipments(Long reservationId) {
+        Reservation reservation = findById(reservationId);
+
+        List<RentEquipmentDetail> rentEquipmentDetails = new ArrayList<>();
+        for (ReservationEquipment reservationEquipment : reservation.getReservationEquipmentList()) {
+            ScheduleEquipmentStock scheduleEquipmentStock = reservationEquipment.getScheduleEquipmentStock();
+            ScheduleEquipment scheduleEquipment = scheduleEquipmentStock.getScheduleEquipment();
+
+            RentEquipmentDetail rentEquipmentDetail = RentEquipmentDetail.builder()
+                    .equipmentName(scheduleEquipment.getName())
+                    .size(scheduleEquipmentStock.getSize())
+                    .rentNumber(reservationEquipment.getRentNumber())
+                    .build();
+
+            rentEquipmentDetails.add(rentEquipmentDetail);
+        }
+
+        return rentEquipmentDetails;
     }
 }

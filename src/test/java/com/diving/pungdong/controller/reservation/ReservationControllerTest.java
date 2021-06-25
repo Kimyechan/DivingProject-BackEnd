@@ -9,10 +9,7 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
-import com.diving.pungdong.dto.reservation.detail.LocationDetail;
-import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
-import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
-import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
+import com.diving.pungdong.dto.reservation.detail.*;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.service.LocationService;
 import com.diving.pungdong.service.account.AccountService;
@@ -337,7 +334,49 @@ class ReservationControllerTest {
                         )
                 ));
     }
-//
+
+    @Test
+    @DisplayName("예약한 강의 대여 장비 목록 조회")
+    public void readReservationRentEquipments() throws Exception {
+        Long reservationId = 1L;
+
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        List<RentEquipmentDetail> rentEquipmentDetails = new ArrayList<>();
+        RentEquipmentDetail rentEquipmentDetail = RentEquipmentDetail.builder()
+                .equipmentName("오리발")
+                .size("270")
+                .rentNumber(2)
+                .build();
+        rentEquipmentDetails.add(rentEquipmentDetail);
+
+        given(reservationService.findRentEquipments(any())).willReturn(rentEquipmentDetails);
+
+        mockMvc.perform(get("/reservation/equipment/list")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("reservationId", String.valueOf(reservationId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("reservation-read-equipment-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                        ),
+                        requestParameters(
+                                parameterWithName("reservationId").description("강의 예약 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.rentEquipmentDetailList[].equipmentName").description("대여 장비 이름"),
+                                fieldWithPath("_embedded.rentEquipmentDetailList[].size").description("대여 장비 크기"),
+                                fieldWithPath("_embedded.rentEquipmentDetailList[].rentNumber").description("대여 장비 수"),
+                                fieldWithPath("_links.self.href").description("해당 API URL"),
+                                fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                        )
+                ));
+    }
+
 //    @Test
 //    @DisplayName("강의 예약 취소")
 //    public void cancelReservation() throws Exception {

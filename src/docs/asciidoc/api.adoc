@@ -302,6 +302,10 @@ operation::reservation-read-schedule-list[]
 === 예약한 강의 위치
 operation::reservation-read-schedule-list[]
 
+[[resource-reservation-read-equipment-list]]
+=== 예약한 대여 장비 목록
+operation::reservation-read-equipment-list[]
+
 
 [[resource-review]]
 == 강의 리뷰

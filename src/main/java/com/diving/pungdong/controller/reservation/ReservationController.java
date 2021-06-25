@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.ReservationResult;
 import com.diving.pungdong.dto.reservation.detail.LocationDetail;
+import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
@@ -97,25 +98,15 @@ public class ReservationController {
         return ResponseEntity.ok().body(model);
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<?> cancel(Authentication authentication, @PathVariable("id") Long id) {
-//        Reservation reservation = reservationService.getDetailById(id);
-//        reservationService.checkRightForReservation(authentication.getName(), reservation);
-//
-//        reservationService.cancelReservation(id);
-//
-//        ReservationCancelRes reservationCancelRes = mapToReservationCancelRes(id);
-//
-//        return ResponseEntity.ok().body(reservationCancelRes);
-//    }
-//
-//    public ReservationCancelRes mapToReservationCancelRes(Long id) {
-//        return ReservationCancelRes.builder()
-//                .reservationCancelId(id)
-//                .success(true)
-//                .build();
-//    }
-//
+    @GetMapping("/equipment/list")
+    public ResponseEntity<?> readReservationEquipments(@RequestParam Long reservationId) {
+        List<RentEquipmentDetail> rentEquipmentDetails = reservationService.findRentEquipments(reservationId);
+
+        CollectionModel<RentEquipmentDetail> model = CollectionModel.of(rentEquipmentDetails);
+        model.add(linkTo(methodOn(ReservationController.class).readReservationSchedule(reservationId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-reservation-read-equipment-list").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
 //    @GetMapping("/students")
 //    public ResponseEntity<?> getStudents(@CurrentUser Account account,
 //                                         @RequestBody ScheduleTimeInfo scheduleTimeInfo) {
