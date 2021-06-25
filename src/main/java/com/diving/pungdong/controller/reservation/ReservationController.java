@@ -3,27 +3,27 @@ package com.diving.pungdong.controller.reservation;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.config.security.CurrentUser;
-import com.diving.pungdong.controller.lecture.LectureController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
-import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.ReservationResult;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
+import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
+import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.service.reservation.ReservationService;
+import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.*;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -33,6 +33,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "/reservation", produces = MediaTypes.HAL_JSON_VALUE)
 public class ReservationController {
     private final ReservationService reservationService;
+    private final ScheduleService scheduleService;
 
     @PostMapping
     public ResponseEntity<?> create(@CurrentUser Account account,
@@ -72,50 +73,17 @@ public class ReservationController {
         model.add(Link.of("/docs/api.html#resource-reservation-read").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
-//
-//    @GetMapping("/{id}")
-//    public ResponseEntity<?> getDetail(Authentication authentication, @PathVariable("id") Long id) {
-//        Reservation reservation = reservationService.getDetailById(id);
-//        reservationService.checkRightForReservation(authentication.getName(), reservation);
-//
-//        ReservationDetail reservationDetail = mapToReservationDetail(reservation);
-//
-//        EntityModel<ReservationDetail> model = EntityModel.of(reservationDetail);
-//        model.add(linkTo(methodOn(ReservationController.class).getDetail(authentication, id)).withSelfRel());
-//
-//        return ResponseEntity.ok().body(model);
-//    }
-//
-//    private ReservationDetail mapToReservationDetail(Reservation reservation) {
-//        List<ReservationDate> reservationDates = reservation.getReservationDateList();
-//        List<ReservationSchedule> reservationSchedules = mapToReservationSchedules(reservationDates);
-//
-//        return ReservationDetail.builder()
-//                .reservationScheduleList(reservationSchedules)
-//                .equipmentNameList(reservation.getEquipmentList())
-//                .description(reservation.getDescription())
-//                .build();
-//    }
-//
-//    private List<ReservationSchedule> mapToReservationSchedules(List<ReservationDate> reservationDates) {
-//        List<ReservationSchedule> reservationSchedules = new ArrayList<>();
-//
-//        for (ReservationDate reservationDate : reservationDates) {
-//            ReservationSchedule reservationSchedule = mapToReservationSchedule(reservationDate);
-//            reservationSchedules.add(reservationSchedule);
-//        }
-//
-//        return reservationSchedules;
-//    }
-//
-//    private ReservationSchedule mapToReservationSchedule(ReservationDate reservationDate) {
-//        return ReservationSchedule.builder()
-//                .date(reservationDate.getDate())
-//                .time(reservationDate.getTime())
-//                .location(reservationDate.getScheduleDate().getLocation())
-//                .build();
-//    }
-//
+
+    @GetMapping("/schedule")
+    public ResponseEntity<?> readReservationSchedule(@RequestParam Long reservationId) {
+        List<ScheduleDetail> scheduleDetails = scheduleService.findByReservationId(reservationId);
+
+        CollectionModel<ScheduleDetail> model = CollectionModel.of(scheduleDetails);
+        model.add(linkTo(methodOn(ReservationController.class).readReservationSchedule(reservationId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-reservation-read-schedule-list").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
 //    @DeleteMapping("/{id}")
 //    public ResponseEntity<?> cancel(Authentication authentication, @PathVariable("id") Long id) {
 //        Reservation reservation = reservationService.getDetailById(id);

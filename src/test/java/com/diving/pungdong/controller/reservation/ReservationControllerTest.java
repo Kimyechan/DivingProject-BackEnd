@@ -11,9 +11,11 @@ import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
+import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.reservation.ReservationService;
+import com.diving.pungdong.service.schedule.ScheduleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -71,6 +74,9 @@ class ReservationControllerTest {
 
     @MockBean
     private ReservationService reservationService;
+
+    @MockBean
+    private ScheduleService scheduleService;
 
     public Account createAccount(Role role) {
         Account account = Account.builder()
@@ -245,6 +251,47 @@ class ReservationControllerTest {
                 ));
     }
 
+    @Test
+    @DisplayName("강의 예약 일정 조회")
+    public void readReservationSchedule() throws Exception {
+        Long reservationId = 1L;
+
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
+        ScheduleDetail scheduleDetail = ScheduleDetail.builder()
+                .date(LocalDate.now().plusDays(10))
+                .startTime(LocalTime.of(10, 30))
+                .endTime(LocalTime.of(12, 30))
+                .build();
+        scheduleDetails.add(scheduleDetail);
+
+        given(scheduleService.findByReservationId(any())).willReturn(scheduleDetails);
+
+        mockMvc.perform(get("/reservation/schedule")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("reservationId", String.valueOf(reservationId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("reservation-read-schedule-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                        ),
+                        requestParameters(
+                                parameterWithName("reservationId").description("강의 예약 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.scheduleDetailList[].startTime").description("강의 시작 시간"),
+                                fieldWithPath("_embedded.scheduleDetailList[].endTime").description("강의 종료 시간"),
+                                fieldWithPath("_embedded.scheduleDetailList[].date").description("강의 일정 한 날짜"),
+                                fieldWithPath("_links.self.href").description("해당 API URL"),
+                                fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                        )
+                ));
+    }
 //
 //    @Test
 //    @DisplayName("강의 예약 취소")

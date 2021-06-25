@@ -4,14 +4,17 @@ import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
+import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.repo.schedule.ScheduleJpaRepo;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ public class ScheduleService {
     private final LectureService lectureService;
     private final ScheduleDateTimeService scheduleDateTimeService;
     private final ScheduleEquipmentService scheduleEquipmentService;
+    private final ReservationService reservationService;
 
     public List<Schedule> findByLectureId(Long lectureId) {
         return scheduleJpaRepo.findAllByLectureId(lectureId);
@@ -140,5 +144,23 @@ public class ScheduleService {
         }
 
         return latestRemainingDate;
+    }
+
+    public List<ScheduleDetail> findByReservationId(Long reservationId) {
+        Reservation reservation = reservationService.findById(reservationId);
+
+        Schedule schedule = reservation.getSchedule();
+
+        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
+        for (ScheduleDateTime scheduleDateTime : schedule.getScheduleDateTimes()) {
+            ScheduleDetail scheduleDetail = ScheduleDetail.builder()
+                    .date(scheduleDateTime.getDate())
+                    .startTime(scheduleDateTime.getStartTime())
+                    .endTime(scheduleDateTime.getEndTime())
+                    .build();
+            scheduleDetails.add(scheduleDetail);
+        }
+
+        return scheduleDetails;
     }
 }

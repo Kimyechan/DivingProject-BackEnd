@@ -291,8 +291,12 @@ operation::reservation-create[]
 operation::reservation-find-list[]
 
 [[resourec-reservation-read]]
-=== 강의 상세 내용
+=== 예약 상세 내용
 operation::reservation-read[]
+
+[[resource-reservation-read-schudule-list]]
+=== 예약한 강의 일정
+operation::reservation-read-schedule-list[]
 
 
 [[resource-review]]
