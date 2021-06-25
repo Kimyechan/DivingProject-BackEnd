@@ -12,10 +12,8 @@ import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
-import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.service.LocationService;
 import com.diving.pungdong.service.reservation.ReservationService;
-import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +34,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "/reservation", produces = MediaTypes.HAL_JSON_VALUE)
 public class ReservationController {
     private final ReservationService reservationService;
-    private final ScheduleService scheduleService;
     private final LocationService locationService;
 
     @PostMapping
@@ -80,7 +77,7 @@ public class ReservationController {
 
     @GetMapping("/schedule")
     public ResponseEntity<?> readReservationSchedule(@RequestParam Long reservationId) {
-        List<ScheduleDetail> scheduleDetails = scheduleService.findByReservationId(reservationId);
+        List<ScheduleDetail> scheduleDetails = reservationService.findReservationScheduleDetail(reservationId);
 
         CollectionModel<ScheduleDetail> model = CollectionModel.of(scheduleDetails);
         model.add(linkTo(methodOn(ReservationController.class).readReservationSchedule(reservationId)).withSelfRel());

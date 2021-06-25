@@ -269,7 +269,7 @@ class ReservationControllerTest {
                 .build();
         scheduleDetails.add(scheduleDetail);
 
-        given(scheduleService.findByReservationId(any())).willReturn(scheduleDetails);
+        given(reservationService.findReservationScheduleDetail(any())).willReturn(scheduleDetails);
 
         mockMvc.perform(get("/reservation/schedule")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
@@ -296,7 +296,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @DisplayName("강의 예약 일정 조회")
+    @DisplayName("예약한 강의 위치 조회")
     public void readReservationLectureLocation() throws Exception {
         Long reservationId = 1L;
 

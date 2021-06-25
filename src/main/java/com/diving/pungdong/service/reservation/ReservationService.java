@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.reservation.ReservationEquipment;
 import com.diving.pungdong.domain.schedule.Schedule;
+import com.diving.pungdong.domain.schedule.ScheduleDateTime;
 import com.diving.pungdong.domain.schedule.ScheduleEquipment;
 import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
@@ -15,6 +16,7 @@ import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
 import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation
         .detail.ReservationDetail;
+import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.repo.reservation.ReservationJpaRepo;
 import com.diving.pungdong.service.PaymentService;
@@ -130,5 +132,24 @@ public class ReservationService {
         }
 
         return rentEquipmentDetails;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleDetail> findReservationScheduleDetail(Long reservationId) {
+        Reservation reservation = findById(reservationId);
+
+        Schedule schedule = reservation.getSchedule();
+
+        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
+        for (ScheduleDateTime scheduleDateTime : schedule.getScheduleDateTimes()) {
+            ScheduleDetail scheduleDetail = ScheduleDetail.builder()
+                    .date(scheduleDateTime.getDate())
+                    .startTime(scheduleDateTime.getStartTime())
+                    .endTime(scheduleDateTime.getEndTime())
+                    .build();
+            scheduleDetails.add(scheduleDetail);
+        }
+
+        return scheduleDetails;
     }
 }

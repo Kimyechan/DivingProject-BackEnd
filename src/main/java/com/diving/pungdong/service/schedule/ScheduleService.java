@@ -33,7 +33,6 @@ public class ScheduleService {
     private final LectureService lectureService;
     private final ScheduleDateTimeService scheduleDateTimeService;
     private final ScheduleEquipmentService scheduleEquipmentService;
-    private final ReservationService reservationService;
 
     public List<Schedule> findByLectureId(Long lectureId) {
         return scheduleJpaRepo.findAllByLectureId(lectureId);
@@ -144,23 +143,5 @@ public class ScheduleService {
         }
 
         return latestRemainingDate;
-    }
-
-    public List<ScheduleDetail> findByReservationId(Long reservationId) {
-        Reservation reservation = reservationService.findById(reservationId);
-
-        Schedule schedule = reservation.getSchedule();
-
-        List<ScheduleDetail> scheduleDetails = new ArrayList<>();
-        for (ScheduleDateTime scheduleDateTime : schedule.getScheduleDateTimes()) {
-            ScheduleDetail scheduleDetail = ScheduleDetail.builder()
-                    .date(scheduleDateTime.getDate())
-                    .startTime(scheduleDateTime.getStartTime())
-                    .endTime(scheduleDateTime.getEndTime())
-                    .build();
-            scheduleDetails.add(scheduleDetail);
-        }
-
-        return scheduleDetails;
     }
 }
