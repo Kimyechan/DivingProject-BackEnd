@@ -290,6 +290,10 @@ operation::reservation-create[]
 === 강의 예약 리스트
 operation::reservation-find-list[]
 
+[[resourec-reservation-read]]
+=== 강의 상세 내용
+operation::reservation-read[]
+
 
 [[resource-review]]
 == 강의 리뷰

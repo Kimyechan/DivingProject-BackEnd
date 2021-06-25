@@ -9,6 +9,8 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
+import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
+import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.reservation.ReservationService;
@@ -85,12 +87,6 @@ class ReservationControllerTest {
                 .willReturn(new UserAccount(account));
 
         return account;
-    }
-
-    private Collection<? extends GrantedAuthority> authorities(Set<Role> roles) {
-        return roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
-                .collect(Collectors.toList());
     }
 
     @Test
@@ -201,63 +197,54 @@ class ReservationControllerTest {
                 );
     }
 
+    @Test
+    @DisplayName("강의 예약 정보 조회")
+    public void readReservationDetail() throws Exception {
+        Long reservationId = 1L;
 
-//    @Test
-//    @DisplayName("예약 상세 조회")
-//    public void getReservationDetail() throws Exception {
-//        Account account = createAccount(Role.STUDENT);
-//        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
-//
-//        Long reservationId = 1L;
-//
-//        Location location = Location.builder()
-//                .latitude(36.568)
-//                .longitude(137.546)
-//                .address("서울시 잠실 수영장")
-//                .build();
-//
-//        ReservationDate reservationDate = ReservationDate.builder()
-//                .date(LocalDate.of(2021, 3, 4))
-//                .time(LocalTime.of(18, 0))
-//                .scheduleDate(ScheduleDate.builder().location(location).build())
-//                .build();
-//
-//        Reservation reservation = Reservation.builder()
-//                .account(account)
-//                .reservationDateList(List.of(reservationDate))
-//                .equipmentList(List.of("오리발", "슈트"))
-//                .description("오리발 270, 슈트 L")
-//                .build();
-//
-//        given(reservationService.getDetailById(reservationId)).willReturn(reservation);
-//
-//        mockMvc.perform(RestDocumentationRequestBuilders.get("/reservation/{id}", reservationId)
-//                .header(HttpHeaders.AUTHORIZATION, accessToken)
-//                .header("IsRefreshToken", "false")
-//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andDo(document("reservation-get-detail",
-//                        requestHeaders(
-//                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
-//                                headerWithName("Authorization").description("access token 값"),
-//                                headerWithName("IsRefreshToken").description("token이 refresh token인지 확인")
-//                        ),
-//                        pathParameters(
-//                                parameterWithName("id").description("예약 식별자 값")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("reservationScheduleList[].date").description("강의 날짜"),
-//                                fieldWithPath("reservationScheduleList[].time").description("강의 시간"),
-//                                fieldWithPath("reservationScheduleList[].location.latitude").description("강의 위치 위도"),
-//                                fieldWithPath("reservationScheduleList[].location.longitude").description("강의 위치 경도"),
-//                                fieldWithPath("reservationScheduleList[].location.address").description("강의 위치 주소"),
-//                                fieldWithPath("equipmentNameList[]").description("대여 장비 이름"),
-//                                fieldWithPath("description").description("대여 장비 사이즈 및 요청사항"),
-//                                fieldWithPath("_links.self.href").description("해당 API URL")
-//                        )
-//                ));
-//    }
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        PaymentDetail paymentDetail = PaymentDetail.builder()
+                .lectureCost(100000)
+                .equipmentRentCost(20000)
+                .build();
+
+        ReservationDetail reservationDetail = ReservationDetail.builder()
+                .reservationId(1L)
+                .dateOfReservation(LocalDate.of(2021, 7, 11))
+                .numberOfPeople(5)
+                .paymentDetail(paymentDetail)
+                .build();
+
+        given(reservationService.findMyReservationDetail(any(), any())).willReturn(reservationDetail);
+
+        mockMvc.perform(get("/reservation")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("reservationId", String.valueOf(reservationId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("reservation-read",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                        ),
+                        requestParameters(
+                                parameterWithName("reservationId").description("강의 예약 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("reservationId").description("강의 예약 식별자"),
+                                fieldWithPath("dateOfReservation").description("강의 예약 날짜"),
+                                fieldWithPath("numberOfPeople").description("강의 예약 인원"),
+                                fieldWithPath("paymentDetail.lectureCost").description("강의 비용"),
+                                fieldWithPath("paymentDetail.equipmentRentCost").description("대여 장비 비용"),
+                                fieldWithPath("_links.self.href").description("해당 API URL"),
+                                fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                        )
+                ));
+    }
+
 //
 //    @Test
 //    @DisplayName("강의 예약 취소")

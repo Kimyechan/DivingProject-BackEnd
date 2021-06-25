@@ -1,6 +1,5 @@
 package com.diving.pungdong.service.reservation;
 
-import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
@@ -9,8 +8,10 @@ import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
+import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
+import com.diving.pungdong.dto.reservation
+        .detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
-import com.diving.pungdong.repo.PaymentJpaRepo;
 import com.diving.pungdong.repo.reservation.ReservationJpaRepo;
 import com.diving.pungdong.service.PaymentService;
 import com.diving.pungdong.service.schedule.ScheduleService;
@@ -36,12 +37,6 @@ public class ReservationService {
 
     public Reservation getDetailById(Long id) {
         return reservationJpaRepo.findById(id).orElseThrow(ResourceNotFoundException::new);
-    }
-
-    public void checkRightForReservation(String emailOfToken, Reservation reservation) {
-        if (!emailOfToken.equals(reservation.getAccount().getEmail())) {
-            throw new NoPermissionsException();
-        }
     }
 
     public void cancelReservation(Long id) {
@@ -93,5 +88,30 @@ public class ReservationService {
         }
 
         return new PageImpl<>(reservationInfos, pageable, reservationPage.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public ReservationDetail findMyReservationDetail(Account account, Long reservationId) {
+        Reservation reservation = findById(reservationId);
+        checkRightForReservation(account, reservation.getAccount());
+
+        Payment payment = reservation.getPayment();
+        PaymentDetail paymentDetail = PaymentDetail.builder()
+                .lectureCost(payment.getLectureCost())
+                .equipmentRentCost(payment.getEquipmentRentCost())
+                .build();
+
+        return ReservationDetail.builder()
+                .reservationId(reservation.getId())
+                .dateOfReservation(reservation.getDateOfReservation())
+                .numberOfPeople(reservation.getNumberOfPeople())
+                .paymentDetail(paymentDetail)
+                .build();
+    }
+
+    public void checkRightForReservation(Account account, Account owner) {
+        if (!account.getId().equals(owner.getId())) {
+            throw new NoPermissionsException();
+        }
     }
 }

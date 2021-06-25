@@ -3,10 +3,13 @@ package com.diving.pungdong.controller.reservation;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.config.security.CurrentUser;
+import com.diving.pungdong.controller.lecture.LectureController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.dto.lecture.detail.LectureDetail;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.ReservationResult;
+import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -55,6 +59,17 @@ public class ReservationController {
         Page<ReservationInfo> reservationInfoPage = reservationService.findMyReservations(account, pageable);
 
         PagedModel<EntityModel<ReservationInfo>> model = assembler.toModel(reservationInfoPage);
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> readReservationDetail(@CurrentUser Account account,
+                                                   @RequestParam Long reservationId) {
+        ReservationDetail reservationDetail = reservationService.findMyReservationDetail(account, reservationId);
+
+        EntityModel<ReservationDetail> model = EntityModel.of(reservationDetail);
+        model.add(linkTo(methodOn(ReservationController.class).readReservationDetail(account, reservationId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-reservation-read").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 //
