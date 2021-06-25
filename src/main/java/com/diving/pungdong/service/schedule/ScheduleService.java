@@ -5,13 +5,18 @@ import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.reservation.Reservation;
+import com.diving.pungdong.domain.reservation.ReservationEquipment;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
+import com.diving.pungdong.domain.schedule.ScheduleEquipment;
+import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
+import com.diving.pungdong.dto.schedule.reservation.ReservationEquipmentInfo;
+import com.diving.pungdong.dto.schedule.reservation.ReservationInfo;
 import com.diving.pungdong.repo.schedule.ScheduleJpaRepo;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.reservation.ReservationService;
@@ -143,5 +148,45 @@ public class ScheduleService {
         }
 
         return latestRemainingDate;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationInfo> findReservationForSchedule(Account account, Long scheduleId) {
+        Schedule schedule = findScheduleById(scheduleId);
+        lectureService.checkLectureCreator(account, schedule.getLecture().getId());
+
+        List<ReservationInfo> reservationInfos = new ArrayList<>();
+        for (Reservation reservation : schedule.getReservations()) {
+            Account student = reservation.getAccount();
+            List<ReservationEquipmentInfo> reservationEquipmentInfos = mapToReservationEquipmentInfos(reservation.getReservationEquipmentList());
+
+            ReservationInfo reservationInfo = ReservationInfo.builder()
+                    .reservationId(reservation.getId())
+                    .studentId(student.getId())
+                    .studentNickname(student.getNickName())
+                    .studentNumber(reservation.getNumberOfPeople())
+                    .reservationEquipmentInfoList(reservationEquipmentInfos)
+                    .build();
+            reservationInfos.add(reservationInfo);
+        }
+
+        return reservationInfos;
+    }
+
+    private List<ReservationEquipmentInfo> mapToReservationEquipmentInfos(List<ReservationEquipment> reservationEquipmentList) {
+        List<ReservationEquipmentInfo> reservationEquipmentInfos = new ArrayList<>();
+        for (ReservationEquipment reservationEquipment : reservationEquipmentList) {
+            ScheduleEquipmentStock scheduleEquipmentStock = reservationEquipment.getScheduleEquipmentStock();
+            ScheduleEquipment scheduleEquipment = scheduleEquipmentStock.getScheduleEquipment();
+
+            ReservationEquipmentInfo reservationEquipmentInfo = ReservationEquipmentInfo.builder()
+                    .equipmentName(scheduleEquipment.getName())
+                    .size(scheduleEquipmentStock.getSize())
+                    .rentNumber(reservationEquipment.getRentNumber())
+                    .build();
+            reservationEquipmentInfos.add(reservationEquipmentInfo);
+        }
+
+        return reservationEquipmentInfos;
     }
 }

@@ -1,6 +1,7 @@
 package com.diving.pungdong.domain.schedule;
 
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.reservation.Reservation;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,6 +24,9 @@ public class Schedule {
 
     @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ScheduleDateTime> scheduleDateTimes;
+
+    @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
+    private List<Reservation> reservations;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecture lecture;

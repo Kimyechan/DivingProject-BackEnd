@@ -8,6 +8,7 @@ import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateResult;
 import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
+import com.diving.pungdong.dto.schedule.reservation.ReservationInfo;
 import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
@@ -71,7 +72,18 @@ public class ScheduleController {
 
         CollectionModel<RentEquipmentInfo> model = CollectionModel.of(rentEquipmentInfos);
         model.add(linkTo(methodOn(ScheduleController.class).readScheduleEquipments(scheduleId)).withSelfRel());
-        model.add(Link.of("/docs/api.html#resource-schedule-read-rentEquipment-lis").withRel("profile"));
+        model.add(Link.of("/docs/api.html#resource-schedule-read-rentEquipment-list").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/reservation-info")
+    public ResponseEntity<?> readReservationInfoForSchedule(@CurrentUser Account account,
+                                                            @RequestParam Long scheduleId) {
+        List<ReservationInfo> reservationInfos = scheduleService.findReservationForSchedule(account, scheduleId);
+
+        CollectionModel<ReservationInfo> model = CollectionModel.of(reservationInfos);
+        model.add(linkTo(methodOn(ScheduleController.class).readReservationInfoForSchedule(account, scheduleId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-schedule-read-reservation-info").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 }
