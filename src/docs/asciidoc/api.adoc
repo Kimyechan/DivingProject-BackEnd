@@ -146,7 +146,7 @@ operation::account-instructor-confirm[]
 operation::account-read[]
 
 [[resource-account-instructor-read]]
-== 강사 정보 조회
+=== 강사 정보 조회
 operation::account-instructor-read[]
 
 [[resource-account-update]]
@@ -255,14 +255,6 @@ operation::lectureImage-find-list[]
 operation::equipment-create-list[]
 
 
-[[resource-review]]
-== 강의 리뷰
-
-[[resource-review-find-list]]
-=== 한 강의 리뷰 정렬 조건에 따라 목록 조회
-operation::review-find-list[]
-
-
 [[resource-schedule]]
 == 강의 일정
 
@@ -277,6 +269,10 @@ operation::schedule-read-list[]
 [[resource-schedule-read-equipment-list]]
 === 강의 대여 장비 목록 조회
 operation::schedule-read-equipment-list[]
+
+[[resource-schedule-read-reservation-info]]
+=== 한 일정의 예약 목록 조회
+operation::schedule-read-reservation-info[]
 
 
 [[resource-reservation]]
@@ -317,6 +313,10 @@ operation::review-create[]
 [[resource-review-image-create]]
 === 강의 리뷰 이미지 추가
 operation::review-images-create[]
+
+[[resource-review-find-list]]
+=== 한 강의 리뷰 정렬 조건에 따라 목록 조회
+operation::review-find-list[]
 
 //[[resource-reservation-read-list]]
 //== 나의 강의 예약목록 보기

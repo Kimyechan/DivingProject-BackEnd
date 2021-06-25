@@ -13,6 +13,8 @@ import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
 import com.diving.pungdong.dto.schedule.equipment.RentEquipmentStockInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
+import com.diving.pungdong.dto.schedule.reservation.ReservationEquipmentInfo;
+import com.diving.pungdong.dto.schedule.reservation.ReservationInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.schedule.ScheduleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -226,6 +228,62 @@ class ScheduleControllerTest {
                                         fieldWithPath("_embedded.rentEquipmentInfoList[].stockInfoList[].size").description("대여 장비 사이즈"),
                                         fieldWithPath("_embedded.rentEquipmentInfoList[].stockInfoList[].quantity").description("대여 장비 갯수"),
                                         fieldWithPath("_embedded.rentEquipmentInfoList[].stockInfoList[].totalRentNumber").description("현재 대여 장비 대여 수"),
+                                        fieldWithPath("_links.self.href").description("해당 API 주소"),
+                                        fieldWithPath("_links.profile.href").description("해당 API 문서 주소")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("한 일정에 예약 정보 목록 조회")
+    public void readReservationInfoForSchedule() throws Exception {
+        Long scheduleId = 1L;
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        List<ReservationEquipmentInfo> reservationEquipmentInfos = new ArrayList<>();
+        ReservationEquipmentInfo reservationEquipmentInfo = ReservationEquipmentInfo.builder()
+                .equipmentName("오리발")
+                .rentNumber(5)
+                .size("270")
+                .build();
+        reservationEquipmentInfos.add(reservationEquipmentInfo);
+
+        ReservationInfo reservationInfo = ReservationInfo.builder()
+                .reservationId(1L)
+                .studentId(1L)
+                .studentNickname("열혈다이버")
+                .studentNumber(5)
+                .reservationEquipmentInfoList(reservationEquipmentInfos)
+                .build();
+
+        given(scheduleService.findReservationForSchedule(any(), any())).willReturn(List.of(reservationInfo));
+
+        mockMvc.perform(get("/schedule/reservation-info")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("scheduleId", String.valueOf(scheduleId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document("schedule-read-reservation-info",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("scheduleId").description("강의 일정 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.reservationInfoList[].reservationId").description("예약 식별자 값"),
+                                        fieldWithPath("_embedded.reservationInfoList[].studentId").description("수강생 식별자 값"),
+                                        fieldWithPath("_embedded.reservationInfoList[].studentNickname").description("수강생 닉네임"),
+                                        fieldWithPath("_embedded.reservationInfoList[].studentNumber").description("예약한 수강생 수"),
+                                        fieldWithPath("_embedded.reservationInfoList[].reservationEquipmentInfoList[].equipmentName").description("대여 장비 이름"),
+                                        fieldWithPath("_embedded.reservationInfoList[].reservationEquipmentInfoList[].size").description("대여 장비 사이즈"),
+                                        fieldWithPath("_embedded.reservationInfoList[].reservationEquipmentInfoList[].rentNumber").description("대여 장비 수"),
                                         fieldWithPath("_links.self.href").description("해당 API 주소"),
                                         fieldWithPath("_links.profile.href").description("해당 API 문서 주소")
                                 )
