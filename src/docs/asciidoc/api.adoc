@@ -262,6 +262,7 @@ operation::equipment-create-list[]
 === 한 강의 리뷰 정렬 조건에 따라 목록 조회
 operation::review-find-list[]
 
+
 [[resource-schedule]]
 == 강의 일정
 
@@ -284,6 +285,26 @@ operation::schedule-read-equipment-list[]
 [[resource-reservation-create]]
 === 강의 예약하기
 operation::reservation-create[]
+
+[[resource-reservation-find-list]]
+=== 강의 예약 리스트
+operation::reservation-find-list[]
+
+[[resourec-reservation-read]]
+=== 예약 상세 내용
+operation::reservation-read[]
+
+[[resource-reservation-read-schudule-list]]
+=== 예약한 강의 일정
+operation::reservation-read-schedule-list[]
+
+[[resource-reservation-read-lecture-location]]
+=== 예약한 강의 위치
+operation::reservation-read-schedule-list[]
+
+[[resource-reservation-read-equipment-list]]
+=== 예약한 대여 장비 목록
+operation::reservation-read-equipment-list[]
 
 
 [[resource-review]]

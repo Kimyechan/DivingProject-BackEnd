@@ -73,92 +73,24 @@ class ScheduleServiceTest {
         return schedules;
     }
 
-//    @Test
-//    @DisplayName("강의 예약 인원 수가 가득 찾는지 체크 - 가득 안 참")
-//    public void isReservationFullFalse() {
-//        Schedule schedule = createScheduleForReservation();
-//        List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(13, 0));
-//
-//        Boolean result = scheduleService.isReservationFull(schedule, reservationDateDtoList);
-//
-//        assertFalse(result);
-//    }
-//
-//    @Test
-//    @DisplayName("강의 예약 인원 수가 가득 찾는지 체크 - 가득 참")
-//    public void isReservationFullTrue() {
-//        Schedule schedule = createScheduleForReservation();
-//        List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(15, 0));
-//
-//        Boolean result = scheduleService.isReservationFull(schedule, reservationDateDtoList);
-//
-//        assertTrue(result);
-//    }
-//
-//    public List<ReservationDateDto> createReservationDateDtoList(Schedule schedule, LocalTime time) {
-//        List<ReservationDateDto> reservationDateDtoList = new ArrayList<>();
-//        for (int i = 0; i < schedule.getPeriod(); i++) {
-//            ReservationDateDto reservationDateDto = ReservationDateDto.builder()
-//                    .date(LocalDate.of(2021, 3, 20).plusDays(i))
-//                    .time(time)
-//                    .build();
-//
-//            reservationDateDtoList.add(reservationDateDto);
-//        }
-//
-//        return reservationDateDtoList;
-//    }
-//
-//    public Schedule createScheduleForReservation() {
-//        Schedule schedule = Schedule.builder()
-//                .maxNumber(5)
-//                .period(3)
-//                .build();
-//
-//        List<ScheduleDate> scheduleDates = new ArrayList<>();
-//        for (int i = 0; i < schedule.getPeriod(); i++) {
-//            ScheduleTime scheduleTime1 = ScheduleTime.builder()
-//                    .currentNumber(3)
-//                    .startTime(LocalTime.of(13, 0))
-//                    .build();
-//
-//            ScheduleTime scheduleTime2 = ScheduleTime.builder()
-//                    .currentNumber(5)
-//                    .startTime(LocalTime.of(15, 0))
-//                    .build();
-//
-//            ScheduleDate scheduleDate = ScheduleDate.builder()
-//                    .date(LocalDate.of(2021, 3, 20).plusDays(i))
-//                    .scheduleTimes(List.of(scheduleTime1, scheduleTime2))
-//                    .build();
-//            scheduleDates.add(scheduleDate);
-//        }
-//        schedule.setScheduleDates(scheduleDates);
-//
-//        return schedule;
-//    }
-//
-//    @Test
-//    @DisplayName("일치하는 강의 날짜만 요청 하였는 지 체크 - 성공")
-//    public void checkValidReservationDateSuccess() {
-//        Schedule schedule = createScheduleForReservation();
-//        List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(13, 0));
-//
-//        Boolean result = scheduleService.checkValidReservationDate(schedule.getScheduleDates(), reservationDateDtoList);
-//
-//        assertTrue(result);
-//    }
-//
-//    @Test
-//    @DisplayName("일치하는 강의 날짜만 요청 하였는 지 체크 - 실패")
-//    public void checkValidReservationDateFail() {
-//        Schedule schedule = createScheduleForReservation();
-//        List<ReservationDateDto> reservationDateDtoList = createReservationDateDtoList(schedule, LocalTime.of(16, 0));
-//
-//        Boolean result = scheduleService.checkValidReservationDate(schedule.getScheduleDates(), reservationDateDtoList);
-//
-//        assertFalse(result);
-//    }
+    @Test
+    @DisplayName("현재로부터 최근 강의 일정까지 남은 날짜")
+    public void calcScheduleRemainingDate() {
+        List<ScheduleDateTime> scheduleDateTimes = new ArrayList<>();
+        for (int i = 5; i < 10; i++) {
+            ScheduleDateTime scheduleDateTime = ScheduleDateTime.builder()
+                    .date(LocalDate.now().plusDays(i))
+                    .build();
+            scheduleDateTimes.add(scheduleDateTime);
+        }
 
+        Schedule schedule = Schedule.builder()
+                .scheduleDateTimes(scheduleDateTimes)
+                .build();
+
+        Long latestRemainingDate = scheduleService.calcScheduleRemainingDate(schedule);
+
+        assertThat(latestRemainingDate).isEqualTo(5);
+    }
 
 }
