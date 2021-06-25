@@ -4,20 +4,24 @@ import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
+import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.repo.schedule.ScheduleJpaRepo;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -125,5 +129,19 @@ public class ScheduleService {
         List<RentEquipmentInfo> rentEquipmentInfos = scheduleEquipmentService.mapToRentEquipmentInfo(schedule.getScheduleEquipments());
 
         return rentEquipmentInfos;
+    }
+
+    @Transactional(readOnly = true)
+    public Long calcScheduleRemainingDate(Schedule schedule) {
+        Long latestRemainingDate = 365L;
+        for (ScheduleDateTime scheduleDateTime : schedule.getScheduleDateTimes()) {
+            if (scheduleDateTime.getDate().isAfter(LocalDate.now()) || scheduleDateTime.getDate().isEqual(LocalDate.now())) {
+                if (latestRemainingDate > ChronoUnit.DAYS.between(LocalDate.now(), scheduleDateTime.getDate())) {
+                    latestRemainingDate = ChronoUnit.DAYS.between(LocalDate.now(), scheduleDateTime.getDate());
+                }
+            }
+        }
+
+        return latestRemainingDate;
     }
 }
