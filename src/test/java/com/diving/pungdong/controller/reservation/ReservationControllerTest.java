@@ -9,10 +9,12 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
+import com.diving.pungdong.dto.reservation.detail.LocationDetail;
 import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
+import com.diving.pungdong.service.LocationService;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.reservation.ReservationService;
 import com.diving.pungdong.service.schedule.ScheduleService;
@@ -77,6 +79,9 @@ class ReservationControllerTest {
 
     @MockBean
     private ScheduleService scheduleService;
+
+    @MockBean
+    private LocationService locationService;
 
     public Account createAccount(Role role) {
         Account account = Account.builder()
@@ -287,6 +292,46 @@ class ReservationControllerTest {
                                 fieldWithPath("_embedded.scheduleDetailList[].startTime").description("강의 시작 시간"),
                                 fieldWithPath("_embedded.scheduleDetailList[].endTime").description("강의 종료 시간"),
                                 fieldWithPath("_embedded.scheduleDetailList[].date").description("강의 일정 한 날짜"),
+                                fieldWithPath("_links.self.href").description("해당 API URL"),
+                                fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("강의 예약 일정 조회")
+    public void readReservationLectureLocation() throws Exception {
+        Long reservationId = 1L;
+
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        LocationDetail locationDetail = LocationDetail.builder()
+                .address("위치 상세 주소")
+                .longitude(36.13121231)
+                .latitude(126.33124124)
+                .build();
+
+        given(locationService.findByReservationId(any())).willReturn(locationDetail);
+
+        mockMvc.perform(get("/reservation/location")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .param("reservationId", String.valueOf(reservationId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("reservation-read-lecture-location",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                        ),
+                        requestParameters(
+                                parameterWithName("reservationId").description("강의 예약 식별자 값")
+                        ),
+                        responseFields(
+                                fieldWithPath("address").description("예약한 강의 위치 상세 주소"),
+                                fieldWithPath("latitude").description("위치 위도"),
+                                fieldWithPath("longitude").description("위치 경도"),
                                 fieldWithPath("_links.self.href").description("해당 API URL"),
                                 fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                         )

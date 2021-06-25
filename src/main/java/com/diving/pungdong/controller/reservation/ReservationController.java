@@ -7,10 +7,12 @@ import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.ReservationResult;
+import com.diving.pungdong.dto.reservation.detail.LocationDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
+import com.diving.pungdong.service.LocationService;
 import com.diving.pungdong.service.reservation.ReservationService;
 import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class ReservationController {
     private final ReservationService reservationService;
     private final ScheduleService scheduleService;
+    private final LocationService locationService;
 
     @PostMapping
     public ResponseEntity<?> create(@CurrentUser Account account,
@@ -81,6 +84,16 @@ public class ReservationController {
         CollectionModel<ScheduleDetail> model = CollectionModel.of(scheduleDetails);
         model.add(linkTo(methodOn(ReservationController.class).readReservationSchedule(reservationId)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-reservation-read-schedule-list").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/location")
+    public ResponseEntity<?> readReservationLectureLocation(@RequestParam Long reservationId) {
+        LocationDetail locationDetail = locationService.findByReservationId(reservationId);
+
+        EntityModel<LocationDetail> model = EntityModel.of(locationDetail);
+        model.add(linkTo(methodOn(ReservationController.class).readReservationLectureLocation(reservationId)).withSelfRel());
+        model.add(Link.of("/docs/api.html#resource-reservation-read-lecture-location").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
 

@@ -298,6 +298,10 @@ operation::reservation-read[]
 === 예약한 강의 일정
 operation::reservation-read-schedule-list[]
 
+[[resource-reservation-read-lecture-location]]
+=== 예약한 강의 위치
+operation::reservation-read-schedule-list[]
+
 
 [[resource-review]]
 == 강의 리뷰

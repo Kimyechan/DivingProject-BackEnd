@@ -4,9 +4,12 @@ import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.location.Location;
+import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.location.LocationCreateInfo;
 import com.diving.pungdong.dto.location.LocationCreateResult;
+import com.diving.pungdong.dto.reservation.detail.LocationDetail;
 import com.diving.pungdong.repo.LocationJpaRepo;
+import com.diving.pungdong.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LocationService {
     private final LocationJpaRepo locationJpaRepo;
     private final LectureService lectureService;
+    private final ReservationService reservationService;
 
     @Transactional
     public LocationCreateResult saveLocationWithLecture(Account account, LocationCreateInfo locationCreateInfo) {
@@ -39,5 +43,16 @@ public class LocationService {
     @Transactional(readOnly = true )
     public Location findLocationByLectureId(Long lectureId) {
         return locationJpaRepo.findByLectureId(lectureId).orElseThrow(BadRequestException::new);
+    }
+
+    public LocationDetail findByReservationId(Long reservationId) {
+        Reservation reservation = reservationService.findById(reservationId);
+        Location location = reservation.getSchedule().getLecture().getLocation();
+
+        return LocationDetail.builder()
+                .address(location.getAddress())
+                .latitude(location.getLatitude())
+                .longitude(location.getLongitude())
+                .build();
     }
 }
