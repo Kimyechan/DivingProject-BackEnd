@@ -32,28 +32,6 @@ class LectureJpaRepoTest {
     @Autowired
     private LectureJpaRepo lectureJpaRepo;
 
-    @Autowired
-    private LectureImageJpaRepo lectureImageJpaReop;
-
-//    @Test
-//    @DisplayName("강의 저장")
-//    public void save() {
-//        Lecture lecture = Lecture.builder()
-//                .title("강의1")
-//                .description("내용1")
-//                .classKind("스쿠버 다이빙")
-//                .organization(Organization.AIDA)
-//                .level("Level1")
-//                .price(100000)
-//                .instructor(new Account())
-//                .lectureImages(List.of(new LectureImage()))
-//                .build();
-//
-//        Lecture savedLecture = lectureJpaRepo.save(lecture);
-//
-//        assertThat(savedLecture.getId()).isNotNull();
-//    }
-//
     public void createLecture(String classKind, Organization organization, String level, String region) {
         for (int i = 0; i < 15; i++) {
             Lecture lecture = Lecture.builder()
