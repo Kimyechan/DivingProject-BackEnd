@@ -425,8 +425,7 @@ class SignControllerTest {
                 .andExpect(jsonPath("message").exists())
                 .andDo(document("logout",
                         requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
-                                headerWithName("IsRefreshToken").description("refresh token 인지 아닌지에 대한 값")),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")),
                         requestFields(
                                 fieldWithPath("accessToken").description("access token 값"),
                                 fieldWithPath("refreshToken").description("refresh token 값")),

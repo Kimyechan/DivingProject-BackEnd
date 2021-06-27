@@ -6,6 +6,7 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.account.AccountService;
+import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +48,9 @@ class AccountServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AccountKafkaProducer accountKafkaProducer;
 
     @Test
     @DisplayName("account 계정을 저장한다")

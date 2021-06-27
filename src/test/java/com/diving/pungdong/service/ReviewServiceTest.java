@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-class ReviewImageServiceTest {
+class ReviewServiceTest {
     @InjectMocks
     private ReviewService reviewService;
 
@@ -40,7 +40,7 @@ class ReviewImageServiceTest {
         List<ScheduleDateTime> scheduleDateTimeList = new ArrayList<>();
         ScheduleDateTime scheduleDateTime = ScheduleDateTime.builder()
                 .date(LocalDate.now())
-                .endTime(LocalTime.now().plusHours(1))
+                .endTime(LocalTime.of(23, 59, 59))
                 .build();
         scheduleDateTimeList.add(scheduleDateTime);
 
