@@ -15,6 +15,7 @@ import com.diving.pungdong.dto.account.instructor.InstructorConfirmInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
+import com.diving.pungdong.dto.account.kafka.FirebaseTokenDto;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
@@ -25,6 +26,7 @@ import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.AuthService;
 import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -362,6 +364,36 @@ class SignControllerTest {
                 .andExpect(jsonPath("code").value(-1001));
     }
 
+    @Test
+    @DisplayName("firebase token 등록")
+    public void enrollFirebaseToken() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        FirebaseTokenDto firebaseTokenDto = FirebaseTokenDto.builder()
+                .token("abcd12341234")
+                .build();
+
+        mockMvc.perform(post("/sign/firebase-token")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(firebaseTokenDto)))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document(
+                                "sign-enroll-firebase-token",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("token").description("firebase token 값")
+                                )
+                        )
+                );
+    }
+
 
     @Test
     @DisplayName("로그아웃 성공")
@@ -386,7 +418,6 @@ class SignControllerTest {
 
         mockMvc.perform(post("/sign/logout")
                 .header("Authorization", accessToken)
-                .header("IsRefreshToken", "false")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(logoutReq)))
                 .andDo(print())
@@ -571,9 +602,9 @@ class SignControllerTest {
 
         mockMvc.perform(
                 put("/sign/instructor/confirm")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .content(objectMapper.writeValueAsString(instructorConfirmInfo)))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .content(objectMapper.writeValueAsString(instructorConfirmInfo)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(

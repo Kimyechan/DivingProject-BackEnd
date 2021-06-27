@@ -10,6 +10,7 @@ import com.diving.pungdong.dto.account.instructor.InstructorConfirmInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
 import com.diving.pungdong.dto.account.instructor.InstructorInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
+import com.diving.pungdong.dto.account.kafka.FirebaseTokenDto;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
@@ -20,6 +21,7 @@ import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.AuthService;
 import com.diving.pungdong.service.InstructorCertificateService;
 import com.diving.pungdong.service.account.ProfilePhotoService;
+import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +55,7 @@ public class SignController {
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
     private final InstructorCertificateService instructorCertificateService;
+    private final AccountKafkaProducer accountKafkaProducer;
 
     @PostMapping("/check/email")
     public ResponseEntity<?> checkEmailExistence(@RequestBody EmailInfo emailInfo) {
@@ -93,6 +96,19 @@ public class SignController {
         entityModel.add(Link.of("/docs/api.html#resource-account-login").withRel("profile"));
 
         return ResponseEntity.ok().body(entityModel);
+    }
+
+    @PostMapping("/firebase-token")
+    public ResponseEntity<?> enrollFirebaseToken(@CurrentUser Account account,
+                                                 @Valid @RequestBody FirebaseTokenDto firebaseTokenDto,
+                                                 BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        accountKafkaProducer.sendFirebaseTokenInfo(String.valueOf(account.getId()), firebaseTokenDto.getToken());
+
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/sign-up")

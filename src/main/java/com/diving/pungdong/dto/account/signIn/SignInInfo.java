@@ -13,8 +13,8 @@ import javax.validation.constraints.NotEmpty;
 public class SignInInfo {
     @Email
     @NotEmpty
-    String email;
+    private String email;
 
     @NotEmpty
-    String password;
+    private String password;
 }
