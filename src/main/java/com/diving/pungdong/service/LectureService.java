@@ -60,14 +60,6 @@ public class LectureService {
         return lectureJpaRepo.save(lecture);
     }
 
-//    public Lecture updateLectureTx(String email, LectureUpdateInfo lectureUpdateInfo, List<MultipartFile> addLectureImageFiles, Lecture lecture) throws IOException {
-//        lectureImageService.deleteIfIsDeleted(lectureUpdateInfo);
-//        lectureImageService.addList(email, addLectureImageFiles, lecture);
-//        equipmentService.lectureEquipmentUpdate(lectureUpdateInfo.getEquipmentUpdateList(), lecture);
-//
-//        return updateLecture(lectureUpdateInfo, lecture);
-//    }
-
     public void deleteLectureById(Long id) {
         lectureJpaRepo.deleteById(id);
     }

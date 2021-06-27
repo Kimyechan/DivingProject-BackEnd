@@ -189,6 +189,8 @@ public class AccountService implements UserDetailsService {
         account.getRoles().add(Role.INSTRUCTOR);
         accountJpaRepo.save(account);
 
+        producer.sendAccountInfo(String.valueOf(account.getId()), account.getPassword(), account.getRoles());
+
         return account;
     }
 

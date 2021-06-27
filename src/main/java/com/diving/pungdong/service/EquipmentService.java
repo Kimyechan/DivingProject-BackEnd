@@ -22,10 +22,6 @@ public class EquipmentService {
     private final LectureService lectureService;
     private final EquipmentStockService equipmentStockService;
 
-    public Equipment saveEquipment(Equipment equipment) {
-        return equipmentJpaRepo.save(equipment);
-    }
-
     public void lectureEquipmentUpdate(List<EquipmentUpdate> equipmentUpdateList, Lecture lecture) {
         if (!equipmentUpdateList.isEmpty()) {
             for (EquipmentUpdate equipmentUpdate : equipmentUpdateList) {

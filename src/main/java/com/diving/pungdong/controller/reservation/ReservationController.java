@@ -104,15 +104,4 @@ public class ReservationController {
         model.add(Link.of("/docs/api.html#resource-reservation-read-equipment-list").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
-//    @GetMapping("/students")
-//    public ResponseEntity<?> getStudents(@CurrentUser Account account,
-//                                         @RequestBody ScheduleTimeInfo scheduleTimeInfo) {
-//        lectureService.checkRightInstructor(account, scheduleTimeInfo.getLectureId());
-//        List<ReservationInfo> reservationInfos = reservationService.getReservationForSchedule(scheduleTimeInfo.getScheduleTimeId());
-//
-//        CollectionModel<ReservationInfo> models = CollectionModel.of(reservationInfos);
-//
-//        return ResponseEntity.ok().body(models);
-//    }
-
 }

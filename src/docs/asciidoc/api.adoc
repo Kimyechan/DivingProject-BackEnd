@@ -317,19 +317,3 @@ operation::review-images-create[]
 [[resource-review-find-list]]
 === 한 강의 리뷰 정렬 조건에 따라 목록 조회
 operation::review-find-list[]
-
-//[[resource-reservation-read-list]]
-//== 나의 강의 예약목록 보기
-//operation::reservation-get-list[]
-//
-//[[resource-reservation-read-detail]]
-//== 나의 강의 예약상세 보기
-//operation::reservation-get-detail[]
-//
-//[[resource-reservation-delete]]
-//== 나의 강의 예약 취소
-//operation::reservation-delete[]
-//
-//[[resource-reservation-get-list-for-schedule]]
-//== 나의 강의 한 타임에 수강한 수강생 정보 조회
-//operation::reservation-get-list-for-schedule[]
