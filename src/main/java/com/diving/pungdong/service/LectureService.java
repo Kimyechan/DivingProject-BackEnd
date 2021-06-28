@@ -249,6 +249,7 @@ public class LectureService {
                 .maxNumber(lectureCreateInfo.getMaxNumber())
                 .period(lectureCreateInfo.getPeriod())
                 .lectureTime(lectureCreateInfo.getLectureTime())
+                .serviceTags(lectureCreateInfo.getServiceTags())
                 .build();
 
         Lecture savedLecture = lectureJpaRepo.save(lecture);
@@ -306,6 +307,7 @@ public class LectureService {
                 .reviewTotalAvg(lecture.getReviewTotalAvg())
                 .reviewCount(lecture.getReviewCount())
                 .isMarked(isMarked)
+                .serviceTags(lecture.getServiceTags())
                 .build();
     }
 

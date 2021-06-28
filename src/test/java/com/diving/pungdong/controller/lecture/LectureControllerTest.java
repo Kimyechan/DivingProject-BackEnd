@@ -218,6 +218,7 @@ class LectureControllerTest {
                 .period(3)
                 .region("서울")
                 .lectureTime(LocalTime.of(2, 30))
+                .serviceTags(Set.of("주차 가능", "장비 대여 가능"))
                 .build();
 
         LectureCreateResult result = LectureCreateResult.builder()
@@ -249,7 +250,8 @@ class LectureControllerTest {
                                         fieldWithPath("price").description("강의 비용"),
                                         fieldWithPath("maxNumber").description("강의 수강생 최대 인원 수"),
                                         fieldWithPath("period").description("강의 기간"),
-                                        fieldWithPath("lectureTime").description("강의 총 소요 시간")
+                                        fieldWithPath("lectureTime").description("강의 총 소요 시간"),
+                                        fieldWithPath("serviceTags[]").description("제공되는 서비스 목록")
                                 ),
                                 responseFields(
                                         fieldWithPath("lectureId").description("생성된 강의 식별자 값"),
@@ -634,6 +636,7 @@ class LectureControllerTest {
                 .reviewTotalAvg(4.5f)
                 .reviewCount(100)
                 .isMarked(true)
+                .serviceTags(Set.of("주차 가능", "장비 대여 가능"))
                 .build();
 
         given(lectureService.findLectureDetailInfo(any(), any())).willReturn(lectureDetail);
@@ -666,6 +669,7 @@ class LectureControllerTest {
                                         fieldWithPath("reviewTotalAvg").description("강의 리뷰 전체 평균"),
                                         fieldWithPath("reviewCount").description("강의 리뷰 갯수"),
                                         fieldWithPath("isMarked").description("강의 찜 여부"),
+                                        fieldWithPath("serviceTags[]").description("제공되는 서비스 목록"),
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
                                         fieldWithPath("_links.profile.href").description("API 문서 링크")
                                 )
