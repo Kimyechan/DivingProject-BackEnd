@@ -13,10 +13,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -46,5 +43,13 @@ public class EquipmentController {
         model.add(location.withSelfRel());
         model.add(Link.of("/docs/api.html#resource-equipment-list-create").withRel("profile"));
         return ResponseEntity.created(location.toUri()).body(model);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> removeLectureEquipment(@CurrentUser Account account,
+                                                    @PathVariable("id") Long id) {
+        equipmentService.deleteLectureEquipment(account, id);
+
+        return ResponseEntity.noContent().build();
     }
 }

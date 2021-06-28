@@ -8,8 +8,10 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
 import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
+import com.diving.pungdong.dto.lectureImage.delete.LectureImageDeleteInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureImageService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,8 +37,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -52,6 +54,9 @@ class LectureImageControllerTest {
 
     @Autowired
     JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @MockBean
     AccountService accountService;
@@ -146,9 +151,42 @@ class LectureImageControllerTest {
                                         parameterWithName("lectureId").description("강의 식별자 값")
                                 ),
                                 responseFields(
-                                        fieldWithPath("_embedded.lectureImageUrlList[].url").description("강의 이미지 URL 목록"),
+                                        fieldWithPath("_embedded.lectureImageUrlList[].lectureImageId").description("강의 이미지 식별자 값"),
+                                        fieldWithPath("_embedded.lectureImageUrlList[].url").description("강의 이미지 URL"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 개설시 이미지들 등록")
+    public void deleteLectureImages() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureImageDeleteInfo lectureImageDeleteInfo = LectureImageDeleteInfo.builder()
+                .lectureId(1L)
+                .lectureImageIds(List.of(1L, 2L))
+                .build();
+
+        mockMvc.perform(delete("/lectureImage/list")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(lectureImageDeleteInfo)))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document(
+                                "lectureImage-delete-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("lectureId").description("강의 식별자 값"),
+                                        fieldWithPath("lectureImageIds[]").description("삭제될 image 식별자 목록")
                                 )
                         )
                 );

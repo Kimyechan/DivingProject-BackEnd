@@ -21,6 +21,7 @@ import com.diving.pungdong.dto.lecture.list.mylist.MyLectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -45,8 +46,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -257,6 +261,58 @@ class LectureControllerTest {
                                         fieldWithPath("lectureId").description("생성된 강의 식별자 값"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 정보 수정")
+    public void updateLecture() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureUpdateInfo lectureUpdateInfo = LectureUpdateInfo.builder()
+                .id(1L)
+                .title("프리 다이빙 강의")
+                .classKind("프리 다이빙")
+                .organization(Organization.AIDA)
+                .level("Level1")
+                .description("프리 다이빙 Level1 자격증을 쉽게 가져가세요")
+                .price(100000)
+                .maxNumber(5)
+                .period(3)
+                .region("서울")
+                .lectureTime(LocalTime.of(2, 30))
+                .serviceTags(Set.of("주차 가능", "장비 대여 가능"))
+                .build();
+
+        mockMvc.perform(put("/lecture")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(lectureUpdateInfo)))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document(
+                                "lecture-update",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("id").description("강의 식별자 값"),
+                                        fieldWithPath("title").description("강의 제목"),
+                                        fieldWithPath("region").description("강의 지역"),
+                                        fieldWithPath("classKind").description("강의 종류"),
+                                        fieldWithPath("organization").description("자격증 단체"),
+                                        fieldWithPath("level").description("강의 자격증 레벨"),
+                                        fieldWithPath("description").description("강의 설명"),
+                                        fieldWithPath("price").description("강의 비용"),
+                                        fieldWithPath("maxNumber").description("강의 수강생 최대 인원 수"),
+                                        fieldWithPath("period").description("강의 기간"),
+                                        fieldWithPath("lectureTime").description("강의 총 소요 시간"),
+                                        fieldWithPath("serviceTags[]").description("제공되는 서비스 목록")
                                 )
                         )
                 );

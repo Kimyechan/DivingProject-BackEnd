@@ -57,6 +57,7 @@ public class ReviewService {
                     .locationStar(review.getLocationStar())
                     .totalStarAvg(review.getTotalStarAvg())
                     .description(review.getDescription())
+                    .writeDate(review.getWriteDate())
                     .reviewImageUrls(reviewImageUrls)
                     .build();
 
