@@ -16,7 +16,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class EquipmentService {
     private final EquipmentJpaRepo equipmentJpaRepo;
     private final LectureService lectureService;

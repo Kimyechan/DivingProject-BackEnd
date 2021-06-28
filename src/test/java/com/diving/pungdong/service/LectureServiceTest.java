@@ -71,51 +71,6 @@ class LectureServiceTest {
     }
 
     @Test
-    @DisplayName("강의 수정")
-    public void updateLecture() throws IOException {
-        Lecture lecture = Lecture.builder()
-                .id(1L)
-                .title("강의1")
-                .classKind("스쿠버다이빙")
-                .organization(Organization.AIDA)
-                .level("Level1")
-                .description("강의 설명")
-                .price(300000)
-                .region("서울")
-                .instructor(Account.builder().email("kkk@gmail.com").build())
-                .build();
-
-        LectureUpdateInfo lectureUpdateInfo = LectureUpdateInfo.builder()
-                .id(1L)
-                .title("강의 제목 Update")
-                .classKind("스킨 스쿠버")
-                .organization(Organization.AIDA)
-                .level("Level2")
-                .description("강의 설명  Update")
-                .price(400000)
-                .period(5)
-                .studentCount(6)
-                .region("부산")
-                .build();
-
-        Lecture updateLecture = Lecture.builder()
-                .id(1L)
-                .title(lectureUpdateInfo.getTitle())
-                .classKind(lectureUpdateInfo.getClassKind())
-                .organization(lectureUpdateInfo.getOrganization())
-                .level(lectureUpdateInfo.getLevel())
-                .description(lectureUpdateInfo.getDescription())
-                .price(lectureUpdateInfo.getPrice())
-                .region(lectureUpdateInfo.getRegion())
-                .build();
-
-        given(lectureJpaRepo.save(any())).willReturn(updateLecture);
-        Lecture returnLecture = lectureService.updateLecture(lectureUpdateInfo, lecture);
-
-        assertThat(returnLecture).isNotNull();
-    }
-
-    @Test
     @DisplayName("회원이 해당 강의를 찜 했을 때")
     public void checkLectureMarked() {
         List<LectureMark> lectureMarks = new ArrayList<>();

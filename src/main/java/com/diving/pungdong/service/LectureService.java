@@ -48,7 +48,11 @@ public class LectureService {
         return lectureJpaRepo.findById(id).orElseThrow(BadRequestException::new);
     }
 
-    public Lecture updateLecture(LectureUpdateInfo lectureUpdateInfo, Lecture lecture) {
+    @Transactional
+    public Lecture updateLecture(LectureUpdateInfo lectureUpdateInfo, Account account) {
+        Lecture lecture = findLectureById(lectureUpdateInfo.getId());
+        checkLectureCreator(account, lecture.getId());
+
         lecture.setTitle(lectureUpdateInfo.getTitle());
         lecture.setClassKind(lectureUpdateInfo.getClassKind());
         lecture.setOrganization(lectureUpdateInfo.getOrganization());
@@ -56,6 +60,10 @@ public class LectureService {
         lecture.setDescription(lectureUpdateInfo.getDescription());
         lecture.setPrice(lectureUpdateInfo.getPrice());
         lecture.setRegion(lectureUpdateInfo.getRegion());
+        lecture.setMaxNumber(lectureUpdateInfo.getMaxNumber());
+        lecture.setPeriod(lectureUpdateInfo.getPeriod());
+        lecture.setLectureTime(lectureUpdateInfo.getLectureTime());
+        lecture.setServiceTags(lectureUpdateInfo.getServiceTags());
 
         return lectureJpaRepo.save(lecture);
     }
