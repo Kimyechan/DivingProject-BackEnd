@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -22,4 +24,5 @@ public class LectureDetail {
     private Float reviewTotalAvg;
     private Integer reviewCount;
     private Boolean isMarked;
+    private Set<String> serviceTags;
 }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Data
 @Builder
@@ -44,4 +45,7 @@ public class LectureCreateInfo {
 
     @NotNull
     private LocalTime lectureTime;
+
+    @NotEmpty
+    private Set<String> serviceTags;
 }

@@ -11,7 +11,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -19,7 +21,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"instructor", "equipmentList", "lectureImages"})
 public class Lecture {
 
     @Id
@@ -40,6 +41,9 @@ public class Lecture {
     private Integer price;
 
     private String region;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    private Set<String> serviceTags = new HashSet<>();
 
     private LocalDateTime registrationDate;
 
