@@ -146,7 +146,8 @@ class LectureImageControllerTest {
                                         parameterWithName("lectureId").description("강의 식별자 값")
                                 ),
                                 responseFields(
-                                        fieldWithPath("_embedded.lectureImageUrlList[].url").description("강의 이미지 URL 목록"),
+                                        fieldWithPath("_embedded.lectureImageUrlList[].lectureImageId").description("강의 이미지 식별자 값"),
+                                        fieldWithPath("_embedded.lectureImageUrlList[].url").description("강의 이미지 URL"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                                 )

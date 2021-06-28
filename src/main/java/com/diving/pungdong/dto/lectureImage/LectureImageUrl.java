@@ -8,5 +8,6 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class LectureImageUrl {
+    private Long lectureImageId;
     private String url;
 }

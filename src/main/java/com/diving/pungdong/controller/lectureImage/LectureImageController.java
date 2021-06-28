@@ -1,9 +1,11 @@
 package com.diving.pungdong.controller.lectureImage;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
 import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
+import com.diving.pungdong.dto.location.delete.LocationDeleteInfo;
 import com.diving.pungdong.service.LectureImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
@@ -11,6 +13,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

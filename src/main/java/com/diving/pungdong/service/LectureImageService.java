@@ -46,12 +46,14 @@ public class LectureImageService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<LectureImageUrl> findLectureImagesUrl(Long lectureId) {
         List<LectureImage> lectureImages = lectureImageJpaRepo.findAllByLectureId(lectureId);
 
         List<LectureImageUrl> lectureImageUrls = new ArrayList<>();
         for (LectureImage lectureImage : lectureImages) {
             LectureImageUrl url = LectureImageUrl.builder()
+                    .lectureImageId(lectureImage.getId())
                     .url(lectureImage.getFileURI())
                     .build();
             lectureImageUrls.add(url);
