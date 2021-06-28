@@ -6,23 +6,49 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class LectureUpdateInfo {
+    @NotNull
     private Long id;
+
+    @NotEmpty
     private String title;
+
+    @NotEmpty
     private String classKind;
+
+    @NotNull
     private Organization organization;
+
+    @NotEmpty
     private String level;
+
+    @NotEmpty
     private String description;
+
+    @NotNull
     private Integer price;
-    private Integer period;
-    private Integer studentCount;
+
+    @NotEmpty
     private String region;
-    private List<LectureImageUpdate> lectureImageUpdateList;
-    private List<EquipmentUpdate> equipmentUpdateList;
+
+    @NotNull
+    private Integer maxNumber;
+
+    @NotNull
+    private Integer period;
+
+    @NotNull
+    private LocalTime lectureTime;
+
+    private Set<String> serviceTags = new HashSet<>();
 }

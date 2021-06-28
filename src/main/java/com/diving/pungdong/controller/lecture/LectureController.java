@@ -18,6 +18,7 @@ import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.mylist.MyLectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import com.diving.pungdong.service.image.S3Uploader;
@@ -69,27 +70,18 @@ public class LectureController {
         return ResponseEntity.created(location.toUri()).body(model);
     }
 
-//    @PostMapping("/update")
-//    public ResponseEntity<EntityModel<LectureUpdateRes>> updateLecture(@CurrentUser Account account,
-//                                                                       @RequestPart("request") LectureUpdateInfo lectureUpdateInfo,
-//                                                                       @RequestPart("fileList") List<MultipartFile> addLectureImageFiles) throws IOException {
-//        Lecture lecture = lectureService.getLectureById(lectureUpdateInfo.getId());
-//
-//        if (!lecture.getInstructor().getEmail().equals(account.getEmail())) {
-//            throw new NoPermissionsException();
-//        }
-//
-//        Lecture updatedLecture = lectureService.updateLectureTx(account.getEmail(), lectureUpdateInfo, addLectureImageFiles, lecture);
-//        LectureUpdateRes lectureUpdateRes = LectureUpdateRes.builder()
-//                .id(updatedLecture.getId())
-//                .title(updatedLecture.getTitle())
-//                .build();
-//
-//        EntityModel<LectureUpdateRes> model = EntityModel.of(lectureUpdateRes);
-//        model.add(linkTo(methodOn(LectureController.class).updateLecture(account, lectureUpdateInfo, addLectureImageFiles)).withSelfRel());
-//
-//        return ResponseEntity.ok().body(model);
-//    }
+    @PutMapping
+    public ResponseEntity<?> updateLecture(@CurrentUser Account account,
+                                           @Valid @RequestBody LectureUpdateInfo lectureUpdateInfo,
+                                           BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        lectureService.updateLecture(lectureUpdateInfo, account);
+
+        return ResponseEntity.noContent().build();
+    }
 
     @DeleteMapping("/delete")
     public ResponseEntity<EntityModel<LectureDeleteRes>> deleteLecture(@CurrentUser Account account, @RequestParam("id") Long id) {

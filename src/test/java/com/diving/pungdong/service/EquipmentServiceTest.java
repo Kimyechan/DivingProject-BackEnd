@@ -32,42 +32,4 @@ class EquipmentServiceTest {
 
     @Mock
     private EquipmentJpaRepo equipmentJpaRepo;
-
-    @Test
-    @DisplayName("강의 대여 장비 리스트 수정")
-    public void updateList() {
-        EquipmentUpdate equipmentUpdate1 = EquipmentUpdate.builder()
-                .name("장비 1")
-                .price(10000)
-                .isDeleted(false)
-                .build();
-        EquipmentUpdate equipmentUpdate2 = EquipmentUpdate.builder()
-                .name("장비 2")
-                .price(10000)
-                .isDeleted(true)
-                .build();
-        EquipmentUpdate equipmentUpdate3 = EquipmentUpdate.builder()
-                .name("장비 3")
-                .price(10000)
-                .isDeleted(false)
-                .build();
-
-        List<EquipmentUpdate> equipmentUpdateList = new ArrayList<>();
-        equipmentUpdateList.add(equipmentUpdate1);
-        equipmentUpdateList.add(equipmentUpdate2);
-        equipmentUpdateList.add(equipmentUpdate3);
-
-        Lecture lecture = Lecture.builder().build();
-
-        Equipment equipment = Equipment.builder()
-                .build();
-
-        given(equipmentJpaRepo.findByName(equipmentUpdate1.getName())).willReturn(Optional.empty());
-        given(equipmentJpaRepo.findByName(equipmentUpdate2.getName())).willReturn(Optional.ofNullable(equipment));
-        given(equipmentJpaRepo.findByName(equipmentUpdate3.getName())).willReturn(Optional.ofNullable(equipment));
-        equipmentService.lectureEquipmentUpdate(equipmentUpdateList, lecture);
-
-        verify(equipmentJpaRepo, times(1)).deleteByName(equipmentUpdate2.getName());
-        verify(equipmentJpaRepo, times(1)).save(any());
-    }
 }

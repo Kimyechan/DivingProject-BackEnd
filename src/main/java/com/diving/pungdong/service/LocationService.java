@@ -7,6 +7,7 @@ import com.diving.pungdong.domain.location.Location;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.location.LocationCreateInfo;
 import com.diving.pungdong.dto.location.LocationCreateResult;
+import com.diving.pungdong.dto.location.update.LocationUpdateInfo;
 import com.diving.pungdong.dto.reservation.detail.LocationDetail;
 import com.diving.pungdong.repo.LocationJpaRepo;
 import com.diving.pungdong.service.reservation.ReservationService;
@@ -40,7 +41,7 @@ public class LocationService {
                 .build();
     }
 
-    @Transactional(readOnly = true )
+    @Transactional(readOnly = true)
     public Location findLocationByLectureId(Long lectureId) {
         return locationJpaRepo.findByLectureId(lectureId).orElseThrow(BadRequestException::new);
     }
@@ -54,5 +55,18 @@ public class LocationService {
                 .latitude(location.getLatitude())
                 .longitude(location.getLongitude())
                 .build();
+    }
+
+    @Transactional
+    public void updateLocationWithLecture(Account account, LocationUpdateInfo locationUpdateInfo) {
+        lectureService.checkLectureCreator(account, locationUpdateInfo.getLectureId());
+        Lecture lecture = lectureService.findLectureById(locationUpdateInfo.getLectureId());
+
+        Location location = lecture.getLocation();
+        location.setLatitude(locationUpdateInfo.getLatitude());
+        location.setLongitude(locationUpdateInfo.getLongitude());
+        location.setAddress(locationUpdateInfo.getAddress());
+
+        locationJpaRepo.save(location);
     }
 }
