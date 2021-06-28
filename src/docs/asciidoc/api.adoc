@@ -238,6 +238,10 @@ operation::location-create[]
 === 강의 위치 조회
 operation::location-find[]
 
+[[resource-location-update]]
+=== 강의 위치 정보 수정
+operation::location-update[]
+
 
 [[resource-lecture-image]]
 == 강의 이미지

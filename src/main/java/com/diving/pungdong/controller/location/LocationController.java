@@ -7,6 +7,7 @@ import com.diving.pungdong.domain.location.Location;
 import com.diving.pungdong.dto.location.LocationCreateInfo;
 import com.diving.pungdong.dto.location.LocationCreateResult;
 import com.diving.pungdong.dto.location.LocationInfo;
+import com.diving.pungdong.dto.location.update.LocationUpdateInfo;
 import com.diving.pungdong.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -56,5 +57,18 @@ public class LocationController {
         model.add(linkTo(methodOn(LocationController.class).findLocationOfLecture(lectureId)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-location-find").withRel("profile"));
         return ResponseEntity.ok().body(model);
+    }
+
+    @PutMapping
+    public ResponseEntity<?> updateLocationOfLecture(@CurrentUser Account account,
+                                                     @Valid @RequestBody LocationUpdateInfo locationUpdateInfo,
+                                                     BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        locationService.updateLocationWithLecture(account, locationUpdateInfo);
+
+        return ResponseEntity.noContent().build();
     }
 }

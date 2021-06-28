@@ -9,8 +9,10 @@ import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.location.Location;
 import com.diving.pungdong.dto.location.LocationCreateInfo;
 import com.diving.pungdong.dto.location.LocationCreateResult;
+import com.diving.pungdong.dto.location.update.LocationUpdateInfo;
 import com.diving.pungdong.service.LocationService;
 import com.diving.pungdong.service.account.AccountService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +36,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -158,6 +159,41 @@ class LocationControllerTest {
                                         fieldWithPath("longitude").description("강의 위치 경도"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 위치 정보 수정")
+    public void updateLocationWithLecture() throws Exception {
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LocationUpdateInfo locationUpdateInfo = LocationUpdateInfo.builder()
+                .address("서울특별시 송파구 오륜동 올림픽로 424 올림픽수영장")
+                .latitude(37.519936106861635)
+                .longitude(127.12643458977112)
+                .lectureId(1L)
+                .build();
+
+        mockMvc.perform(put("/location")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(locationUpdateInfo)))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document("location-update",
+                                requestHeaders(
+                                        headerWithName(org.springframework.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(org.springframework.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("address").description("강의 위치 주소"),
+                                        fieldWithPath("latitude").description("강의 위치 위도"),
+                                        fieldWithPath("longitude").description("강의 위치 경도"),
+                                        fieldWithPath("lectureId").description("위치를 지정할 강의 식별자 값")
                                 )
                         )
                 );
