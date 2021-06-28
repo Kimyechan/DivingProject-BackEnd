@@ -5,6 +5,7 @@ import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
 import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
+import com.diving.pungdong.dto.lectureImage.delete.LectureImageDeleteInfo;
 import com.diving.pungdong.repo.LectureImageJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,14 @@ public class LectureImageService {
         }
 
         return lectureImageUrls;
+    }
+
+    @Transactional
+    public void deleteImages(Account account, LectureImageDeleteInfo lectureImageDeleteInfo) {
+        lectureService.checkLectureCreator(account, lectureImageDeleteInfo.getLectureId());
+
+        for (Long lectureImageId : lectureImageDeleteInfo.getLectureImageIds()) {
+            lectureImageJpaRepo.deleteById(lectureImageId);
+        }
     }
 }

@@ -5,7 +5,7 @@ import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
 import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
-import com.diving.pungdong.dto.location.delete.LocationDeleteInfo;
+import com.diving.pungdong.dto.lectureImage.delete.LectureImageDeleteInfo;
 import com.diving.pungdong.service.LectureImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -53,5 +52,18 @@ public class LectureImageController {
         model.add(linkTo(methodOn(LectureImageController.class).findLectureImages(lectureId)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lectureImage-find-list").withRel("profile"));
         return ResponseEntity.ok().body(model);
+    }
+
+    @DeleteMapping("/list")
+    public ResponseEntity<?> deleteLectureImages(@CurrentUser Account account,
+                                                 @Valid @RequestBody LectureImageDeleteInfo lectureImageDeleteInfo,
+                                                 BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        lectureImageService.deleteImages(account, lectureImageDeleteInfo);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -254,6 +254,10 @@ operation::lectureImage-create-list[]
 === 헤당 강의 이미지 목록 조회
 operation::lectureImage-find-list[]
 
+[[resource-lectureImage-delete-list]]
+=== 강의 이미지들 삭제
+operation::lectureImage-delete-list[]
+
 
 [[resource-equipment]]
 == 강의 대여 장비
