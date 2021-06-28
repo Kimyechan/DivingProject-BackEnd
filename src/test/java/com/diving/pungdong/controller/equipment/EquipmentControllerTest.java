@@ -6,7 +6,10 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.equipment.EquipmentDto;
+import com.diving.pungdong.dto.equipment.EquipmentStockDto;
 import com.diving.pungdong.dto.equipment.create.*;
+import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.EquipmentService;
 import com.diving.pungdong.service.elasticSearch.LectureEsService;
@@ -24,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,8 +39,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -140,6 +144,50 @@ class EquipmentControllerTest {
                                         fieldWithPath("lectureId").description("강의 식별자 값"),
                                         fieldWithPath("equipmentResults[].equipmentId").description("장비 한 종류의 식별자 값"),
                                         fieldWithPath("equipmentResults[].name").description("장비 한 종류의 이름"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("대여 장비 목록 조회")
+    public void readLectureEquipments() throws Exception {
+        Long lectureId = 1L;
+
+        EquipmentStockDto equipmentStockDto = EquipmentStockDto
+                .builder()
+                .id(1L)
+                .size("270")
+                .quantity(5)
+                .build();
+
+        EquipmentDto equipmentDto = EquipmentDto.builder()
+                .id(1L)
+                .name("오리발")
+                .equipmentStocks(List.of(equipmentStockDto))
+                .build();
+
+        given(equipmentService.findLectureEquipments(lectureId)).willReturn(List.of(equipmentDto));
+
+        mockMvc.perform(get("/equipment/list")
+                .param("lectureId", String.valueOf(lectureId)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "equipment-read-list",
+                                requestParameters(
+                                        parameterWithName("lectureId").description("강의 식별자 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.equipmentDtoList[].id").description("강의 대여 장비 식별자 값"),
+                                        fieldWithPath("_embedded.equipmentDtoList[].name").description("대여 장비 이름"),
+                                        fieldWithPath("_embedded.equipmentDtoList[].price").description("대여 장비 가격"),
+                                        fieldWithPath("_embedded.equipmentDtoList[].equipmentStocks[].id").description("강의 대여 장비 재고 식별자 값"),
+                                        fieldWithPath("_embedded.equipmentDtoList[].equipmentStocks[].size").description("강의 대여 장비 사이즈"),
+                                        fieldWithPath("_embedded.equipmentDtoList[].equipmentStocks[].quantity").description("강의 대여 장비 재고 수"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url"),
                                         fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                                 )

@@ -8,7 +8,6 @@ import javax.persistence.*;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-@EqualsAndHashCode
 public class EquipmentStock {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

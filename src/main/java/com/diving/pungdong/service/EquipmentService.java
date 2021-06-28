@@ -3,9 +3,11 @@ package com.diving.pungdong.service;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
+import com.diving.pungdong.domain.equipment.EquipmentStock;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.dto.equipment.EquipmentDto;
+import com.diving.pungdong.dto.equipment.EquipmentStockDto;
 import com.diving.pungdong.dto.equipment.create.*;
-import com.diving.pungdong.dto.lecture.update.EquipmentUpdate;
 import com.diving.pungdong.repo.EquipmentJpaRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -65,5 +67,44 @@ public class EquipmentService {
         lectureService.checkLectureCreator(account, equipment.getLecture().getId());
 
         equipmentJpaRepo.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EquipmentDto> findLectureEquipments(Long lectureId) {
+        Lecture lecture = lectureService.findLectureById(lectureId);
+        List<Equipment> equipments = equipmentJpaRepo.findByLecture(lecture);
+
+        List<EquipmentDto> equipmentDtos = mapToEquipmentDtos(equipments);
+
+        return equipmentDtos;
+    }
+
+    public List<EquipmentDto> mapToEquipmentDtos(List<Equipment> equipments) {
+        List<EquipmentDto> equipmentDtos = new ArrayList<>();
+        for (Equipment equipment : equipments) {
+            List<EquipmentStockDto> equipmentStockDtos = mapToEquipmentStockDtos(equipment);
+
+            EquipmentDto equipmentDto = EquipmentDto.builder()
+                    .id(equipment.getId())
+                    .name(equipment.getName())
+                    .price(equipment.getPrice())
+                    .equipmentStocks(equipmentStockDtos)
+                    .build();
+            equipmentDtos.add(equipmentDto);
+        }
+        return equipmentDtos;
+    }
+
+    public List<EquipmentStockDto> mapToEquipmentStockDtos(Equipment equipment) {
+        List<EquipmentStockDto> equipmentStockDtos = new ArrayList<>();
+        for (EquipmentStock equipmentStock : equipment.getEquipmentStocks()) {
+            EquipmentStockDto equipmentStockDto = EquipmentStockDto.builder()
+                    .id(equipmentStock.getId())
+                    .size(equipmentStock.getSize())
+                    .quantity(equipmentStock.getQuantity())
+                    .build();
+            equipmentStockDtos.add(equipmentStockDto);
+        }
+        return equipmentStockDtos;
     }
 }
