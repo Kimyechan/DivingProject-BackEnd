@@ -1,5 +1,6 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.Equipment;
 import com.diving.pungdong.domain.lecture.Lecture;
@@ -21,25 +22,6 @@ public class EquipmentService {
     private final LectureService lectureService;
     private final EquipmentStockService equipmentStockService;
 
-    public void lectureEquipmentUpdate(List<EquipmentUpdate> equipmentUpdateList, Lecture lecture) {
-        if (!equipmentUpdateList.isEmpty()) {
-            for (EquipmentUpdate equipmentUpdate : equipmentUpdateList) {
-                Equipment persistenceEquipment = equipmentJpaRepo.findByName(equipmentUpdate.getName()).orElse(null);
-                if (persistenceEquipment == null) {
-                    Equipment equipment = Equipment.builder()
-                            .name(equipmentUpdate.getName())
-                            .price(equipmentUpdate.getPrice())
-                            .lecture(lecture)
-                            .build();
-                    equipmentJpaRepo.save(equipment);
-                }
-
-                if (equipmentUpdate.getIsDeleted()) {
-                    equipmentJpaRepo.deleteByName(equipmentUpdate.getName());
-                }
-            }
-        }
-    }
 
     @Transactional
     public EquipmentCreateResult saveRentEquipmentInfos(Account account, EquipmentCreateInfo equipmentCreateInfo) {
@@ -75,5 +57,13 @@ public class EquipmentService {
                 .build();
 
         return equipmentJpaRepo.save(equipment);
+    }
+
+    @Transactional
+    public void deleteLectureEquipment(Account account, Long id) {
+        Equipment equipment = equipmentJpaRepo.findById(id).orElseThrow(ResourceNotFoundException::new);
+        lectureService.checkLectureCreator(account, equipment.getLecture().getId());
+
+        equipmentJpaRepo.deleteById(id);
     }
 }

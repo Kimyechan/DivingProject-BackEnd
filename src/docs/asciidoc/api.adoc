@@ -266,6 +266,11 @@ operation::lectureImage-delete-list[]
 === 강의 대여 장비 목록 정보 생성
 operation::equipment-create-list[]
 
+[[resource-equipment-delete]]
+=== 강의 대여 장비 삭제
+operation::equipment-delete[]
+
+
 
 [[resource-schedule]]
 == 강의 일정
