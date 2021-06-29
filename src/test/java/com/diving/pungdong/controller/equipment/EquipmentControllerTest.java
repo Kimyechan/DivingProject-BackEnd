@@ -211,7 +211,7 @@ class EquipmentControllerTest {
                 .andDo(
                         document("equipment-delete",
                                 pathParameters(
-                                    parameterWithName("id").description("장비 식별자 값")
+                                        parameterWithName("id").description("장비 식별자 값")
                                 ),
                                 requestHeaders(
                                         headerWithName(org.springframework.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
@@ -220,5 +220,4 @@ class EquipmentControllerTest {
                         )
                 );
     }
-
 }

@@ -272,9 +272,15 @@ operation::equipment-delete[]
 
 [[resource-equipment-read-list]]
 === 강의 대여 장비 조회
-operation::equipment-read-list[]gi
+operation::equipment-read-list[]
 
 
+[[resource-equipment-stock]]
+== 강의 대여 장비 재고
+
+[[resource-equipment-stock-create]]
+=== 대여 장비 재고 추가
+operation::equipment-stock-create[]
 
 [[resource-schedule]]
 == 강의 일정
