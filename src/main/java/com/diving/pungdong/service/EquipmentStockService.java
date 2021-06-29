@@ -43,4 +43,12 @@ public class EquipmentStockService {
 
         return equipmentStockJpaRepo.save(equipmentStock);
     }
+
+    @Transactional
+    public void deleteEquipmentStock(Account account, Long id) {
+        EquipmentStock equipmentStock = equipmentStockJpaRepo.findById(id).orElseThrow(ResourceNotFoundException::new);
+        lectureService.checkLectureCreator(account, equipmentStock.getEquipment().getLecture().getId());
+
+        equipmentStockJpaRepo.deleteById(equipmentStock.getId());
+    }
 }

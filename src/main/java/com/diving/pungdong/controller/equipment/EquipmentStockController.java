@@ -9,10 +9,7 @@ import com.diving.pungdong.service.EquipmentStockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -36,5 +33,13 @@ public class EquipmentStockController {
         EquipmentStock equipmentStock = equipmentStockService.createEquipmentStock(account, stockCreateInfo);
 
         return ResponseEntity.created(linkTo(EquipmentStockController.class).slash(equipmentStock.getId()).toUri()).build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> removeEquipmentStock(@CurrentUser Account account,
+                                                  @PathVariable("id") Long id) {
+        equipmentStockService.deleteEquipmentStock(account, id);
+
+        return ResponseEntity.noContent().build();
     }
 }
