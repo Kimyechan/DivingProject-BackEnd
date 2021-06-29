@@ -34,8 +34,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -86,8 +86,6 @@ class EquipmentStockControllerTest {
     @Test
     @DisplayName("대여 장비 재고 추가")
     public void addEquipmentStock() throws Exception {
-        Long equipmentId = 1L;
-
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
@@ -105,7 +103,7 @@ class EquipmentStockControllerTest {
 
         given(equipmentStockService.createEquipmentStock(any(), any())).willReturn(equipmentStock);
 
-        mockMvc.perform(post("/equipment-stock", equipmentId)
+        mockMvc.perform(post("/equipment-stock")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .content(objectMapper.writeValueAsString(equipmentStockCreateInfo)))
@@ -132,12 +130,12 @@ class EquipmentStockControllerTest {
     @Test
     @DisplayName("대여 장비 제고 제거")
     public void removeEquipmentStock() throws Exception {
-        Long equipmentId = 1L;
+        Long equipmentStockId = 1L;
 
         Account account = createAccount();
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
 
-        mockMvc.perform(delete("/equipment-stock/{id}", equipmentId)
+        mockMvc.perform(delete("/equipment-stock/{id}", equipmentStockId)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
@@ -150,6 +148,46 @@ class EquipmentStockControllerTest {
                                 requestHeaders(
                                         headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
                                         headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("대여 장비 정보 조회")
+    public void readEquipmentStock() throws Exception {
+        Long equipmentId = 1L;
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        EquipmentStock equipmentStock = EquipmentStock.builder()
+                .id(1L)
+                .size("270")
+                .quantity(5)
+                .build();
+
+        given(equipmentStockService.findById(any())).willReturn(equipmentStock);
+
+        mockMvc.perform(get("/equipment-stock/{id}", equipmentId)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document("equipment-stock-read",
+                                pathParameters(
+                                        parameterWithName("id").description("대여 장비 재고 식별자 값")
+                                ),
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("equipmentStockDto.id").description("대여 장비 재고 식별자 값"),
+                                        fieldWithPath("equipmentStockDto.size").description("대여 장비 사이즈"),
+                                        fieldWithPath("equipmentStockDto.quantity").description("대여 장비 수량"),
+                                        fieldWithPath("_links.self.href").description("해당 자원 조회 URL")
                                 )
                         )
                 );

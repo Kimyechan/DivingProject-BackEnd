@@ -51,4 +51,8 @@ public class EquipmentStockService {
 
         equipmentStockJpaRepo.deleteById(equipmentStock.getId());
     }
+
+    public EquipmentStock findById(Long id) {
+        return equipmentStockJpaRepo.findById(id).orElseThrow(ResourceNotFoundException::new);
+    }
 }

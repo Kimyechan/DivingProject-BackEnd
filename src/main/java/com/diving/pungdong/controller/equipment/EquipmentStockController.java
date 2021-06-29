@@ -4,6 +4,7 @@ import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.equipment.EquipmentStock;
+import com.diving.pungdong.dto.equipment.EquipmentStockModel;
 import com.diving.pungdong.dto.equipment.stock.create.EquipmentStockCreateInfo;
 import com.diving.pungdong.service.EquipmentStockService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @RequestMapping(value = "/equipment-stock")
 public class EquipmentStockController {
     private final EquipmentStockService equipmentStockService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> readEquipmentStock(@PathVariable("id") Long id) {
+        EquipmentStock equipmentStock = equipmentStockService.findById(id);
+
+        EquipmentStockModel model = new EquipmentStockModel(equipmentStock);
+        return ResponseEntity.ok().body(model);
+    }
 
     @PostMapping
     public ResponseEntity<?> addLectureEquipmentStock(@CurrentUser Account account,
