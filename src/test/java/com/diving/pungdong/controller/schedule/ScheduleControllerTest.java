@@ -43,11 +43,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -286,6 +285,32 @@ class ScheduleControllerTest {
                                         fieldWithPath("_embedded.reservationInfoList[].reservationEquipmentInfoList[].rentNumber").description("대여 장비 수"),
                                         fieldWithPath("_links.self.href").description("해당 API 주소"),
                                         fieldWithPath("_links.profile.href").description("해당 API 문서 주소")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("일정 삭제")
+    public void cancelSchedule() throws Exception {
+        Long scheduleId = 1L;
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        mockMvc.perform(delete("/schedule/{id}", scheduleId)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document("schedule-delete",
+                                pathParameters(
+                                        parameterWithName("id").description("일정 식별자 값")
+                                ),
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
                                 )
                         )
                 );

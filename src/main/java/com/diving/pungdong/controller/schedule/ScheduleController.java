@@ -86,4 +86,12 @@ public class ScheduleController {
         model.add(Link.of("/docs/api.html#resource-schedule-read-reservation-info").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> cancelSchedule(@CurrentUser Account account,
+                                            @PathVariable("id") Long id) {
+        scheduleService.deleteSchedule(account, id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

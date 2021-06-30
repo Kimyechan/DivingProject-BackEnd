@@ -104,4 +104,12 @@ public class ReservationController {
         model.add(Link.of("/docs/api.html#resource-reservation-read-equipment-list").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
+
+   @DeleteMapping("/{id}")
+   public ResponseEntity<?> cancelReservation(@CurrentUser Account account,
+                                              @PathVariable("id") Long id) {
+        reservationService.deleteReservation(account, id);
+
+        return ResponseEntity.noContent().build();
+   }
 }
