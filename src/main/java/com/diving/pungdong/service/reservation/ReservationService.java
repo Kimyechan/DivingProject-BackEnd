@@ -1,5 +1,6 @@
 package com.diving.pungdong.service.reservation;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -151,5 +153,24 @@ public class ReservationService {
         }
 
         return scheduleDetails;
+    }
+
+    @Transactional
+    public void deleteReservation(Account account, Long id) {
+        Reservation reservation = findById(id);
+        checkRightForReservation(account, reservation.getAccount());
+        checkPassFirstScheduleDate(reservation);
+
+        reservationJpaRepo.deleteById(reservation.getId());
+    }
+
+    public void checkPassFirstScheduleDate(Reservation reservation) {
+        List<ScheduleDateTime> scheduleDateTimes = reservation.getSchedule().getScheduleDateTimes();
+        scheduleDateTimes.sort(Comparator.comparing(ScheduleDateTime::getDate));
+
+        LocalDate firstDate = scheduleDateTimes.get(0).getDate();
+        if (firstDate.isBefore(LocalDate.now()) || firstDate.isEqual(LocalDate.now())) {
+            throw new BadRequestException("예약 취소 가능한 날짜가 지났습니다");
+        }
     }
 }

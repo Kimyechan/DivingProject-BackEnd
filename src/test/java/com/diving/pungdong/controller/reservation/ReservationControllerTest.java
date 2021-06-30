@@ -44,9 +44,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -375,5 +375,31 @@ class ReservationControllerTest {
                                 fieldWithPath("_links.profile.href").description("해당 Api 문서 Url")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("강의 예약 취소")
+    public void cancelReservation() throws Exception {
+        Long reservationId = 1L;
+
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        mockMvc.perform(delete("/reservation/{id}", reservationId)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document("reservation-delete",
+                                pathParameters(
+                                        parameterWithName("id").description("강의 예약 식별자")
+                                ),
+                                requestHeaders(
+                                        headerWithName(org.apache.http.HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                )
+                        )
+                );
     }
 }

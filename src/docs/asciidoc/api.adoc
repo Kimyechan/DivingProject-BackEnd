@@ -342,6 +342,10 @@ operation::reservation-read-schedule-list[]
 === 예약한 대여 장비 목록
 operation::reservation-read-equipment-list[]
 
+[[resource-reservation-delete]]
+=== 강의 예약 취소
+operation::reservation-delete[]
+
 
 [[resource-review]]
 == 강의 리뷰
