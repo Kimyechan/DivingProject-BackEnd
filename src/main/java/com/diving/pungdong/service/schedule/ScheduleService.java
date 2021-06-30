@@ -189,4 +189,18 @@ public class ScheduleService {
 
         return reservationEquipmentInfos;
     }
+
+    @Transactional
+    public void deleteSchedule(Account account, Long id) {
+        Schedule schedule = findScheduleById(id);
+
+        lectureService.checkLectureCreator(account, schedule.getLecture().getId());
+
+        List<Reservation> reservations = schedule.getReservations();
+        if (!reservations.isEmpty()) {
+            throw new BadRequestException("예약이 있기때문에 일정 삭제가 불가능합니다");
+        }
+
+        scheduleJpaRepo.deleteById(schedule.getId());
+    }
 }

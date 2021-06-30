@@ -310,6 +310,10 @@ operation::schedule-read-equipment-list[]
 === 한 일정의 예약 목록 조회
 operation::schedule-read-reservation-info[]
 
+[[resource-schedule-delete]]
+=== 강의 일정 취소
+operation::schedule-delete[]
+
 
 [[resource-reservation]]
 == 강의 예약
