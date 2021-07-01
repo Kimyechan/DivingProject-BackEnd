@@ -15,5 +15,7 @@ import java.util.Set;
 public class AccountInfo {
     private String id;
     private String password;
+    private String nickName;
+    private String profileImageUrl;
     private Set<Role> roles;
 }

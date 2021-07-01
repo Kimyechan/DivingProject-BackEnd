@@ -1,5 +1,6 @@
 package com.diving.pungdong.service.kafka;
 
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.dto.account.kafka.AccountInfo;
 import com.diving.pungdong.dto.account.kafka.FirebaseTokenInfo;
@@ -14,11 +15,13 @@ import java.util.Set;
 public class AccountKafkaProducer {
     private final KafkaTemplate<Object, Object> kafkaTemplate;
 
-    public void sendAccountInfo(String id, String password, Set<Role> roles) {
+    public void sendAccountInfo(Account account) {
         AccountInfo accountInfo = AccountInfo.builder()
-                .id(id)
-                .password(password)
-                .roles(roles)
+                .id(String.valueOf(account.getId()))
+                .password(account.getPassword())
+                .roles(account.getRoles())
+                .nickName(account.getNickName())
+                .profileImageUrl(account.getProfilePhoto().getImageUrl())
                 .build();
 
         this.kafkaTemplate.send("account", accountInfo);
