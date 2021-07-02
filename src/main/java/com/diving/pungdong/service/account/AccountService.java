@@ -187,11 +187,11 @@ public class AccountService implements UserDetailsService {
         Account account = findAccountById(accountId);
 
         account.getRoles().add(Role.INSTRUCTOR);
-        Account savedAccount = accountJpaRepo.save(account);
+        accountJpaRepo.save(account);
 
-        producer.sendAccountInfo(savedAccount);
+        producer.sendAccountInfo(account);
 
-        return savedAccount;
+        return account;
     }
 
     public InstructorConfirmResult mapToInstructorConfirmResult(Account account) {
