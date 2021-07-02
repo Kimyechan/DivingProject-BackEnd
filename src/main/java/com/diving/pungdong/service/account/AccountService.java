@@ -113,7 +113,7 @@ public class AccountService implements UserDetailsService {
                 .build();
         Account savedStudent = accountJpaRepo.save(student);
 
-        producer.sendAccountInfo(String.valueOf(student.getId()), student.getPassword(), student.getRoles());
+        producer.sendAccountInfo(savedStudent);
 
         return SignUpResult.builder()
                 .email(savedStudent.getEmail())
@@ -189,7 +189,7 @@ public class AccountService implements UserDetailsService {
         account.getRoles().add(Role.INSTRUCTOR);
         accountJpaRepo.save(account);
 
-        producer.sendAccountInfo(String.valueOf(account.getId()), account.getPassword(), account.getRoles());
+        producer.sendAccountInfo(account);
 
         return account;
     }
