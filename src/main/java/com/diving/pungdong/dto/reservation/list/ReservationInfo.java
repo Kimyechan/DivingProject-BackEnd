@@ -1,5 +1,6 @@
 package com.diving.pungdong.dto.reservation.list;
 
+import com.diving.pungdong.domain.lecture.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,8 @@ import java.time.LocalDate;
 public class ReservationInfo {
     private Long reservationId;
     private String lectureTitle;
+    private Organization organization;
+    private String level;
     private String lectureImageUrl;
     private String instructorNickname;
     private LocalDate reservationDate;

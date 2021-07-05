@@ -6,6 +6,7 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
@@ -158,6 +159,8 @@ class ReservationControllerTest {
                     .remainingDate((long) i)
                     .reservationDate(LocalDate.now().minusDays(i + 1))
                     .lectureTitle("강의 타이틀")
+                    .organization(Organization.AIDA)
+                    .level("Level1")
                     .lectureImageUrl("강의 이미지 Url")
                     .instructorNickname("강사 닉네임")
                     .build();
@@ -191,6 +194,8 @@ class ReservationControllerTest {
                                 responseFields(
                                         fieldWithPath("_embedded.reservationInfoList[].reservationId").description("예약 식별자 값"),
                                         fieldWithPath("_embedded.reservationInfoList[].lectureTitle").description("강의 타이틀"),
+                                        fieldWithPath("_embedded.reservationInfoList[].organization").description("강의 자격증 소속 단체"),
+                                        fieldWithPath("_embedded.reservationInfoList[].level").description("강의 자격증 레벨"),
                                         fieldWithPath("_embedded.reservationInfoList[].lectureImageUrl").description("강의 이미지 Url"),
                                         fieldWithPath("_embedded.reservationInfoList[].instructorNickname").description("강사 닉네임"),
                                         fieldWithPath("_embedded.reservationInfoList[].reservationDate").description("예약 날짜"),
