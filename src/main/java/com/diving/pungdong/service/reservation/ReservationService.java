@@ -81,6 +81,8 @@ public class ReservationService {
                     .reservationDate(reservation.getDateOfReservation())
                     .instructorNickname(lecture.getInstructor().getNickName())
                     .lectureTitle(lecture.getTitle())
+                    .organization(lecture.getOrganization())
+                    .level(lecture.getLevel())
                     .lectureImageUrl(lecture.getLectureImages().get(0).getFileURI())
                     .remainingDate(remainingDate)
                     .build();
