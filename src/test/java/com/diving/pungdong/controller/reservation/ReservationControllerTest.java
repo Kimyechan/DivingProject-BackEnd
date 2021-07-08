@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.detail.*;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
+import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.service.LocationService;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.reservation.ReservationService;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
@@ -406,5 +408,39 @@ class ReservationControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("강의 예약자에게 전달한 공지사항 생성")
+    public void createNotification() throws Exception {
+        Long scheduleId = 1L;
+
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        Notification notification = Notification.builder()
+                .title("공지사항 제목")
+                .body("공지사항 본문")
+                .build();
+
+        mockMvc.perform(RestDocumentationRequestBuilders.post("/reservation/schedule/{id}/notification", scheduleId)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(notification)))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(document("reservation-create-notification",
+                        pathParameters(
+                            parameterWithName("id").description("강의 일정 식별자 값")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                        ),
+                        requestFields(
+                                fieldWithPath("title").description("공지사항 제목"),
+                                fieldWithPath("body").description("공지사항 내용")
+                        )
+                ));
     }
 }

@@ -13,6 +13,7 @@ import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.schedule.create.ScheduleCreateInfo;
 import com.diving.pungdong.dto.schedule.equipment.RentEquipmentInfo;
+import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.dto.schedule.read.ScheduleDateTimeInfo;
 import com.diving.pungdong.dto.schedule.read.ScheduleInfo;
 import com.diving.pungdong.dto.schedule.reservation.ReservationEquipmentInfo;

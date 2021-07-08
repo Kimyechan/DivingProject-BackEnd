@@ -19,7 +19,9 @@ import com.diving.pungdong.dto.reservation
         .detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
+import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.repo.reservation.ReservationJpaRepo;
+import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.PaymentService;
 import com.diving.pungdong.service.kafka.ReservationKafkaProducer;
 import com.diving.pungdong.service.schedule.ScheduleService;
@@ -43,6 +45,7 @@ public class ReservationService {
     private final ScheduleService scheduleService;
     private final ReservationEquipmentService reservationEquipmentService;
     private final PaymentService paymentService;
+    private final LectureService lectureService;
     private final ReservationKafkaProducer reservationKafkaProducer;
 
     @Transactional
@@ -189,5 +192,20 @@ public class ReservationService {
         if (firstDate.isBefore(LocalDate.now()) || firstDate.isEqual(LocalDate.now())) {
             throw new BadRequestException("예약 취소 가능한 날짜가 지났습니다");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public void sendNotification(Account account, Long scheduleId, Notification notification) {
+        Schedule schedule = scheduleService.findScheduleById(scheduleId);
+
+        lectureService.checkLectureCreator(account, schedule.getLecture().getId());
+
+        List<Reservation> reservations = reservationJpaRepo.findBySchedule(schedule);
+        List<String> applicantIds = new ArrayList<>();
+        for (Reservation reservation : reservations) {
+            applicantIds.add(String.valueOf(reservation.getAccount().getId()));
+        }
+
+        reservationKafkaProducer.sendLectureNotification(applicantIds, notification, schedule.getLecture().getId());
     }
 }
