@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
+import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.service.LocationService;
 import com.diving.pungdong.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -112,4 +114,19 @@ public class ReservationController {
 
         return ResponseEntity.noContent().build();
    }
+
+
+    @PostMapping("/schedule/{id}/notification")
+    public ResponseEntity<?> createNotification(@CurrentUser Account account,
+                                                @PathVariable("id") Long scheduleId,
+                                                @Valid @RequestBody Notification notification,
+                                                BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        reservationService.sendNotification(account, scheduleId, notification);
+
+        return ResponseEntity.noContent().build();
+    }
 }

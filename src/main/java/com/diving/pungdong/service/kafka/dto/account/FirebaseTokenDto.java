@@ -1,14 +1,17 @@
-package com.diving.pungdong.dto.account.kafka;
+package com.diving.pungdong.service.kafka.dto.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FirebaseTokenInfo {
-    private String id;
+public class FirebaseTokenDto {
+    @NotEmpty
     private String token;
 }
