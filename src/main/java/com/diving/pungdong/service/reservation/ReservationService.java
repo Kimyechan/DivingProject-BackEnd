@@ -21,6 +21,7 @@ import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.repo.reservation.ReservationJpaRepo;
 import com.diving.pungdong.service.PaymentService;
+import com.diving.pungdong.service.kafka.ReservationKafkaProducer;
 import com.diving.pungdong.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,7 @@ public class ReservationService {
     private final ScheduleService scheduleService;
     private final ReservationEquipmentService reservationEquipmentService;
     private final PaymentService paymentService;
+    private final ReservationKafkaProducer reservationKafkaProducer;
 
     @Transactional
     public Reservation saveReservation(Account account, ReservationCreateInfo reservationCreateInfo) {
@@ -59,6 +61,12 @@ public class ReservationService {
         Reservation savedReservation = reservationJpaRepo.save(reservation);
 
         reservationEquipmentService.saveReservationEquipmentList(reservationCreateInfo, savedReservation);
+
+        reservationKafkaProducer.sendEnrollReservationEvent(
+                account,
+                schedule.getLecture().getInstructor(),
+                schedule.getLecture(),
+                schedule);
 
         return savedReservation;
     }
