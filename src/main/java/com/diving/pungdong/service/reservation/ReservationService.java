@@ -51,7 +51,7 @@ public class ReservationService {
     @Transactional
     public Reservation saveReservation(Account account, ReservationCreateInfo reservationCreateInfo) {
         Schedule schedule = scheduleService.findScheduleById(reservationCreateInfo.getScheduleId());
-        scheduleService.updateScheduleReservationNumber(schedule, reservationCreateInfo.getNumberOfPeople());
+        scheduleService.plusScheduleReservationNumber(schedule, reservationCreateInfo.getNumberOfPeople());
         Payment payment = paymentService.savePaymentInfo(schedule, reservationCreateInfo);
 
         Reservation reservation = Reservation.builder()
@@ -175,6 +175,8 @@ public class ReservationService {
         checkPassFirstScheduleDate(reservation);
 
         Schedule schedule = reservation.getSchedule();
+        scheduleService.minusScheduleReservationNumber(schedule, reservation.getNumberOfPeople());
+
         reservationKafkaProducer.sendCancelReservationEvent(
                 account,
                 schedule.getLecture().getInstructor(),

@@ -1,5 +1,7 @@
 package com.diving.pungdong.service;
 
+import com.diving.pungdong.advice.exception.BadRequestException;
+import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.schedule.Schedule;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
 import com.diving.pungdong.repo.schedule.ScheduleJpaRepo;
@@ -18,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,4 +94,47 @@ class ScheduleServiceTest {
         assertThat(latestRemainingDate).isEqualTo(5);
     }
 
+    @Test
+    @DisplayName("예약 신청시 신청인원 증가")
+    public void plusScheduleReservationNumber() {
+        Lecture lecture = Lecture.builder()
+                .maxNumber(8)
+                .build();
+
+        Schedule schedule = Schedule.builder()
+                .lecture(lecture)
+                .currentNumber(5)
+                .build();
+
+        scheduleService.plusScheduleReservationNumber(schedule, 3);
+
+        assertThat(schedule.getCurrentNumber()).isEqualTo(8);
+    }
+
+    @Test
+    @DisplayName("예약 신청시 신청인원 초과 - 실패")
+    public void plusScheduleReservationNumberFail() {
+        Lecture lecture = Lecture.builder()
+                .maxNumber(7)
+                .build();
+
+        Schedule schedule = Schedule.builder()
+                .lecture(lecture)
+                .currentNumber(5)
+                .build();
+
+        assertThrows(BadRequestException.class, () -> scheduleService.plusScheduleReservationNumber(schedule, 3));
+    }
+
+    @Test
+    @DisplayName("예약 취소시 신청 인원 초기화")
+    public void minusScheduleReservationNumber() {
+        Schedule schedule = Schedule.builder()
+                .currentNumber(5)
+                .build();
+
+        scheduleService.minusScheduleReservationNumber(schedule, 3);
+
+        assertThat(schedule.getCurrentNumber()).isEqualTo(2);
+    }
 }

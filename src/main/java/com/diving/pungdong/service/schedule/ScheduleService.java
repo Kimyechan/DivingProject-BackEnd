@@ -119,7 +119,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void updateScheduleReservationNumber(Schedule schedule, Integer numberOfPeople) {
+    public void plusScheduleReservationNumber(Schedule schedule, Integer numberOfPeople) {
         int numberOfRemaining = schedule.getLecture().getMaxNumber() - schedule.getCurrentNumber();
 
         if (numberOfRemaining < numberOfPeople) {
@@ -203,5 +203,11 @@ public class ScheduleService {
         }
 
         scheduleJpaRepo.deleteById(schedule.getId());
+    }
+
+    @Transactional
+    public void minusScheduleReservationNumber(Schedule schedule, Integer numberOfPeople) {
+        schedule.setCurrentNumber(schedule.getCurrentNumber() - numberOfPeople);
+        scheduleJpaRepo.save(schedule);
     }
 }
