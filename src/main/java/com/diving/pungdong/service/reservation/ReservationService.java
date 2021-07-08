@@ -171,6 +171,13 @@ public class ReservationService {
         checkRightForReservation(account, reservation.getAccount());
         checkPassFirstScheduleDate(reservation);
 
+        Schedule schedule = reservation.getSchedule();
+        reservationKafkaProducer.sendCancelReservationEvent(
+                account,
+                schedule.getLecture().getInstructor(),
+                schedule,
+                schedule.getLecture());
+
         reservationJpaRepo.deleteById(reservation.getId());
     }
 
