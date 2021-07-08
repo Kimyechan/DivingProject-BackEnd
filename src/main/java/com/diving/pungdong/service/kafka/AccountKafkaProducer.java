@@ -1,14 +1,11 @@
 package com.diving.pungdong.service.kafka;
 
 import com.diving.pungdong.domain.account.Account;
-import com.diving.pungdong.domain.account.Role;
-import com.diving.pungdong.dto.account.kafka.AccountInfo;
-import com.diving.pungdong.dto.account.kafka.FirebaseTokenInfo;
+import com.diving.pungdong.service.kafka.dto.account.AccountInfo;
+import com.diving.pungdong.service.kafka.dto.account.FirebaseTokenInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
