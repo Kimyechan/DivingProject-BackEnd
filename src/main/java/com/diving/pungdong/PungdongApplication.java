@@ -23,7 +23,7 @@ public class PungdongApplication {
             + "/home/ubuntu/config/project/pungdong/database.yml,"
             + "/home/ubuntu/config/project/pungdong/kafka.yml,"
             + "/home/ubuntu/config/project/pungdong/redis.yml,"
-            + "/home/ubuntu/config/project/pungdong/classpath:aws.yml";
+            + "/home/ubuntu/config/project/pungdong/aws.yml";
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(PungdongApplication.class)
