@@ -121,6 +121,10 @@ operation::signUp[]
 === 유저 로그인
 operation::signIn[]
 
+[[resoure-sign-enroll-firebase-token]]
+=== Firebase Token 등록
+operation::sign-enroll-firebase-token[]
+
 [[resource-account-add-instructorInfo]]
 === 강사 정보 추가
 operation::account-add-instructorInfo[]

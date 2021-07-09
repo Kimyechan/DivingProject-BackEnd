@@ -383,7 +383,7 @@ class SignControllerTest {
                         document(
                                 "sign-enroll-firebase-token",
                                 requestHeaders(
-                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값"),
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("JSON 타입"),
                                         headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
                                 ),
                                 requestFields(
