@@ -19,10 +19,11 @@ public class PungdongApplication {
             + "classpath:database.yml,"
             + "classpath:kafka.yml,"
             + "classpath:redis.yml,"
+            + "classpath:aws.yml,"
             + "/home/ubuntu/config/project/pungdong/database.yml,"
             + "/home/ubuntu/config/project/pungdong/kafka.yml,"
             + "/home/ubuntu/config/project/pungdong/redis.yml,"
-            + "classpath:aws.yml";
+            + "/home/ubuntu/config/project/pungdong/aws.yml";
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(PungdongApplication.class)
