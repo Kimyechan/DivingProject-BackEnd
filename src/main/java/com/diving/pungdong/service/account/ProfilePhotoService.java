@@ -7,6 +7,7 @@ import com.diving.pungdong.dto.profilePhoto.ProfilePhotoInfo;
 import com.diving.pungdong.dto.profilePhoto.ProfilePhotoUpdateInfo;
 import com.diving.pungdong.repo.ProfilePhotoJpaRepo;
 import com.diving.pungdong.service.image.S3Uploader;
+import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.io.IOException;
 public class ProfilePhotoService {
     private final ProfilePhotoJpaRepo profilePhotoJpaRepo;
     private final S3Uploader s3Uploader;
+    private final AccountKafkaProducer accountKafkaProducer;
 
     @Transactional
     public ProfilePhoto saveDefaultProfilePhoto() {
@@ -40,6 +42,9 @@ public class ProfilePhotoService {
 
         String fileUri = s3Uploader.upload(image, "profile-photo", account.getEmail());
         profilePhoto.setImageUrl(fileUri);
+
+        account.setProfilePhoto(profilePhoto);
+        accountKafkaProducer.sendAccountUpdateInfo(account);
 
         return ProfilePhotoUpdateInfo.builder()
                 .profilePhotoId(profilePhoto.getId())
