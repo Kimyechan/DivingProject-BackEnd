@@ -226,7 +226,9 @@ public class AccountService implements UserDetailsService {
         account.setGender(updateInfo.getGender());
         account.setPhoneNumber(updateInfo.getPhoneNumber());
 
-        accountJpaRepo.save(account);
+        Account updatedAccount = accountJpaRepo.save(account);
+
+        producer.sendAccountUpdateInfo(updatedAccount);
     }
 
     @Transactional
@@ -234,7 +236,9 @@ public class AccountService implements UserDetailsService {
         checkDuplicationOfNickName(nickName);
 
         account.setNickName(nickName);
-        accountJpaRepo.save(account);
+        Account updatedAccount = accountJpaRepo.save(account);
+
+        producer.sendAccountUpdateInfo(updatedAccount);
     }
 
     @Transactional
@@ -242,6 +246,8 @@ public class AccountService implements UserDetailsService {
         checkCorrectPassword(passwordUpdateInfo.getCurrentPassword(), account);
 
         account.setPassword(passwordEncoder.encode(passwordUpdateInfo.getNewPassword()));
-        accountJpaRepo.save(account);
+        Account updatedAccount = accountJpaRepo.save(account);
+
+        producer.sendAccountUpdateInfo(updatedAccount);
     }
 }
