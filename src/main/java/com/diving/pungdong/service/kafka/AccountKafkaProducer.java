@@ -24,6 +24,18 @@ public class AccountKafkaProducer {
         this.kafkaTemplate.send("account", accountInfo);
     }
 
+    public void sendAccountUpdateInfo(Account account) {
+        AccountInfo accountInfo = AccountInfo.builder()
+                .id(String.valueOf(account.getId()))
+                .password(account.getPassword())
+                .roles(account.getRoles())
+                .nickName(account.getNickName())
+                .profileImageUrl(account.getProfilePhoto().getImageUrl())
+                .build();
+
+        this.kafkaTemplate.send("update-account", accountInfo);
+    }
+
     public void sendFirebaseTokenInfo(String id, String token) {
         FirebaseTokenInfo firebaseTokenInfo = FirebaseTokenInfo.builder()
                 .id(id)
