@@ -121,7 +121,7 @@ operation::signUp[]
 === 유저 로그인
 operation::signIn[]
 
-[[resoure-sign-enroll-firebase-token]]
+[[resource-sign-enroll-firebase-token]]
 === Firebase Token 등록
 operation::sign-enroll-firebase-token[]
 
