@@ -58,9 +58,6 @@ public class AccountService implements UserDetailsService {
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         Account account = accountJpaRepo.findById(Long.valueOf(id)).orElseThrow(CUserNotFoundException::new);
 
-//        if (account.getIsDeleted()) {
-//            throw new NoPermissionsException("계정이 삭제되었습니다.");
-//        }
         return new UserAccount(account);
     }
 
@@ -68,8 +65,14 @@ public class AccountService implements UserDetailsService {
         return accountJpaRepo.save(account);
     }
 
+    @Transactional(readOnly = true)
     public Account findAccountByEmail(String email) {
-        return accountJpaRepo.findByEmail(email).orElseThrow(CEmailSigninFailedException::new);
+        Account account = accountJpaRepo.findByEmail(email).orElseThrow(CEmailSigninFailedException::new);
+        if (account.getIsDeleted()) {
+            throw new NoPermissionsException("계정이 삭제되었습니다.");
+        }
+
+        return account;
     }
 
     public Account findAccountById(Long id) {
@@ -260,6 +263,8 @@ public class AccountService implements UserDetailsService {
         checkCorrectPassword(password, account);
 
         account.setIsDeleted(true);
-        lectureService.closeAllLecture(account);
+        Account updatedAccount = accountJpaRepo.save(account);
+
+        lectureService.closeAllLecture(updatedAccount);
     }
 }

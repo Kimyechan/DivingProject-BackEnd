@@ -73,6 +73,9 @@ public class ExceptionAdvice {
     @ExceptionHandler(NoPermissionsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public CommonResult noPermissions(HttpServletRequest request, NoPermissionsException e) {
+        if (e.getMessage() != null) {
+            return responseService.getFailResult(Integer.parseInt(getMessage("noPermissions.code")), e.getMessage());
+        }
         return responseService.getFailResult(Integer.parseInt(getMessage("noPermissions.code")), getMessage("noPermissions.msg"));
     }
 
