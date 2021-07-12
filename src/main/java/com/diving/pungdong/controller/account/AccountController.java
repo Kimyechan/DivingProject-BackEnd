@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.dto.account.delete.PasswordInfo;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
+import com.diving.pungdong.dto.account.restore.AccountRestoreInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
 import com.diving.pungdong.dto.account.update.NickNameInfo;
 import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
@@ -124,6 +125,18 @@ public class AccountController {
         }
 
         accountService.deleteAccount(account, passwordInfo.getPassword());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/deleted-state")
+    public ResponseEntity<?> restoreAccount(@Valid @RequestBody AccountRestoreInfo accountRestoreInfo,
+                                            BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        accountService.updateAccountDeleted(accountRestoreInfo);
 
         return ResponseEntity.noContent().build();
     }

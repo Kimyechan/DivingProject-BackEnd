@@ -10,6 +10,7 @@ import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.delete.PasswordInfo;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
+import com.diving.pungdong.dto.account.restore.AccountRestoreInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
 import com.diving.pungdong.dto.account.update.NickNameInfo;
 import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
@@ -335,6 +336,34 @@ class AccountControllerTest {
                                 ),
                                 requestFields(
                                         fieldWithPath("password").description("현재 패스워드")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("계정 복구")
+    public void restoreAccount() throws Exception {
+        AccountRestoreInfo accountRestoreInfo = AccountRestoreInfo.builder()
+                .email("vlvkcjswo72@gmail.com")
+                .emailAuthCode("111222")
+                .build();
+
+        mockMvc.perform(patch("/account/deleted-state")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(accountRestoreInfo)))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document(
+                                "account-restore",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입")
+                                ),
+                                requestFields(
+                                        fieldWithPath("email").description("이메일"),
+                                        fieldWithPath("emailAuthCode").description("이메일 승인 번호")
                                 )
                         )
                 );

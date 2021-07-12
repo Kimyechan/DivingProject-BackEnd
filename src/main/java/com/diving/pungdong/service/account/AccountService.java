@@ -14,6 +14,7 @@ import com.diving.pungdong.dto.account.instructor.InstructorInfo;
 import com.diving.pungdong.dto.account.instructor.InstructorRequestInfo;
 import com.diving.pungdong.dto.account.nickNameCheck.NickNameResult;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
+import com.diving.pungdong.dto.account.restore.AccountRestoreInfo;
 import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
@@ -266,5 +267,15 @@ public class AccountService implements UserDetailsService {
         Account updatedAccount = accountJpaRepo.save(account);
 
         lectureService.closeAllLecture(updatedAccount);
+    }
+
+    @Transactional
+    public Account updateAccountDeleted(AccountRestoreInfo accountRestoreInfo) {
+        emailService.verifyAuthCode(accountRestoreInfo.getEmail(), accountRestoreInfo.getEmailAuthCode());
+
+        Account account = accountJpaRepo.findByEmail(accountRestoreInfo.getEmail()).orElseThrow(ResourceNotFoundException::new);
+        account.setIsDeleted(false);
+
+        return account;
     }
 }

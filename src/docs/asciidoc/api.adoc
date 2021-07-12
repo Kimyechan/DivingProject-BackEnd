@@ -169,6 +169,10 @@ operation::account-update-password[]
 === 계정 삭제
 operation::account-delete[]
 
+[[resource-account-restore]]
+=== 계정 복구
+operation::account-restore[]
+
 
 [[resource-profilePhoto]]
 == 회원 프로필 이미지
