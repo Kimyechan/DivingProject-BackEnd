@@ -1,6 +1,7 @@
 package com.diving.pungdong.service.reservation;
 
 import com.diving.pungdong.advice.exception.BadRequestException;
+import com.diving.pungdong.advice.exception.ClosedLectureException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
@@ -51,6 +52,11 @@ public class ReservationService {
     @Transactional
     public Reservation saveReservation(Account account, ReservationCreateInfo reservationCreateInfo) {
         Schedule schedule = scheduleService.findScheduleById(reservationCreateInfo.getScheduleId());
+
+        if (schedule.getLecture().getIsClosed()) {
+            throw new ClosedLectureException("강의가 열리지 않았습니다");
+        }
+
         scheduleService.plusScheduleReservationNumber(schedule, reservationCreateInfo.getNumberOfPeople());
         Payment payment = paymentService.savePaymentInfo(schedule, reservationCreateInfo);
 

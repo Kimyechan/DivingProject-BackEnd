@@ -106,6 +106,12 @@ public class ExceptionAdvice {
         return responseService.getFailResult(Integer.parseInt(getMessage("emailDuplication.code")), getMessage("emailDuplication.msg"));
     }
 
+    @ExceptionHandler(ClosedLectureException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public CommonResult closedLectureException(ClosedLectureException e) {
+        return responseService.getFailResult(Integer.parseInt(getMessage("closedLecture.code")), getMessage("closedLecture.msg"));
+    }
+
     private String getMessage(String code) {
         return getMessage(code, null);
     }
