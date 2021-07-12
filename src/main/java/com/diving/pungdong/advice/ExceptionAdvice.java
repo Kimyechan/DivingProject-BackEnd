@@ -73,6 +73,9 @@ public class ExceptionAdvice {
     @ExceptionHandler(NoPermissionsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public CommonResult noPermissions(HttpServletRequest request, NoPermissionsException e) {
+        if (e.getMessage() != null) {
+            return responseService.getFailResult(Integer.parseInt(getMessage("noPermissions.code")), e.getMessage());
+        }
         return responseService.getFailResult(Integer.parseInt(getMessage("noPermissions.code")), getMessage("noPermissions.msg"));
     }
 
@@ -101,6 +104,12 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CommonResult emailDuplication(EmailDuplicationException e) {
         return responseService.getFailResult(Integer.parseInt(getMessage("emailDuplication.code")), getMessage("emailDuplication.msg"));
+    }
+
+    @ExceptionHandler(ClosedLectureException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public CommonResult closedLectureException(ClosedLectureException e) {
+        return responseService.getFailResult(Integer.parseInt(getMessage("closedLecture.code")), getMessage("closedLecture.msg"));
     }
 
     private String getMessage(String code) {

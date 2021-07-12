@@ -78,10 +78,13 @@ public class Lecture {
     @OneToOne(fetch = FetchType.LAZY)
     private Location location;
 
+    private Boolean isClosed;
+
     @PrePersist
     public void prePersist() {
         this.registrationDate = this.registrationDate == null ? LocalDateTime.now() : this.registrationDate;
         this.reviewTotalAvg = this.reviewTotalAvg == null ? 0 : this.reviewTotalAvg;
         this.reviewCount = this.reviewCount == null ? 0 : this.reviewCount;
+        this.isClosed = false;
     }
 }

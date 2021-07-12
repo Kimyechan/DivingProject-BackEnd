@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface LectureJpaRepo extends JpaRepository<Lecture, Long>, LectureJpaRepoCustom {
@@ -29,4 +30,6 @@ public interface LectureJpaRepo extends JpaRepository<Lecture, Long>, LectureJpa
             countQuery = "select count(l) from Lecture l"
     )
     Page<Lecture> findPopularLectures(Pageable pageable);
+
+    List<Lecture> findByInstructor(Account instructor);
 }

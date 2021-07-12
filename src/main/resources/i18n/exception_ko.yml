@@ -49,3 +49,7 @@ badRequest:
 emailDuplication:
   code: "-1012"
   msg: "이메일이 중복되었습니다"
+
+closedLecture:
+  code: "-1013"
+  msg: "강의가 열리지 않았습니다."
