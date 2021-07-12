@@ -158,6 +158,7 @@ public class LectureService {
                     .level(lecture.getLevel())
                     .region(lecture.getRegion())
                     .period(lecture.getPeriod())
+                    .maxNumber(lecture.getMaxNumber())
                     .lectureTime(lecture.getLectureTime())
                     .imageUrl(lectureImageUrl)
                     .isMarked(isMarked)
@@ -376,5 +377,14 @@ public class LectureService {
     @Transactional
     public void unmarkLecture(Long accountId, Long lectureId) {
         lectureMarkService.deleteMarkLecture(accountId, lectureId);
+    }
+
+    @Transactional
+    public void closeAllLecture(Account account) {
+        List<Lecture> lectures = lectureJpaRepo.findByInstructor(account);
+
+        for (Lecture lecture : lectures) {
+            lecture.setIsClosed(true);
+        }
     }
 }

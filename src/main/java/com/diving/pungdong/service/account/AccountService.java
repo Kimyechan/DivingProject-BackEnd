@@ -1,14 +1,12 @@
 package com.diving.pungdong.service.account;
 
-import com.diving.pungdong.advice.exception.BadRequestException;
-import com.diving.pungdong.advice.exception.CEmailSigninFailedException;
-import com.diving.pungdong.advice.exception.CUserNotFoundException;
-import com.diving.pungdong.advice.exception.EmailDuplicationException;
+import com.diving.pungdong.advice.exception.*;
 import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.domain.account.ProfilePhoto;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.emailCheck.EmailResult;
 import com.diving.pungdong.dto.account.instructor.InstructorConfirmResult;
@@ -26,6 +24,7 @@ import com.diving.pungdong.model.SuccessResult;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.EmailService;
 import com.diving.pungdong.dto.account.read.AccountBasicInfo;
+import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,10 +52,15 @@ public class AccountService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final AccountKafkaProducer producer;
     private final ProfilePhotoService profilePhotoService;
+    private final LectureService lectureService;
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         Account account = accountJpaRepo.findById(Long.valueOf(id)).orElseThrow(CUserNotFoundException::new);
+
+//        if (account.getIsDeleted()) {
+//            throw new NoPermissionsException("계정이 삭제되었습니다.");
+//        }
         return new UserAccount(account);
     }
 
@@ -81,7 +85,7 @@ public class AccountService implements UserDetailsService {
 
     public void checkCorrectPassword(String password, Account account) {
         if (!passwordEncoder.matches(password, account.getPassword())) {
-            throw new CEmailSigninFailedException();
+            throw new BadRequestException();
         }
     }
 
@@ -249,5 +253,13 @@ public class AccountService implements UserDetailsService {
         Account updatedAccount = accountJpaRepo.save(account);
 
         producer.sendAccountUpdateInfo(updatedAccount);
+    }
+
+    @Transactional
+    public void deleteAccount(Account account, String password) {
+        checkCorrectPassword(password, account);
+
+        account.setIsDeleted(true);
+        lectureService.closeAllLecture(account);
     }
 }

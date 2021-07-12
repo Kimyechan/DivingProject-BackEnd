@@ -1,6 +1,7 @@
 package com.diving.pungdong.domain.account;
 
 import com.diving.pungdong.domain.LectureMark;
+import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.domain.review.Review;
 import lombok.*;
@@ -31,7 +32,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     private ProfilePhoto profilePhoto;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -51,13 +52,18 @@ public class Account {
 
     private Long income;
 
-    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Boolean isDeleted;
+
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
+    private List<Lecture> lectureList;
+
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
     private List<InstructorCertificate> instructorCertificates;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<LectureMark> lectureMarks;
 
-    @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY)
     private List<Review> reviews;
 
     @PrePersist
@@ -65,5 +71,6 @@ public class Account {
         this.income = this.income == null ? 0 : this.income;
         this.isRequestCertified = this.isRequestCertified != null && this.isRequestCertified;
         this.isCertified = this.isCertified != null && this.isCertified;
+        this.isDeleted = false;
     }
 }

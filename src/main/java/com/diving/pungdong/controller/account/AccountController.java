@@ -5,6 +5,7 @@ import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.controller.lectureImage.LectureImageController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
+import com.diving.pungdong.dto.account.delete.PasswordInfo;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
@@ -112,5 +113,18 @@ public class AccountController {
         model.add(linkTo(methodOn(AccountController.class).updateAccountPassword(account, passwordUpdateInfo, result)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-update-password").withRel("profile"));
         return ResponseEntity.ok().body(model);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> removeAccount(@CurrentUser Account account,
+                                           @Valid @RequestBody PasswordInfo passwordInfo,
+                                           BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        accountService.deleteAccount(account, passwordInfo.getPassword());
+
+        return ResponseEntity.noContent().build();
     }
 }
