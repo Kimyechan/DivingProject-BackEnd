@@ -57,6 +57,8 @@ public class Lecture {
 
     private Integer reviewCount;
 
+    private Boolean isClosed;
+
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<LectureImage> lectureImages;
 
@@ -77,8 +79,6 @@ public class Lecture {
 
     @OneToOne(fetch = FetchType.LAZY)
     private Location location;
-
-    private Boolean isClosed;
 
     @PrePersist
     public void prePersist() {
