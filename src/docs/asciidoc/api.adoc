@@ -238,6 +238,9 @@ operation::lecture-unmark-like[]
 === 강사 자신의 강의 리스트 조회
 operation::lecture-find-my-list[]
 
+[[resource-lecture-update-closed]]
+=== 강의 열고 닫기
+operation::lecture-update-closed[]
 
 [[resource-location]]
 == 강의 위치

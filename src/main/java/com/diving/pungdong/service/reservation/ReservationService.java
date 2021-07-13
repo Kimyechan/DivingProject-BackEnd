@@ -16,8 +16,7 @@ import com.diving.pungdong.domain.schedule.ScheduleEquipmentStock;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
 import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
-import com.diving.pungdong.dto.reservation
-        .detail.ReservationDetail;
+import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.dto.schedule.notification.Notification;

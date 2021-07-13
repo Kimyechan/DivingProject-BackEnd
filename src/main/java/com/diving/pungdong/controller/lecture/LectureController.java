@@ -18,6 +18,7 @@ import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.list.mylist.MyLectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
+import com.diving.pungdong.dto.lecture.update.LectureClosedInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.elasticSearch.LectureEsService;
@@ -218,5 +219,19 @@ public class LectureController {
 
         PagedModel<EntityModel<LikeLectureInfo>> model = assembler.toModel(likeLectureInfoPage);
         return ResponseEntity.ok().body(model);
+    }
+
+    @PatchMapping("/{id}/closed")
+    public ResponseEntity<?> controlLectureClosed(@CurrentUser Account account,
+                                                  @PathVariable("id") Long lectureId,
+                                                  @Valid @RequestBody LectureClosedInfo info,
+                                                  BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        lectureService.updateLectureClosed(account, lectureId, info.getIsClosed());
+
+        return ResponseEntity.noContent().build();
     }
 }

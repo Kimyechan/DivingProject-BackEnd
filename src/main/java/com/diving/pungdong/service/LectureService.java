@@ -387,4 +387,12 @@ public class LectureService {
             lecture.setIsClosed(true);
         }
     }
+
+    @Transactional
+    public void updateLectureClosed(Account account, Long lectureId, Boolean isClosed) {
+        checkLectureCreator(account, lectureId);
+
+        Lecture lecture = findLectureById(lectureId);
+        lecture.setIsClosed(isClosed);
+    }
 }
