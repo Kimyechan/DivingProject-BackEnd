@@ -25,4 +25,5 @@ public class LectureDetail {
     private Integer reviewCount;
     private Boolean isMarked;
     private Set<String> serviceTags;
+    private Boolean isClosed;
 }

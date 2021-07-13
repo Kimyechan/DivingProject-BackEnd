@@ -102,6 +102,7 @@ public class LectureService {
                     .price(lecture.getPrice())
                     .equipmentNames(equipmentNames)
                     .leftScheduleDate(leftScheduleDate)
+                    .isClosed(lecture.getIsClosed())
                     .build();
 
             myLectureInfoList.add(myLectureInfo);
@@ -317,6 +318,7 @@ public class LectureService {
                 .reviewCount(lecture.getReviewCount())
                 .isMarked(isMarked)
                 .serviceTags(lecture.getServiceTags())
+                .isClosed(lecture.getIsClosed())
                 .build();
     }
 

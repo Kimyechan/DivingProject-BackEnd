@@ -151,6 +151,7 @@ class LectureControllerTest {
                                 fieldWithPath("_embedded.myLectureInfoList[].imageUrl").description("자신의 강의 대표 이미지"),
                                 fieldWithPath("_embedded.myLectureInfoList[].equipmentNames[]").description("자신의 강의 대여 장비 목록"),
                                 fieldWithPath("_embedded.myLectureInfoList[].leftScheduleDate").description("자신의 강의의 최신 일정 남은 날짜"),
+                                fieldWithPath("_embedded.myLectureInfoList[].isClosed").description("강의 닫힘 여부"),
                                 fieldWithPath("_links.self.href").description("해당 Api Url"),
                                 fieldWithPath("page.size").description("한 페이지 당 사이즈"),
                                 fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
@@ -175,6 +176,7 @@ class LectureControllerTest {
                 .imageUrl("Url")
                 .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
                 .leftScheduleDate(3L)
+                .isClosed(false)
                 .build();
 
         myLectureInfos.add(myLectureInfo);
@@ -696,6 +698,7 @@ class LectureControllerTest {
                 .reviewCount(100)
                 .isMarked(true)
                 .serviceTags(Set.of("주차 가능", "장비 대여 가능"))
+                .isClosed(false)
                 .build();
 
         given(lectureService.findLectureDetailInfo(any(), any())).willReturn(lectureDetail);
@@ -727,6 +730,7 @@ class LectureControllerTest {
                                         fieldWithPath("region").description("강의 지역"),
                                         fieldWithPath("reviewTotalAvg").description("강의 리뷰 전체 평균"),
                                         fieldWithPath("reviewCount").description("강의 리뷰 갯수"),
+                                        fieldWithPath("isClosed").description("강의 닫힘 여부"),
                                         fieldWithPath("isMarked").description("강의 찜 여부"),
                                         fieldWithPath("serviceTags[]").description("제공되는 서비스 목록"),
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
