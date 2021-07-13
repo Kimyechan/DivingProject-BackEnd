@@ -26,4 +26,5 @@ public class MyLectureInfo {
     private Integer price;
     private List<String> equipmentNames;
     private Long leftScheduleDate;
+    private Boolean isClosed;
 }

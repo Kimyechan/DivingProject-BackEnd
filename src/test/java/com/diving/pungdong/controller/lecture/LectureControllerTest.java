@@ -7,6 +7,7 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
@@ -21,6 +22,7 @@ import com.diving.pungdong.dto.lecture.list.mylist.MyLectureInfo;
 import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.CostCondition;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
+import com.diving.pungdong.dto.lecture.update.LectureClosedInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureImageService;
@@ -43,6 +45,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -148,6 +151,7 @@ class LectureControllerTest {
                                 fieldWithPath("_embedded.myLectureInfoList[].imageUrl").description("자신의 강의 대표 이미지"),
                                 fieldWithPath("_embedded.myLectureInfoList[].equipmentNames[]").description("자신의 강의 대여 장비 목록"),
                                 fieldWithPath("_embedded.myLectureInfoList[].leftScheduleDate").description("자신의 강의의 최신 일정 남은 날짜"),
+                                fieldWithPath("_embedded.myLectureInfoList[].isClosed").description("강의 닫힘 여부"),
                                 fieldWithPath("_links.self.href").description("해당 Api Url"),
                                 fieldWithPath("page.size").description("한 페이지 당 사이즈"),
                                 fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
@@ -172,6 +176,7 @@ class LectureControllerTest {
                 .imageUrl("Url")
                 .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
                 .leftScheduleDate(3L)
+                .isClosed(false)
                 .build();
 
         myLectureInfos.add(myLectureInfo);
@@ -693,6 +698,7 @@ class LectureControllerTest {
                 .reviewCount(100)
                 .isMarked(true)
                 .serviceTags(Set.of("주차 가능", "장비 대여 가능"))
+                .isClosed(false)
                 .build();
 
         given(lectureService.findLectureDetailInfo(any(), any())).willReturn(lectureDetail);
@@ -724,6 +730,7 @@ class LectureControllerTest {
                                         fieldWithPath("region").description("강의 지역"),
                                         fieldWithPath("reviewTotalAvg").description("강의 리뷰 전체 평균"),
                                         fieldWithPath("reviewCount").description("강의 리뷰 갯수"),
+                                        fieldWithPath("isClosed").description("강의 닫힘 여부"),
                                         fieldWithPath("isMarked").description("강의 찜 여부"),
                                         fieldWithPath("serviceTags[]").description("제공되는 서비스 목록"),
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
@@ -877,6 +884,41 @@ class LectureControllerTest {
                                 ),
                                 requestFields(
                                         fieldWithPath("lectureId").description("강의 식별자 값")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("강의 개시 및 중지")
+    public void controlLectureClosed() throws Exception {
+        Long lectureId = 1L;
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        LectureClosedInfo info = LectureClosedInfo.builder()
+                .isClosed(true)
+                .build();
+
+        mockMvc.perform(RestDocumentationRequestBuilders.patch("/lecture/{id}/closed", lectureId)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .content(objectMapper.writeValueAsString(info)))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document(
+                                "lecture-update-closed",
+                                pathParameters(
+                                        parameterWithName("id").description("강의 식별자 값")
+                                ),
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                ),
+                                requestFields(
+                                        fieldWithPath("isClosed").description("강의 닫기 여부")
                                 )
                         )
                 );
