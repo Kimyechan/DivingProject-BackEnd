@@ -71,4 +71,14 @@ public class LectureEsService {
         lectureEs.updateLectureInfo(lectureUpdateInfo);
         lectureEsRepo.save(lectureEs);
     }
+
+    public void updateInstructorNickName(Account account, String newNickName) {
+        List<LectureEs> lectureEsList = lectureEsRepo.findAllByNickName(account.getNickName());
+
+        for (LectureEs lectureEs : lectureEsList) {
+            lectureEs.setNickName(newNickName);
+        }
+
+        lectureEsRepo.saveAll(lectureEsList);
+    }
 }

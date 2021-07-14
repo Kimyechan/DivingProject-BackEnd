@@ -6,6 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface LectureEsRepo extends ElasticsearchRepository<LectureEs, String> {
     @Query("{\n" +
             "\t\"bool\": {\n" +
@@ -28,4 +31,6 @@ public interface LectureEsRepo extends ElasticsearchRepository<LectureEs, String
             "\t    }\n" +
             "}")
     Page<LectureEs> findByTitleOrNickName(String title, String nickName, Pageable pageable);
+
+    List<LectureEs> findAllByNickName(String nickName);
 }
