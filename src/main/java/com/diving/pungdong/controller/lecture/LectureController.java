@@ -80,6 +80,7 @@ public class LectureController {
         }
 
         lectureService.updateLecture(lectureUpdateInfo, account);
+        lectureEsService.updateLectureInfo(lectureUpdateInfo);
 
         return ResponseEntity.noContent().build();
     }

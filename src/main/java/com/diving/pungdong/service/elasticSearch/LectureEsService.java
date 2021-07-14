@@ -1,9 +1,11 @@
 package com.diving.pungdong.service.elasticSearch;
 
+import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.elasticSearch.LectureEs;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.elasticSearch.LectureEsRepo;
 import com.diving.pungdong.service.LectureService;
 import lombok.RequiredArgsConstructor;
@@ -61,5 +63,12 @@ public class LectureEsService {
         }
 
         return new PageImpl<>(lectureInfos, lectureEsPage.getPageable(), lectureEsPage.getContent().size());
+    }
+
+    public void updateLectureInfo(LectureUpdateInfo lectureUpdateInfo) {
+        LectureEs lectureEs = lectureEsRepo.findById(String.valueOf(lectureUpdateInfo.getId())).orElseThrow(ResourceNotFoundException::new);
+
+        lectureEs.updateLectureInfo(lectureUpdateInfo);
+        lectureEsRepo.save(lectureEs);
     }
 }
