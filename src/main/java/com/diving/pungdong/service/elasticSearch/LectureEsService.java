@@ -27,7 +27,9 @@ public class LectureEsService {
     private final ModelMapper modelMapper;
 
     @Transactional
-    public void saveLectureInfo(Long lectureId) {
+    public void saveLectureInfo(Account creator, Long lectureId) {
+        lectureService.checkLectureCreator(creator, lectureId);
+
         Lecture lecture = lectureService.findLectureById(lectureId);
         String lectureImageUrl = lectureService.getMainLectureImage(lecture);
         List<String> equipmentNames = lectureService.mapToEquipmentNames(lecture);

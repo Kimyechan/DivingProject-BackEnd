@@ -5,6 +5,7 @@ import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.security.CurrentUser;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.elasticSearch.LectureEs;
 import com.diving.pungdong.dto.lecture.like.mark.MarkLectureInfo;
 import com.diving.pungdong.dto.lecture.LectureCreatorInfo;
 import com.diving.pungdong.dto.lecture.create.LectureCreateInfo;
@@ -69,6 +70,14 @@ public class LectureController {
         model.add(Link.of("/docs/api.html#resource-lecture-create").withRel("profile"));
 
         return ResponseEntity.created(location.toUri()).body(model);
+    }
+
+    @PostMapping("/{id}/elastic-search")
+    public ResponseEntity<?> createLectureEs(@CurrentUser Account account,
+                                             @PathVariable("id") Long lectureId) {
+        lectureEsService.saveLectureInfo(account, lectureId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping
