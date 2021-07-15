@@ -1,6 +1,7 @@
 package com.diving.pungdong.domain.lecture.elasticSearch;
 
 import com.diving.pungdong.domain.lecture.Organization;
+import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,4 +37,15 @@ public class LectureEs {
     private List<String> equipmentNames;
     private Float starAvg;
     private Integer reviewCount;
+
+    public void updateLectureInfo(LectureUpdateInfo info) {
+        this.title = info.getTitle();
+        this.organization = info.getOrganization();
+        this.level = info.getLevel();
+        this.region = info.getRegion();
+        this.period = info.getPeriod();
+        this.maxNumber = info.getMaxNumber();
+        this.lectureTime = info.getLectureTime();
+        this.price = info.getPrice();
+    }
 }

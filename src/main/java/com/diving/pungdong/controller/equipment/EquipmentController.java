@@ -44,7 +44,7 @@ public class EquipmentController {
         }
 
         EquipmentCreateResult equipmentCreateResult = equipmentService.saveRentEquipmentInfos(account, equipmentCreateInfo);
-        lectureEsService.saveLectureInfo(equipmentCreateResult.getLectureId());
+        lectureEsService.updateEquipmentNames(equipmentCreateInfo);
 
         EntityModel<EquipmentCreateResult> model = EntityModel.of(equipmentCreateResult);
         WebMvcLinkBuilder location = linkTo(methodOn(EquipmentController.class).createLectureEquipments(account, equipmentCreateInfo, result));

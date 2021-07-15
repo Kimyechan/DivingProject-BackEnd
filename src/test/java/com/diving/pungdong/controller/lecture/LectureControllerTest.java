@@ -923,4 +923,31 @@ class LectureControllerTest {
                         )
                 );
     }
+
+    @Test
+    @DisplayName("ElasticSearch에 강의 데이터 저장")
+    public void createLectureEs() throws Exception {
+        Long lectureId = 1L;
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        mockMvc.perform(RestDocumentationRequestBuilders.post("/lecture/{id}/elastic-search", lectureId)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(
+                        document(
+                                "lecture-create-elasticsearch",
+                                pathParameters(
+                                        parameterWithName("id").description("강의 식별자 값")
+                                ),
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),
+                                        headerWithName(HttpHeaders.AUTHORIZATION).optional().description("access token 값")
+                                )
+                        )
+                );
+    }
 }

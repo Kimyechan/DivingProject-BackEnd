@@ -26,6 +26,7 @@ import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.EmailService;
 import com.diving.pungdong.dto.account.read.AccountBasicInfo;
 import com.diving.pungdong.service.LectureService;
+import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -54,6 +55,7 @@ public class AccountService implements UserDetailsService {
     private final AccountKafkaProducer producer;
     private final ProfilePhotoService profilePhotoService;
     private final LectureService lectureService;
+    private final LectureEsService lectureEsService;
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
@@ -242,6 +244,8 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public void updateNickName(Account account, String nickName) {
         checkDuplicationOfNickName(nickName);
+
+        lectureEsService.updateInstructorNickName(account, nickName);
 
         account.setNickName(nickName);
         Account updatedAccount = accountJpaRepo.save(account);
