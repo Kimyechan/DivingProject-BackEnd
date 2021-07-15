@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -91,15 +92,18 @@ public class LectureEsService {
     }
 
     public void updateEquipmentNames(EquipmentCreateInfo info) {
-        List<String> equipmentNames = new ArrayList<>();
-        for (EquipmentInfo equipmentInfo : info.getEquipmentInfos()) {
-            equipmentNames.add(equipmentInfo.getName());
+        Optional<LectureEs> lectureEsOptional = lectureEsRepo.findById(String.valueOf(info.getLectureId()));
+
+        if (lectureEsOptional.isPresent()) {
+            LectureEs lectureEs = lectureEsOptional.get();
+            List<String> equipmentNames = new ArrayList<>();
+            for (EquipmentInfo equipmentInfo : info.getEquipmentInfos()) {
+                equipmentNames.add(equipmentInfo.getName());
+            }
+
+            lectureEs.getEquipmentNames().addAll(equipmentNames);
+            lectureEsRepo.save(lectureEs);
         }
-
-        LectureEs lectureEs = lectureEsRepo.findById(String.valueOf(info.getLectureId())).orElseThrow(ResourceNotFoundException::new);
-
-        lectureEs.getEquipmentNames().addAll(equipmentNames);
-        lectureEsRepo.save(lectureEs);
     }
 
     public void updateMainLectureImage(Long lectureId) {
