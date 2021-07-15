@@ -4,6 +4,8 @@ import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.elasticSearch.LectureEs;
+import com.diving.pungdong.dto.equipment.create.EquipmentCreateInfo;
+import com.diving.pungdong.dto.equipment.create.EquipmentInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.repo.elasticSearch.LectureEsRepo;
@@ -82,5 +84,17 @@ public class LectureEsService {
         }
 
         lectureEsRepo.saveAll(lectureEsList);
+    }
+
+    public void updateEquipmentNames(EquipmentCreateInfo info) {
+        List<String> equipmentNames = new ArrayList<>();
+        for (EquipmentInfo equipmentInfo : info.getEquipmentInfos()) {
+            equipmentNames.add(equipmentInfo.getName());
+        }
+
+        LectureEs lectureEs = lectureEsRepo.findById(String.valueOf(info.getLectureId())).orElseThrow(ResourceNotFoundException::new);
+
+        lectureEs.getEquipmentNames().addAll(equipmentNames);
+        lectureEsRepo.save(lectureEs);
     }
 }
