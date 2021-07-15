@@ -3,12 +3,15 @@ package com.diving.pungdong.service.elasticSearch;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.lecture.elasticSearch.LectureEs;
 import com.diving.pungdong.dto.equipment.create.EquipmentCreateInfo;
 import com.diving.pungdong.dto.equipment.create.EquipmentInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
+import com.diving.pungdong.dto.lectureImage.delete.LectureImageDeleteInfo;
 import com.diving.pungdong.repo.elasticSearch.LectureEsRepo;
+import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import com.diving.pungdong.service.LectureService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectureEsService {
     private final LectureEsRepo lectureEsRepo;
+    private final LectureJpaRepo lectureJpaRepo;
     private final LectureService lectureService;
     private final ModelMapper modelMapper;
 
@@ -96,5 +100,16 @@ public class LectureEsService {
 
         lectureEs.getEquipmentNames().addAll(equipmentNames);
         lectureEsRepo.save(lectureEs);
+    }
+
+    public void updateMainLectureImage(Long lectureId) {
+        Lecture lecture = lectureJpaRepo.findByIdWithImages(lectureId).orElseThrow(ResourceNotFoundException::new);
+
+        if (!lecture.getLectureImages().isEmpty()) {
+            LectureEs lectureEs = lectureEsRepo.findById(String.valueOf(lectureId)).orElseThrow(ResourceNotFoundException::new);
+
+            lectureEs.setImageUrl(lecture.getLectureImages().get(0).getFileURI());
+            lectureEsRepo.save(lectureEs);
+        }
     }
 }

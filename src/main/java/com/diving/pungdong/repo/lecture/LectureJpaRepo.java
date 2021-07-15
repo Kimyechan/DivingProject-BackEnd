@@ -32,4 +32,7 @@ public interface LectureJpaRepo extends JpaRepository<Lecture, Long>, LectureJpa
     Page<Lecture> findPopularLectures(Pageable pageable);
 
     List<Lecture> findByInstructor(Account instructor);
+
+    @Query("select l from Lecture l join fetch l.lectureImages where l.id = :lectureId")
+    Optional<Lecture> findByIdWithImages(@Param("lectureId") Long lectureId);
 }
