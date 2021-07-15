@@ -7,6 +7,7 @@ import com.diving.pungdong.dto.lectureImage.LectureImageInfo;
 import com.diving.pungdong.dto.lectureImage.LectureImageUrl;
 import com.diving.pungdong.dto.lectureImage.delete.LectureImageDeleteInfo;
 import com.diving.pungdong.service.LectureImageService;
+import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -29,6 +30,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "/lectureImage")
 public class LectureImageController {
     private final LectureImageService lectureImageService;
+    private final LectureEsService lectureEsService;
 
     @PostMapping("/create/list")
     public ResponseEntity<?> createLectureImages(@CurrentUser Account account,
@@ -63,6 +65,7 @@ public class LectureImageController {
         }
 
         lectureImageService.deleteImages(account, lectureImageDeleteInfo);
+        lectureEsService.updateMainLectureImage(lectureImageDeleteInfo.getLectureId());
 
         return ResponseEntity.noContent().build();
     }
