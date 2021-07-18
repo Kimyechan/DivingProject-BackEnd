@@ -82,6 +82,7 @@ public class ReviewService {
         Reservation reservation = reservationService.findById(reviewCreateInfo.getReservationId());
         checkPossibleDate(reservation.getSchedule().getScheduleDateTimes());
         checkPossibleReviewer(reservation.getAccount(), account);
+        checkWriteReviewPrevious(reservation.getReview());
 
         Lecture lecture = reservation.getSchedule().getLecture();
         Review review = Review.builder()
@@ -99,6 +100,12 @@ public class ReviewService {
         reservation.setReview(savedReview);
 
         return savedReview;
+    }
+
+    private void checkWriteReviewPrevious(Review review) {
+        if (review != null) {
+            throw new BadRequestException("리뷰가 이미 작성되었습니다.");
+        }
     }
 
     public void checkPossibleReviewer(Account reservationOwner, Account account) {
