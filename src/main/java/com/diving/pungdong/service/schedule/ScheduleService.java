@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,7 +46,7 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public List<Schedule> findLectureScheduleByMonth(Long lectureId, Month month, LocalDate currentDate) {
+    public List<Schedule> findLectureScheduleByMonth(Long lectureId, int year, Month month, LocalDate currentDate) {
         List<Schedule> schedules = findByLectureId(lectureId);
 
         List<Schedule> possibleMonthSchedules = new ArrayList<>();
@@ -54,7 +55,7 @@ public class ScheduleService {
             scheduleDateTimes.sort(Comparator.comparing(ScheduleDateTime::getDate));
             LocalDate scheduleFirstDate = scheduleDateTimes.get(0).getDate();
 
-            if (scheduleFirstDate.isAfter(currentDate) && scheduleFirstDate.getMonth() == month) {
+            if (scheduleFirstDate.isAfter(currentDate) && scheduleFirstDate.getYear() == year && scheduleFirstDate.getMonth() == month) {
                 possibleMonthSchedules.add(schedule);
             }
         }
