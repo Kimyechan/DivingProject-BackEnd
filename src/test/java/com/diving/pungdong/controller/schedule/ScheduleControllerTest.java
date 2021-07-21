@@ -34,6 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -137,6 +138,7 @@ class ScheduleControllerTest {
     @DisplayName("해당 강의 일정 조회")
     public void findSchedulesByLectureId() throws Exception {
         Long lectureId = 1L;
+        int year = 2021;
         Month month = Month.JANUARY;
 
         List<ScheduleInfo> scheduleInfos = new ArrayList<>();
@@ -157,11 +159,12 @@ class ScheduleControllerTest {
             scheduleInfos.add(scheduleInfo);
         }
 
-        given(scheduleService.findLectureScheduleByMonth(lectureId, month, LocalDate.now())).willReturn(new ArrayList<>());
+        given(scheduleService.findLectureScheduleByMonth(lectureId, year, month, LocalDate.now())).willReturn(new ArrayList<>());
         given(scheduleService.mapToScheduleInfos(any())).willReturn(scheduleInfos);
 
         mockMvc.perform(get("/schedule")
                 .param("lectureId", String.valueOf(lectureId))
+                .param("year", String.valueOf(year))
                 .param("month", String.valueOf(month.getValue())))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -169,6 +172,7 @@ class ScheduleControllerTest {
                         document("schedule-read-list",
                                 requestParameters(
                                         parameterWithName("lectureId").description("강의 식별자 값"),
+                                        parameterWithName("year").description("조회할 일정의 연도"),
                                         parameterWithName("month").description("조회할 일정의 월 지정")
                                 ),
                                 responseFields(

@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +43,23 @@ class ScheduleServiceTest {
 
         doReturn(schedules).when(scheduleService).findByLectureId(lectureId);
 
-        List<Schedule> possibleSchedule = scheduleService.findLectureScheduleByMonth(lectureId, Month.JANUARY, currentDate);
+        List<Schedule> possibleSchedule = scheduleService.findLectureScheduleByMonth(lectureId, 2021, Month.JANUARY, currentDate);
 
         assertThat(possibleSchedule.size()).isEqualTo(16);
+    }
+
+    @Test
+    @DisplayName("같은 달 연도가 다른 일정 조회되지 않음")
+    public void filterSameMonthDiffYear() {
+        Long lectureId = 1L;
+        LocalDate currentDate = LocalDate.of(2021, 1, 15);
+        List<Schedule> schedules = createSchedules(currentDate);
+
+        doReturn(schedules).when(scheduleService).findByLectureId(lectureId);
+
+        List<Schedule> possibleSchedule = scheduleService.findLectureScheduleByMonth(lectureId, 2020, Month.JANUARY, currentDate);
+
+        assertThat(possibleSchedule.size()).isEqualTo(0);
     }
 
     private List<Schedule> createSchedules(LocalDate currentDate) {

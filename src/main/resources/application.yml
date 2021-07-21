@@ -18,6 +18,11 @@ spring:
     basename: i18n/exception
     encoding: UTF-8
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
   jwt.secret: jwt_secret_key
 
 logging:

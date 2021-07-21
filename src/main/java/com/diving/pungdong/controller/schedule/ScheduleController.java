@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.Year;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -56,12 +57,13 @@ public class ScheduleController {
 
     @GetMapping
     public ResponseEntity<?> findScheduleByMonth(@NotNull @RequestParam Long lectureId,
+                                                 @NotNull @RequestParam int year,
                                                  @NotNull @RequestParam int month) {
-        List<Schedule> schedules = scheduleService.findLectureScheduleByMonth(lectureId, Month.of(month), LocalDate.now());
+        List<Schedule> schedules = scheduleService.findLectureScheduleByMonth(lectureId, year, Month.of(month), LocalDate.now());
         List<ScheduleInfo> scheduleInfos = scheduleService.mapToScheduleInfos(schedules);
 
         CollectionModel<ScheduleInfo> model = CollectionModel.of(scheduleInfos);
-        model.add(linkTo(methodOn(ScheduleController.class).findScheduleByMonth(lectureId, month)).withSelfRel());
+        model.add(linkTo(methodOn(ScheduleController.class).findScheduleByMonth(lectureId, year, month)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-schedule-read-list").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
