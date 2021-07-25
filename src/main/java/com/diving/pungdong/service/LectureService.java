@@ -361,6 +361,7 @@ public class LectureService {
                     .starAvg(lecture.getReviewTotalAvg())
                     .price(lecture.getPrice())
                     .equipmentNames(equipmentNames)
+                    .isMarked(true)
                     .build();
 
             likeLectureInfos.add(lectureInfo);

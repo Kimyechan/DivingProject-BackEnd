@@ -808,6 +808,7 @@ class LectureControllerTest {
                     .equipmentNames(List.of("아쿠아 슈즈", "슈트"))
                     .starAvg(4.5f)
                     .reviewCount(100)
+                    .isMarked(true)
                     .build();
             likeLectureInfos.add(likeLectureInfo);
         }

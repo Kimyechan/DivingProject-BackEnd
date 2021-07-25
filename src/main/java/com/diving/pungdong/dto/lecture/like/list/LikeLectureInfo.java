@@ -25,4 +25,5 @@ public class LikeLectureInfo {
     private List<String> equipmentNames;
     private Float starAvg;
     private Integer reviewCount;
+    private Boolean isMarked;
 }
