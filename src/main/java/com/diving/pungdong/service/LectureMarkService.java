@@ -12,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -46,5 +49,21 @@ public class LectureMarkService {
         LectureMark lectureMark = lectureMarkJpaRepo.findByAccountAndLecture(accountId, lectureId).orElseThrow(ResourceNotFoundException::new);
 
         lectureMarkJpaRepo.deleteById(lectureMark.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, Boolean> findLikeLectureMap(Account account) {
+        Map<Long, Boolean> likeLectureMap = new HashMap<>();
+        if (account == null) {
+            return likeLectureMap;
+        }
+
+        List<LectureMark> lectureMarks = lectureMarkJpaRepo.findByAccount(account);
+        for (LectureMark lectureMark : lectureMarks) {
+            Lecture likeLecture = lectureMark.getLecture();
+            likeLectureMap.put(likeLecture.getId(), true);
+        }
+
+        return likeLectureMap;
     }
 }
