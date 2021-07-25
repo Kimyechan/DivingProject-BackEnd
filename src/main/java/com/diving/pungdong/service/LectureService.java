@@ -33,6 +33,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -136,6 +137,7 @@ public class LectureService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Page<NewLectureInfo> getNewLecturesInfo(Account account, Pageable pageable) {
         LocalDateTime pastDateTime = LocalDateTime.now().minusDays(15);
         Page<Lecture> lecturePage = lectureJpaRepo.findLectureByRegistrationDateAfter(pastDateTime, pageable);
@@ -145,11 +147,14 @@ public class LectureService {
         return new PageImpl<>(newLectureInfos, lecturePage.getPageable(), lecturePage.getContent().size());
     }
 
+    @Transactional(readOnly = true)
     public List<NewLectureInfo> mapToNewLectureInfos(Account account, Page<Lecture> lecturePage) {
         List<NewLectureInfo> newLectureInfos = new ArrayList<>();
+        Map<Long, Boolean> likeLectureMap = lectureMarkService.findLikeLectureMap(account);
+
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
-            boolean isMarked = isLectureMarked(account, lecture.getId());
+            boolean isMarked = likeLectureMap.getOrDefault(lecture.getId(), false);
             List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             NewLectureInfo newLectureInfo = NewLectureInfo.builder()
@@ -200,9 +205,11 @@ public class LectureService {
     @Transactional(readOnly = true)
     public List<LectureInfo> mapToPopularLectureInfos(Account account, Page<Lecture> lecturePage) {
         List<LectureInfo> lectureInfos = new ArrayList<>();
+        Map<Long, Boolean> likeLectureMap = lectureMarkService.findLikeLectureMap(account);
+
         for (Lecture lecture : lecturePage.getContent()) {
             String lectureImageUrl = getMainLectureImage(lecture);
-            boolean isMarked = isLectureMarked(account, lecture.getId());
+            boolean isMarked = likeLectureMap.getOrDefault(lecture.getId(), false);
             List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             LectureInfo lectureInfo = LectureInfo.builder()
@@ -354,6 +361,7 @@ public class LectureService {
                     .starAvg(lecture.getReviewTotalAvg())
                     .price(lecture.getPrice())
                     .equipmentNames(equipmentNames)
+                    .isMarked(true)
                     .build();
 
             likeLectureInfos.add(lectureInfo);
