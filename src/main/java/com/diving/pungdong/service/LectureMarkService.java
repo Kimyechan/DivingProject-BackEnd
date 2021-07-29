@@ -66,4 +66,9 @@ public class LectureMarkService {
 
         return likeLectureMap;
     }
+
+    @Transactional(readOnly = true)
+    public List<LectureMark> findAllLectureMarkByAccount(Account account) {
+        return lectureMarkJpaRepo.findByAccount(account);
+    }
 }

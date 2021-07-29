@@ -50,6 +50,9 @@ class LectureServiceTest {
     @Mock
     private EquipmentService equipmentService;
 
+    @Mock
+    private LectureMarkService lectureMarkService;
+
     @Test
     @DisplayName("강의 생성")
     public void saveLecture() {
@@ -82,8 +85,9 @@ class LectureServiceTest {
 
         Account account = Account.builder()
                 .id(1L)
-                .lectureMarks(lectureMarks)
                 .build();
+
+        given(lectureMarkService.findAllLectureMarkByAccount(account)).willReturn(lectureMarks);
 
         boolean result = lectureService.isLectureMarked(account, 1L);
 
@@ -102,8 +106,9 @@ class LectureServiceTest {
 
         Account account = Account.builder()
                 .id(1L)
-                .lectureMarks(lectureMarks)
                 .build();
+
+        given(lectureMarkService.findAllLectureMarkByAccount(account)).willReturn(lectureMarks);
 
         boolean result = lectureService.isLectureMarked(account, 2L);
 
