@@ -11,6 +11,10 @@ permissions:
     mode: 755
 hooks:
   AfterInstall:
-    - location: deploy.sh
+    - location: scripts/deploy.sh
       timeout: 60
+      runas: root
+  ValidateService:
+    - location: scripts/restart-codedeploy-agent.sh
+      timeout: 300
       runas: root
