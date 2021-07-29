@@ -184,8 +184,10 @@ public class LectureService {
             return false;
         }
 
+        List<LectureMark> lectureMarks = lectureMarkService.findAllLectureMarkByAccount(account);
+
         boolean isMarked = false;
-        for (LectureMark lectureMark : account.getLectureMarks()) {
+        for (LectureMark lectureMark : lectureMarks) {
             if (lectureMark.getLecture().getId().equals(lectureId)) {
                 isMarked = true;
                 break;
