@@ -23,7 +23,6 @@ public class LectureDetail {
     private String region;
     private Float reviewTotalAvg;
     private Integer reviewCount;
-    private Boolean isMarked;
     private Set<String> serviceTags;
     private Boolean isClosed;
 }

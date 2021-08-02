@@ -19,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LectureMarkService {
     private final LectureMarkJpaRepo lectureMarkJpaRepo;
 
@@ -44,7 +45,6 @@ public class LectureMarkService {
         }
     }
 
-    @Transactional
     public void deleteMarkLecture(Long accountId, Long lectureId) {
         LectureMark lectureMark = lectureMarkJpaRepo.findByAccountAndLecture(accountId, lectureId).orElseThrow(ResourceNotFoundException::new);
 
@@ -70,5 +70,16 @@ public class LectureMarkService {
     @Transactional(readOnly = true)
     public List<LectureMark> findAllLectureMarkByAccount(Account account) {
         return lectureMarkJpaRepo.findByAccount(account);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existLectureMark(Account account, Long lectureId) {
+        if (account == null) {
+            return false;
+        }
+
+        Optional<LectureMark> lectureMark = lectureMarkJpaRepo.findByAccountAndLecture(account.getId(), lectureId);
+
+        return lectureMark.isPresent();
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,5 +59,50 @@ class LectureMarkServiceTest {
 
             assertThat(likeLectureMap.getOrDefault(lectureId, false)).isEqualTo(true);
         }
+    }
+
+    @Test
+    @DisplayName("회원 좋아요 체크 조회 - 로그인 안 했을 때")
+    public void existLectureMarkNotLogin() {
+        //given
+        Long lectureId = 1L;
+
+        // when
+        boolean marked = lectureMarkService.existLectureMark(null, lectureId);
+
+        // then
+        assertFalse(marked);
+    }
+
+    @Test
+    @DisplayName("회원 좋아요 체크 안 했을 때 여부 조회")
+    public void existLectureMarkFalse() {
+        //given
+        Account account = Account.builder().id(1L).build();
+        Long lectureId = 1L;
+
+        given(lectureMarkJpaRepo.findByAccountAndLecture(account.getId(), lectureId)).willReturn(Optional.empty());
+
+        // when
+        boolean marked = lectureMarkService.existLectureMark(account, lectureId);
+
+        // then
+        assertFalse(marked);
+    }
+
+    @Test
+    @DisplayName("회원 좋아요 체크 했을 때 여부 조회")
+    public void existLectureMarkTrue() {
+        //given
+        Account account = Account.builder().id(1L).build();
+        Long lectureId = 1L;
+
+        given(lectureMarkJpaRepo.findByAccountAndLecture(account.getId(), lectureId)).willReturn(Optional.of(new LectureMark()));
+
+        // when
+        boolean marked = lectureMarkService.existLectureMark(account, lectureId);
+
+        // then
+        assertTrue(marked);
     }
 }

@@ -20,8 +20,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final AccountService accountService;
-    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -34,38 +32,4 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
-
-//    @Override
-//    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-//        String token = jwtTokenProvider.resolveToken((HttpServletRequest) servletRequest);
-//        Boolean isRefreshToken = jwtTokenProvider.isRefreshToken((HttpServletRequest) servletRequest);
-//
-//        if (isRefreshToken != null) {
-//            if (!isRefreshToken && token != null && !jwtTokenProvider.validateToken(token)) {
-//                handlerExceptionResolver
-//                        .resolveException((HttpServletRequest)servletRequest, (HttpServletResponse)servletResponse, null, new ExpiredAccessTokenException());
-//            }
-//
-//            if (isRefreshToken && token != null && !jwtTokenProvider.validateToken(token)) {
-//                handlerExceptionResolver
-//                        .resolveException((HttpServletRequest)servletRequest, (HttpServletResponse)servletResponse, null, new ExpiredRefreshTokenException());
-//            }
-//
-//            if (isRefreshToken && token != null && jwtTokenProvider.validateToken(token)) {
-//                filterChain.doFilter(servletRequest, servletResponse);
-//            }
-//            if (!isRefreshToken && token != null && jwtTokenProvider.validateToken(token)) {
-//                if (accountService.checkValidToken(token) != null) {
-//                    handlerExceptionResolver
-//                            .resolveException((HttpServletRequest)servletRequest, (HttpServletResponse)servletResponse, null, new ForbiddenTokenException());
-//                } else {
-//                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
-//                    SecurityContextHolder.getContext().setAuthentication(authentication);
-//                    filterChain.doFilter(servletRequest, servletResponse);
-//                }
-//            }
-//        } else {
-//            filterChain.doFilter(servletRequest, servletResponse);
-//        }
-//    }
 }

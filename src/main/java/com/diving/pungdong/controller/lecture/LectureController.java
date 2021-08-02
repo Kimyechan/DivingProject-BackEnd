@@ -3,6 +3,7 @@ package com.diving.pungdong.controller.lecture;
 import com.diving.pungdong.advice.exception.BadRequestException;
 import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.config.security.CurrentUser;
+import com.diving.pungdong.domain.LectureMark;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.lecture.elasticSearch.LectureEs;
@@ -21,6 +22,8 @@ import com.diving.pungdong.dto.lecture.list.newList.NewLectureInfo;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureClosedInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
+import com.diving.pungdong.dto.lectureMark.LectureMarkModel;
+import com.diving.pungdong.service.LectureMarkService;
 import com.diving.pungdong.service.LectureService;
 import com.diving.pungdong.service.elasticSearch.LectureEsService;
 import com.diving.pungdong.service.image.S3Uploader;
@@ -52,6 +55,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class LectureController {
     private final LectureService lectureService;
     private final LectureEsService lectureEsService;
+    private final LectureMarkService lectureMarkService;
     private final S3Uploader s3Uploader;
 
     @PostMapping("/create")
@@ -181,13 +185,23 @@ public class LectureController {
     }
 
     @GetMapping
-    public ResponseEntity<?> findLecture(@CurrentUser Account account,
-                                         @NotNull @RequestParam Long id) {
-        LectureDetail lectureDetail = lectureService.findLectureDetailInfo(id, account);
+    public ResponseEntity<?> findLecture(@NotNull @RequestParam Long id) {
+        LectureDetail lectureDetail = lectureService.findLectureDetailInfo(id);
 
         EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
-        model.add(linkTo(methodOn(LectureController.class).findLecture(account, id)).withSelfRel());
+        model.add(linkTo(methodOn(LectureController.class).findLecture(id)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-find-info").withRel("profile"));
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/{id}/like")
+    public ResponseEntity<?> readLectureMark(@CurrentUser Account account,
+                                         @PathVariable("id") Long lectureId) {
+        boolean isMarked = lectureMarkService.existLectureMark(account, lectureId);
+
+        LectureMarkModel model = new LectureMarkModel(isMarked);
+        model.add(linkTo(methodOn(LectureController.class).readLectureMark(account, lectureId)).withSelfRel());
+
         return ResponseEntity.ok().body(model);
     }
 
