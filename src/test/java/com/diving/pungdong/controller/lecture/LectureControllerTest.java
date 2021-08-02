@@ -699,12 +699,11 @@ class LectureControllerTest {
                 .period(5)
                 .reviewTotalAvg(4.5f)
                 .reviewCount(100)
-                .isMarked(true)
                 .serviceTags(Set.of("주차 가능", "장비 대여 가능"))
                 .isClosed(false)
                 .build();
 
-        given(lectureService.findLectureDetailInfo(any(), any())).willReturn(lectureDetail);
+        given(lectureService.findLectureDetailInfo(any())).willReturn(lectureDetail);
 
         mockMvc.perform(get("/lecture")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
@@ -734,7 +733,6 @@ class LectureControllerTest {
                                         fieldWithPath("reviewTotalAvg").description("강의 리뷰 전체 평균"),
                                         fieldWithPath("reviewCount").description("강의 리뷰 갯수"),
                                         fieldWithPath("isClosed").description("강의 닫힘 여부"),
-                                        fieldWithPath("isMarked").description("강의 찜 여부"),
                                         fieldWithPath("serviceTags[]").description("제공되는 서비스 목록"),
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
                                         fieldWithPath("_links.profile.href").description("API 문서 링크")

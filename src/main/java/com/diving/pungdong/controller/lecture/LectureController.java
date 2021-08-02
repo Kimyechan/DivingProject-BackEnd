@@ -185,12 +185,11 @@ public class LectureController {
     }
 
     @GetMapping
-    public ResponseEntity<?> findLecture(@CurrentUser Account account,
-                                         @NotNull @RequestParam Long id) {
-        LectureDetail lectureDetail = lectureService.findLectureDetailInfo(id, account);
+    public ResponseEntity<?> findLecture(@NotNull @RequestParam Long id) {
+        LectureDetail lectureDetail = lectureService.findLectureDetailInfo(id);
 
         EntityModel<LectureDetail> model = EntityModel.of(lectureDetail);
-        model.add(linkTo(methodOn(LectureController.class).findLecture(account, id)).withSelfRel());
+        model.add(linkTo(methodOn(LectureController.class).findLecture(id)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-lecture-find-info").withRel("profile"));
         return ResponseEntity.ok().body(model);
     }
