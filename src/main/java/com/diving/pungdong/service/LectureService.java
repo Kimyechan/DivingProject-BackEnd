@@ -308,9 +308,8 @@ public class LectureService {
     }
 
     @Transactional(readOnly = true)
-    public LectureDetail findLectureDetailInfo(Long id, Account account) {
+    public LectureDetail findLectureDetailInfo(Long id) {
         Lecture lecture = findLectureById(id);
-        Boolean isMarked = isLectureMarked(account, id);
 
         return LectureDetail.builder()
                 .id(lecture.getId())
@@ -325,7 +324,6 @@ public class LectureService {
                 .region(lecture.getRegion())
                 .reviewTotalAvg(lecture.getReviewTotalAvg())
                 .reviewCount(lecture.getReviewCount())
-                .isMarked(isMarked)
                 .serviceTags(lecture.getServiceTags())
                 .isClosed(lecture.getIsClosed())
                 .build();

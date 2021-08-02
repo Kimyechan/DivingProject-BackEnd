@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
 import com.diving.pungdong.dto.lectureImage.delete.LectureImageDeleteInfo;
 import com.diving.pungdong.repo.elasticSearch.LectureEsRepo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
+import com.diving.pungdong.service.LectureMarkService;
 import com.diving.pungdong.service.LectureService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -31,6 +33,7 @@ public class LectureEsService {
     private final LectureEsRepo lectureEsRepo;
     private final LectureJpaRepo lectureJpaRepo;
     private final LectureService lectureService;
+    private final LectureMarkService lectureMarkService;
     private final ModelMapper modelMapper;
 
     @Transactional
@@ -62,10 +65,12 @@ public class LectureEsService {
 
     public Page<LectureInfo> getListContainKeyword(Account account, String keyword, Pageable pageable) {
         Page<LectureEs> lectureEsPage = lectureEsRepo.findByTitleOrNickName(keyword, keyword, pageable);
+        Map<Long, Boolean> likeLectureMap = lectureMarkService.findLikeLectureMap(account);
+
         List<LectureInfo> lectureInfos = new ArrayList<>();
         for (LectureEs lectureEs : lectureEsPage) {
             LectureInfo lectureInfo = modelMapper.map(lectureEs, LectureInfo.class);
-            boolean isMarked = lectureService.isLectureMarked(account, lectureEs.getId());
+            boolean isMarked = likeLectureMap.getOrDefault(lectureEs.getId(), false);
             lectureInfo.setIsMarked(isMarked);
 
             lectureInfos.add(lectureInfo);

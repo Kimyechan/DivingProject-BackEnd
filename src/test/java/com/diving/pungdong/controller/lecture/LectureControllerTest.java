@@ -24,6 +24,7 @@ import com.diving.pungdong.dto.lecture.list.search.CostCondition;
 import com.diving.pungdong.dto.lecture.list.search.FilterSearchCondition;
 import com.diving.pungdong.dto.lecture.update.LectureClosedInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
+import com.diving.pungdong.service.LectureMarkService;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.LectureImageService;
 import com.diving.pungdong.service.LectureService;
@@ -93,6 +94,8 @@ class LectureControllerTest {
     LectureEsService lectureEsService;
     @MockBean
     S3Uploader s3Uploader;
+    @MockBean
+    private LectureMarkService lectureMarkService;
 
     public Account createAccount() {
         Account account = Account.builder()
@@ -696,12 +699,11 @@ class LectureControllerTest {
                 .period(5)
                 .reviewTotalAvg(4.5f)
                 .reviewCount(100)
-                .isMarked(true)
                 .serviceTags(Set.of("주차 가능", "장비 대여 가능"))
                 .isClosed(false)
                 .build();
 
-        given(lectureService.findLectureDetailInfo(any(), any())).willReturn(lectureDetail);
+        given(lectureService.findLectureDetailInfo(any())).willReturn(lectureDetail);
 
         mockMvc.perform(get("/lecture")
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
@@ -731,13 +733,40 @@ class LectureControllerTest {
                                         fieldWithPath("reviewTotalAvg").description("강의 리뷰 전체 평균"),
                                         fieldWithPath("reviewCount").description("강의 리뷰 갯수"),
                                         fieldWithPath("isClosed").description("강의 닫힘 여부"),
-                                        fieldWithPath("isMarked").description("강의 찜 여부"),
                                         fieldWithPath("serviceTags[]").description("제공되는 서비스 목록"),
                                         fieldWithPath("_links.self.href").description("해당 API 링크"),
                                         fieldWithPath("_links.profile.href").description("API 문서 링크")
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("한 강의의 찜 여부 조회")
+    public void readLectureMark() throws Exception {
+        Long lectureId = 1L;
+
+        Account account = createAccount();
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        given(lectureMarkService.existLectureMark(account, lectureId)).willReturn(true);
+
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/lecture/{id}/like", lectureId)
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("lecture-read-mark",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("id").optional()
+                        ),
+                        pathParameters(
+                                parameterWithName("id").description("강의 식별자")
+                        ),
+                        responseFields(
+                                fieldWithPath("marked").description("좋아요 여부"),
+                                fieldWithPath("_links.self.href").description("해당 자원 조회 URL")
+                        )
+                ));
     }
 
     @Test
