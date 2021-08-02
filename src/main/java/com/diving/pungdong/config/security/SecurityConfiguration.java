@@ -48,7 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/sign/sign-up", "/sign/login", "/sign/check/**", "/sign/refresh",
                                 "/email/code/**").permitAll()
                         .antMatchers("/lecture/detail", "/lecture/list", "/lecture/new/list", "/lecture/popular/list", "/lecture/list/search/**",
-                                "/lecture/instructor/info/creator").permitAll()
+                                "/lecture/instructor/info/creator", "/lecture/*/like").permitAll()
                         .antMatchers(HttpMethod.GET, "/lecture", "/location", "/review/list", "/equipment/list").permitAll()
                         .antMatchers(HttpMethod.GET, "/schedule", "/schedule/equipments").permitAll()
                         .antMatchers(HttpMethod.PATCH, "/account/deleted-state").permitAll()
@@ -64,7 +64,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                     .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
-                    .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, accountService, handlerExceptionResolver)
+                    .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider)
                             , UsernamePasswordAuthenticationFilter.class);
     }
 
