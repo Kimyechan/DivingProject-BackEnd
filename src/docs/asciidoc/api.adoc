@@ -137,6 +137,10 @@ operation::account-add-instructor-certificate[]
 === 강사 자격증 조회
 operation::account-instructor-certificate-read-list[]
 
+[[resource-account-check-instructor-application]]
+=== 강사 신청 여부 조회
+operation::account-check-instructor-application[]
+
 [[resource-account-instructor-get-request-list]]
 === 강사 신청자 조회
 operation::account-instructor-get-request-list[]

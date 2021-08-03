@@ -8,6 +8,7 @@ import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.dto.account.delete.PasswordInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorApplication;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.restore.AccountRestoreInfo;
@@ -29,6 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -128,6 +130,29 @@ class AccountControllerTest {
                 );
     }
 
+    @Test
+    @DisplayName("강사 신청 여부 조회")
+    public void checkInstructorApplication() throws Exception {
+        Account account = createAccount(Role.INSTRUCTOR);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), account.getRoles());
+
+        given(accountService.checkInstructorApplication(account.getId())).willReturn(true);
+
+        mockMvc.perform(get("/account/instructor-application")
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document("account-check-instructor-application",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("applied").description("강사 지원 여부")
+                                )
+                        )
+                );
+    }
 
     @Test
     @DisplayName("강사 정보 조회")

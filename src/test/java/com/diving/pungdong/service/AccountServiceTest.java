@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
@@ -110,5 +111,23 @@ class AccountServiceTest {
         Account instructor = accountService.addInstructorRole(account.getId());
 
         assertThat(instructor.getRoles()).contains(Role.INSTRUCTOR);
+    }
+
+    @Test
+    @DisplayName("강사 지원 여부 확인")
+    public void checkInstructorApplication() {
+        // given
+        Account account = Account.builder()
+                .id(1L)
+                .isRequestCertified(true)
+                .build();
+
+        doReturn(account).when(accountService).findAccountById(account.getId());
+
+        // when
+        boolean isApplied = accountService.checkInstructorApplication(account.getId());
+
+        // then
+        assertTrue(isApplied);
     }
 }
