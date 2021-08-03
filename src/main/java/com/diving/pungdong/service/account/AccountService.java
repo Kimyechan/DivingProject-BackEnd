@@ -282,4 +282,11 @@ public class AccountService implements UserDetailsService {
 
         return account;
     }
+
+    @Transactional(readOnly = true)
+    public boolean checkInstructorApplication(Long applicantId) {
+        Account account = findAccountById(applicantId);
+
+        return account.getIsRequestCertified();
+    }
 }

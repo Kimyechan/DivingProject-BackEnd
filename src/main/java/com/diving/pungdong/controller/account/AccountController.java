@@ -6,6 +6,7 @@ import com.diving.pungdong.controller.lectureImage.LectureImageController;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.InstructorCertificate;
 import com.diving.pungdong.dto.account.delete.PasswordInfo;
+import com.diving.pungdong.dto.account.instructor.InstructorApplication;
 import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertificateInfo;
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.restore.AccountRestoreInfo;
@@ -55,6 +56,15 @@ public class AccountController {
         model.add(linkTo(methodOn(AccountController.class).readInstructorInfo(account)).withSelfRel());
         model.add(Link.of("/docs/api.html#resource-account-instructor-read").withRel("profile"));
         return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/instructor-application")
+    public ResponseEntity<?> checkInstructorApplication(@CurrentUser Account account) {
+        boolean isApplied = accountService.checkInstructorApplication(account.getId());
+
+        InstructorApplication instructorApplication = new InstructorApplication(isApplied);
+
+        return ResponseEntity.ok().body(instructorApplication);
     }
 
     @GetMapping("/instructor/certificate/list")
