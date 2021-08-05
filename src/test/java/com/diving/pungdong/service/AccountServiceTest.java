@@ -4,6 +4,7 @@ import com.diving.pungdong.config.security.JwtTokenProvider;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.dto.account.update.ForgotPasswordInfo;
 import com.diving.pungdong.repo.AccountJpaRepo;
 import com.diving.pungdong.service.account.AccountService;
 import com.diving.pungdong.service.kafka.AccountKafkaProducer;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 @ActiveProfiles("test")
@@ -52,6 +54,9 @@ class AccountServiceTest {
 
     @Mock
     private AccountKafkaProducer accountKafkaProducer;
+
+    @Mock
+    private EmailService emailService;
 
     @Test
     @DisplayName("account 계정을 저장한다")
@@ -129,5 +134,29 @@ class AccountServiceTest {
 
         // then
         assertTrue(isApplied);
+    }
+
+    @Test
+    @DisplayName("잊어버린 비밀번호 새로운 비밀번호로 변경")
+    public void modifyForgetPassword() {
+        // given
+        ForgotPasswordInfo forgotPasswordInfo = ForgotPasswordInfo.builder()
+                .email("abc1234@gmail.com")
+                .newPassword("abcd")
+                .authCode("34212")
+                .build();
+
+
+        Account account = Account.builder()
+                .password(passwordEncoder.encode("1234"))
+                .build();
+
+        doReturn(account).when(accountService).findAccountByEmail(forgotPasswordInfo.getEmail());
+
+        // when
+        accountService.modifyForgetPassword(forgotPasswordInfo);
+
+        // thenR
+        assertThat(account.getPassword()).isEqualTo(passwordEncoder.encode("abcd"));
     }
 }

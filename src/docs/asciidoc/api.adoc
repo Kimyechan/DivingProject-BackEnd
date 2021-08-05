@@ -169,6 +169,10 @@ operation::account-update-nickName[]
 === 패스워드 수정
 operation::account-update-password[]
 
+[[resource-account-update-forgot-password]]
+=== 잊어버린 패스워드 수정
+operation::account-update-forgot-password[]
+
 [[resource-account-delete]]
 === 계정 삭제
 operation::account-delete[]

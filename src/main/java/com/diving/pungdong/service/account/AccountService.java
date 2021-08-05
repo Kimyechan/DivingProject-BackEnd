@@ -19,6 +19,7 @@ import com.diving.pungdong.dto.account.signIn.SignInInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpInfo;
 import com.diving.pungdong.dto.account.signUp.SignUpResult;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
+import com.diving.pungdong.dto.account.update.ForgotPasswordInfo;
 import com.diving.pungdong.dto.account.update.NickNameInfo;
 import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
 import com.diving.pungdong.model.SuccessResult;
@@ -103,7 +104,6 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
-    @Transactional
     public SignUpResult saveAccountInfo(SignUpInfo signUpInfo) {
         emailService.verifyAuthCode(signUpInfo.getEmail(), signUpInfo.getVerifyCode());
         checkDuplicationOfNickName(signUpInfo.getNickName());
@@ -131,6 +131,7 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public NickNameResult checkDuplicationOfNickName(String nickName) {
         Optional<Account> account = accountJpaRepo.findByNickName(nickName);
         if (account.isPresent()) {
@@ -142,7 +143,6 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
-    @Transactional
     public SuccessResult saveInstructorInfo(Account account, InstructorInfo instructorInfo) {
         account.setOrganization(instructorInfo.getOrganization());
         account.setSelfIntroduction(instructorInfo.getSelfIntroduction());
@@ -153,12 +153,12 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
-    @Transactional
     public void updateIsRequestCertificated(Account account) {
         account.setIsRequestCertified(true);
         accountJpaRepo.save(account);
     }
 
+    @Transactional(readOnly = true)
     public Page<InstructorRequestInfo> getRequestInstructor(Pageable pageable) {
         Page<Account> accountPage = accountJpaRepo.findAllRequestInstructor(pageable);
 
@@ -192,7 +192,6 @@ public class AccountService implements UserDetailsService {
         return certificateImageUrls;
     }
 
-    @Transactional
     public Account addInstructorRole(Long accountId) {
         Account account = findAccountById(accountId);
 
@@ -230,7 +229,6 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
-    @Transactional
     public void updateAccountInfo(Account account, AccountUpdateInfo updateInfo) {
         account.setBirth(updateInfo.getBirth());
         account.setGender(updateInfo.getGender());
@@ -241,7 +239,6 @@ public class AccountService implements UserDetailsService {
         producer.sendAccountUpdateInfo(updatedAccount);
     }
 
-    @Transactional
     public void updateNickName(Account account, String nickName) {
         checkDuplicationOfNickName(nickName);
 
@@ -253,7 +250,6 @@ public class AccountService implements UserDetailsService {
         producer.sendAccountUpdateInfo(updatedAccount);
     }
 
-    @Transactional
     public void updatePassword(Account account, PasswordUpdateInfo passwordUpdateInfo) {
         checkCorrectPassword(passwordUpdateInfo.getCurrentPassword(), account);
 
@@ -263,7 +259,6 @@ public class AccountService implements UserDetailsService {
         producer.sendAccountUpdateInfo(updatedAccount);
     }
 
-    @Transactional
     public void deleteAccount(Account account, String password) {
         checkCorrectPassword(password, account);
 
@@ -273,7 +268,6 @@ public class AccountService implements UserDetailsService {
         lectureService.closeAllLecture(updatedAccount);
     }
 
-    @Transactional
     public Account updateAccountDeleted(AccountRestoreInfo accountRestoreInfo) {
         emailService.verifyAuthCode(accountRestoreInfo.getEmail(), accountRestoreInfo.getEmailAuthCode());
 
@@ -288,5 +282,14 @@ public class AccountService implements UserDetailsService {
         Account account = findAccountById(applicantId);
 
         return account.getIsRequestCertified();
+    }
+
+    public void modifyForgetPassword(ForgotPasswordInfo forgotPasswordInfo) {
+        String email = forgotPasswordInfo.getEmail();
+        String authCode = forgotPasswordInfo.getAuthCode();
+        emailService.verifyAuthCode(email, authCode);
+
+        Account account = findAccountByEmail(email);
+        account.setPassword(passwordEncoder.encode(forgotPasswordInfo.getNewPassword()));
     }
 }

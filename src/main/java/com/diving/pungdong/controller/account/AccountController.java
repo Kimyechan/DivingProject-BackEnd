@@ -11,6 +11,7 @@ import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertific
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.restore.AccountRestoreInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
+import com.diving.pungdong.dto.account.update.ForgotPasswordInfo;
 import com.diving.pungdong.dto.account.update.NickNameInfo;
 import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
 import com.diving.pungdong.model.SuccessResult;
@@ -149,5 +150,17 @@ public class AccountController {
         accountService.updateAccountDeleted(accountRestoreInfo);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/forgot-password")
+    public ResponseEntity<?> updateForgotPassword(@Valid @RequestBody ForgotPasswordInfo forgotPasswordInfo,
+                                                  BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException();
+        }
+
+        accountService.modifyForgetPassword(forgotPasswordInfo);
+
+        return ResponseEntity.ok().build();
     }
 }
