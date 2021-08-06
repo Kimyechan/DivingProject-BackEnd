@@ -13,6 +13,7 @@ import com.diving.pungdong.dto.account.instructor.certificate.InstructorCertific
 import com.diving.pungdong.dto.account.read.InstructorBasicInfo;
 import com.diving.pungdong.dto.account.restore.AccountRestoreInfo;
 import com.diving.pungdong.dto.account.update.AccountUpdateInfo;
+import com.diving.pungdong.dto.account.update.ForgotPasswordInfo;
 import com.diving.pungdong.dto.account.update.NickNameInfo;
 import com.diving.pungdong.dto.account.update.PasswordUpdateInfo;
 import com.diving.pungdong.service.InstructorCertificateService;
@@ -389,6 +390,35 @@ class AccountControllerTest {
                                 requestFields(
                                         fieldWithPath("email").description("이메일"),
                                         fieldWithPath("emailAuthCode").description("이메일 승인 번호")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("패스워드를 잊어버리고 새로운 패스워드로 수정")
+    public void updateForgotPassword() throws Exception {
+        ForgotPasswordInfo forgotPasswordInfo = ForgotPasswordInfo.builder()
+                .email("abc1234@gmail.com")
+                .newPassword("zas1234")
+                .authCode("34212")
+                .build();
+
+        mockMvc.perform(put("/account/forgot-password")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(forgotPasswordInfo)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "account-update-forgot-password",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입")
+                                ),
+                                requestFields(
+                                        fieldWithPath("email").description("이메일"),
+                                        fieldWithPath("newPassword").description("새로운 비밀번호"),
+                                        fieldWithPath("authCode").description("승인 번호")
                                 )
                         )
                 );
