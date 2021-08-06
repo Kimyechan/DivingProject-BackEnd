@@ -290,6 +290,10 @@ public class AccountService implements UserDetailsService {
         emailService.verifyAuthCode(email, authCode);
 
         Account account = findAccountByEmail(email);
+
         account.setPassword(passwordEncoder.encode(forgotPasswordInfo.getNewPassword()));
+        Account updatedAccount = accountJpaRepo.save(account);
+
+        producer.sendAccountUpdateInfo(updatedAccount);
     }
 }
