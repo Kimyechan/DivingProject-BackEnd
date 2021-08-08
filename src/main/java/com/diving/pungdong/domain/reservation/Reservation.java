@@ -30,7 +30,7 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.LAZY)
     private Schedule schedule;
 
-    @OneToMany(mappedBy = "reservation", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "reservation", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<ReservationEquipment> reservationEquipmentList;
 
     @OneToOne(fetch = FetchType.LAZY)
