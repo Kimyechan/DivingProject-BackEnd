@@ -20,7 +20,7 @@ public class ScheduleEquipment {
 
     private Integer price;
 
-    @OneToMany(mappedBy = "scheduleEquipment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "scheduleEquipment", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<ScheduleEquipmentStock> scheduleEquipmentStocks;
 
     @ManyToOne(fetch = FetchType.LAZY)
