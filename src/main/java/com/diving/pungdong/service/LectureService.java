@@ -86,7 +86,7 @@ public class LectureService {
         List<MyLectureInfo> myLectureInfoList = new ArrayList<>();
 
         for (Lecture lecture : lectureList) {
-            String lectureImageUrl = getMainLectureImage(lecture);
+            String lectureImageUrl = findMainLectureImage(lecture);
             List<String> equipmentNames = mapToEquipmentNames(lecture);
             Long leftScheduleDate = calcLeftScheduleDate(lecture.getSchedules());
 
@@ -153,7 +153,7 @@ public class LectureService {
         Map<Long, Boolean> likeLectureMap = lectureMarkService.findLikeLectureMap(account);
 
         for (Lecture lecture : lecturePage.getContent()) {
-            String lectureImageUrl = getMainLectureImage(lecture);
+            String lectureImageUrl = findMainLectureImage(lecture);
             boolean isMarked = likeLectureMap.getOrDefault(lecture.getId(), false);
             List<String> equipmentNames = mapToEquipmentNames(lecture);
 
@@ -210,7 +210,7 @@ public class LectureService {
         Map<Long, Boolean> likeLectureMap = lectureMarkService.findLikeLectureMap(account);
 
         for (Lecture lecture : lecturePage.getContent()) {
-            String lectureImageUrl = getMainLectureImage(lecture);
+            String lectureImageUrl = findMainLectureImage(lecture);
             boolean isMarked = likeLectureMap.getOrDefault(lecture.getId(), false);
             List<String> equipmentNames = mapToEquipmentNames(lecture);
 
@@ -246,7 +246,7 @@ public class LectureService {
         return equipmentNames;
     }
 
-    public String getMainLectureImage(Lecture lecture) {
+    public String findMainLectureImage(Lecture lecture) {
         if (!lecture.getLectureImages().isEmpty()) {
             return lecture.getLectureImages().get(0).getFileURI();
         } else {
@@ -344,7 +344,7 @@ public class LectureService {
     public Page<LikeLectureInfo> mapToLikeLectureInfos(Page<Lecture> likeLecturePage) {
         List<LikeLectureInfo> likeLectureInfos = new ArrayList<>();
         for (Lecture lecture : likeLecturePage.getContent()) {
-            String lectureImageUrl = getMainLectureImage(lecture);
+            String lectureImageUrl = findMainLectureImage(lecture);
             List<String> equipmentNames = mapToEquipmentNames(lecture);
 
             LikeLectureInfo lectureInfo = LikeLectureInfo.builder()

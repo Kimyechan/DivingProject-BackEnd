@@ -11,6 +11,8 @@ import com.diving.pungdong.dto.reservation.detail.LocationDetail;
 import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
+import com.diving.pungdong.dto.reservation.list.FutureReservationUIModel;
+import com.diving.pungdong.dto.reservation.list.PastReservationUIModel;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.service.LocationService;
@@ -66,6 +68,26 @@ public class ReservationController {
         return ResponseEntity.ok().body(model);
     }
 
+    @GetMapping("/future")
+    public ResponseEntity<?> readMyFutureReservations(@CurrentUser Account account,
+                                                      Pageable pageable,
+                                                      PagedResourcesAssembler<FutureReservationUIModel> assembler) {
+        Page<FutureReservationUIModel> reservationPage = reservationService.findMyFutureReservations(account, pageable);
+
+        PagedModel<EntityModel<FutureReservationUIModel>> model = assembler.toModel(reservationPage);
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/past")
+    public ResponseEntity<?> readMyPastReservations(@CurrentUser Account account,
+                                                    Pageable pageable,
+                                                    PagedResourcesAssembler<PastReservationUIModel> assembler) {
+        Page<PastReservationUIModel> reservationPage = reservationService.findMyPastReservation(account, pageable);
+
+        PagedModel<EntityModel<PastReservationUIModel>> model = assembler.toModel(reservationPage);
+        return ResponseEntity.ok().body(model);
+    }
+
     @GetMapping
     public ResponseEntity<?> readReservationDetail(@CurrentUser Account account,
                                                    @RequestParam Long reservationId) {
@@ -107,13 +129,13 @@ public class ReservationController {
         return ResponseEntity.ok().body(model);
     }
 
-   @DeleteMapping("/{id}")
-   public ResponseEntity<?> cancelReservation(@CurrentUser Account account,
-                                              @PathVariable("id") Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> cancelReservation(@CurrentUser Account account,
+                                               @PathVariable("id") Long id) {
         reservationService.deleteReservation(account, id);
 
         return ResponseEntity.noContent().build();
-   }
+    }
 
 
     @PostMapping("/schedule/{id}/notification")
