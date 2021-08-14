@@ -66,4 +66,19 @@ class ReservationJpaRepoTest {
 
         return savedAccount;
     }
+
+    @Test
+    @DisplayName("강의 일정이 종료된 계정의 예약목록 조회")
+    public void findByAccountAndBeforeToday() {
+        // given
+        Account account = saveReservation();
+        LocalDateTime now = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // when
+        Page<Reservation> reservations = reservationJpaRepo.findByAccountAndBeforeToday(account, now, pageable);
+
+        // then
+        assertThat(reservations.getContent().size()).isEqualTo(3);
+    }
 }

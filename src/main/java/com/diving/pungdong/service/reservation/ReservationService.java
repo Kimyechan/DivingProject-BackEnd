@@ -6,7 +6,6 @@ import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.reservation.ReservationEquipment;
@@ -20,6 +19,7 @@ import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.FutureReservationUIModel;
+import com.diving.pungdong.dto.reservation.list.PastReservationUIModel;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.repo.reservation.ReservationJpaRepo;
@@ -248,5 +248,40 @@ public class ReservationService {
                 .lectureImageUrl(mainLectureImage)
                 .remainingDate(remainingDate)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PastReservationUIModel> findMyPastReservation(Account account, Pageable pageable) {
+        Page<Reservation> reservationPage = reservationJpaRepo.findByAccountAndBeforeToday(account, LocalDateTime.now(), pageable);
+
+        List<PastReservationUIModel> pastReservations = new ArrayList<>();
+        for (Reservation reservation : reservationPage.getContent()) {
+            Lecture lecture = reservation.getSchedule().getLecture();
+            PastReservationUIModel pastReservation = createPastReservationUIModel(reservation, lecture);
+
+            pastReservations.add(pastReservation);
+        }
+
+        return new PageImpl<>(pastReservations, pageable, reservationPage.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public PastReservationUIModel createPastReservationUIModel(Reservation reservation, Lecture lecture) {
+        String instructorNickName = lecture.getInstructor().getNickName();
+        String mainLectureImage = lectureService.findMainLectureImage(lecture);
+        Boolean isExistedReview = checkExistedReview(reservation);
+
+        return PastReservationUIModel.builder()
+                .reservation(reservation)
+                .lecture(lecture)
+                .instructorNickname(instructorNickName)
+                .lectureImageUrl(mainLectureImage)
+                .isExistedReview(isExistedReview)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkExistedReview(Reservation reservation) {
+        return reservation.getReview() != null;
     }
 }

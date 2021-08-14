@@ -21,4 +21,7 @@ public interface ReservationJpaRepo extends JpaRepository<Reservation, Long> {
 
     @Query("select r from Reservation r where r.account = :account and r.lastScheduleDateTime >= :now")
     Page<Reservation> findByAccountAndAfterToday(@Param("account") Account account, @Param("now") LocalDateTime now, Pageable pageable);
+
+    @Query("select r from Reservation r where r.account = :account and r.lastScheduleDateTime < :now")
+    Page<Reservation> findByAccountAndBeforeToday(@Param("account") Account account, @Param("now") LocalDateTime now, Pageable pageable);
 }

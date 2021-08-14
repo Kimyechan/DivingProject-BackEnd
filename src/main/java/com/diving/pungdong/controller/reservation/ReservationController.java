@@ -12,6 +12,7 @@ import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
 import com.diving.pungdong.dto.reservation.list.FutureReservationUIModel;
+import com.diving.pungdong.dto.reservation.list.PastReservationUIModel;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.service.LocationService;
@@ -74,6 +75,16 @@ public class ReservationController {
         Page<FutureReservationUIModel> reservationPage = reservationService.findMyFutureReservations(account, pageable);
 
         PagedModel<EntityModel<FutureReservationUIModel>> model = assembler.toModel(reservationPage);
+        return ResponseEntity.ok().body(model);
+    }
+
+    @GetMapping("/past")
+    public ResponseEntity<?> readMyPastReservations(@CurrentUser Account account,
+                                                    Pageable pageable,
+                                                    PagedResourcesAssembler<PastReservationUIModel> assembler) {
+        Page<PastReservationUIModel> reservationPage = reservationService.findMyPastReservation(account, pageable);
+
+        PagedModel<EntityModel<PastReservationUIModel>> model = assembler.toModel(reservationPage);
         return ResponseEntity.ok().body(model);
     }
 
