@@ -6,6 +6,7 @@ import com.diving.pungdong.advice.exception.NoPermissionsException;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.payment.Payment;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.domain.reservation.ReservationEquipment;
@@ -18,6 +19,7 @@ import com.diving.pungdong.dto.reservation.detail.PaymentDetail;
 import com.diving.pungdong.dto.reservation.detail.RentEquipmentDetail;
 import com.diving.pungdong.dto.reservation.detail.ReservationDetail;
 import com.diving.pungdong.dto.reservation.detail.ScheduleDetail;
+import com.diving.pungdong.dto.reservation.list.FutureReservationUIModel;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.repo.reservation.ReservationJpaRepo;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -48,7 +51,6 @@ public class ReservationService {
     private final LectureService lectureService;
     private final ReservationKafkaProducer reservationKafkaProducer;
 
-    @Transactional
     public Reservation saveReservation(Account account, ReservationCreateInfo reservationCreateInfo) {
         Schedule schedule = scheduleService.findScheduleById(reservationCreateInfo.getScheduleId());
 
@@ -59,11 +61,13 @@ public class ReservationService {
         scheduleService.plusScheduleReservationNumber(schedule, reservationCreateInfo.getNumberOfPeople());
         Payment payment = paymentService.savePaymentInfo(schedule, reservationCreateInfo);
 
+        LocalDateTime lastScheduleDateTime = scheduleService.findLastScheduleDateTime(schedule);
         Reservation reservation = Reservation.builder()
                 .account(account)
                 .schedule(schedule)
                 .payment(payment)
                 .dateOfReservation(LocalDate.now())
+                .lastScheduleDateTime(lastScheduleDateTime)
                 .numberOfPeople(reservationCreateInfo.getNumberOfPeople())
                 .build();
         Reservation savedReservation = reservationJpaRepo.save(reservation);
@@ -79,6 +83,7 @@ public class ReservationService {
         return savedReservation;
     }
 
+    @Transactional(readOnly = true)
     public Reservation findById(Long reservationId) {
         return reservationJpaRepo.findById(reservationId).orElseThrow(ResourceNotFoundException::new);
     }
@@ -173,7 +178,6 @@ public class ReservationService {
         return scheduleDetails;
     }
 
-    @Transactional
     public void deleteReservation(Account account, Long id) {
         Reservation reservation = findById(id);
         checkRightForReservation(account, reservation.getAccount());
@@ -214,5 +218,35 @@ public class ReservationService {
         }
 
         reservationKafkaProducer.sendLectureNotification(applicantIds, notification, schedule.getLecture().getId());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<FutureReservationUIModel> findMyFutureReservations(Account account, Pageable pageable) {
+        Page<Reservation> reservationPage = reservationJpaRepo.findByAccountAndAfterToday(account, LocalDateTime.now(), pageable);
+
+        List<FutureReservationUIModel> futureReservations = new ArrayList<>();
+        for (Reservation reservation : reservationPage.getContent()) {
+            Lecture lecture = reservation.getSchedule().getLecture();
+            FutureReservationUIModel futureReservation = createFutureReservationUIModel(reservation, lecture);
+
+            futureReservations.add(futureReservation);
+        }
+
+        return new PageImpl<>(futureReservations, pageable, reservationPage.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public FutureReservationUIModel createFutureReservationUIModel(Reservation reservation, Lecture lecture) {
+        String instructorNickName = lecture.getInstructor().getNickName();
+        String mainLectureImage = lectureService.findMainLectureImage(lecture);
+        Long remainingDate = scheduleService.calcScheduleRemainingDate(reservation.getSchedule());
+
+        return FutureReservationUIModel.builder()
+                .reservation(reservation)
+                .lecture(lecture)
+                .instructorNickname(instructorNickName)
+                .lectureImageUrl(mainLectureImage)
+                .remainingDate(remainingDate)
+                .build();
     }
 }

@@ -8,6 +8,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,8 @@ public class Reservation {
     private Integer numberOfPeople;
 
     private LocalDate dateOfReservation;
+
+    private LocalDateTime lastScheduleDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account account;

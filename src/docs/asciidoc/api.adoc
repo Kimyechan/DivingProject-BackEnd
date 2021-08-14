@@ -353,6 +353,10 @@ operation::reservation-create[]
 === 강의 예약 리스트
 operation::reservation-find-list[]
 
+[[resource-reservation-find-future-list]]
+=== 진행될 강의 예약 리스트
+operation::reservation-find-future-list[]
+
 [[resourec-reservation-read]]
 === 예약 상세 내용
 operation::reservation-read[]

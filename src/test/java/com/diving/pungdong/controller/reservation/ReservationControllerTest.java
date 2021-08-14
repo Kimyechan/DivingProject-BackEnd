@@ -6,11 +6,14 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Lecture;
+import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.lecture.Organization;
 import com.diving.pungdong.domain.reservation.Reservation;
 import com.diving.pungdong.dto.reservation.RentEquipmentInfo;
 import com.diving.pungdong.dto.reservation.ReservationCreateInfo;
 import com.diving.pungdong.dto.reservation.detail.*;
+import com.diving.pungdong.dto.reservation.list.FutureReservationUIModel;
 import com.diving.pungdong.dto.reservation.list.ReservationInfo;
 import com.diving.pungdong.dto.schedule.notification.Notification;
 import com.diving.pungdong.service.LocationService;
@@ -30,18 +33,14 @@ import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -210,6 +209,84 @@ class ReservationControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("앞으로 진행될 강의 예약 목록 읽기")
+    public void readMyFutureReservations() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        List<FutureReservationUIModel> futureReservations = createFutureReservations();
+
+        Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "dateOfReservation"));
+        Page<FutureReservationUIModel> futureReservationPage = new PageImpl<>(futureReservations, pageable, futureReservations.size());
+
+        given(reservationService.findMyFutureReservations(any(), any())).willReturn(futureReservationPage);
+
+        mockMvc.perform(get("/reservation/future")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .param("sort", String.valueOf(pageable.getSort())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "reservation-find-future-list",
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].reservationId").description("예약 식별자 값"),
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].lectureTitle").description("강의 타이틀"),
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].organization").description("강의 자격증 소속 단체"),
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].level").description("강의 자격증 레벨"),
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].lectureImageUrl").description("강의 이미지 Url"),
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].instructorNickname").description("강사 닉네임"),
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].reservationDate").description("예약 날짜"),
+                                        fieldWithPath("_embedded.futureReservationUIModelList[].remainingDate").description("예약 최근 일정 남은 날짜"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
+                                )
+                        )
+                );
+    }
+
+    private List<FutureReservationUIModel> createFutureReservations() {
+        List<FutureReservationUIModel> futureReservations = new ArrayList<>();
+        for (int i = 1; i <= 2; i++) {
+            Reservation reservation = Reservation.builder()
+                    .id((long) i)
+                    .dateOfReservation(LocalDate.of(2021, 3, 21))
+                    .build();
+
+            Lecture lecture = Lecture.builder()
+                    .title("강의 제목")
+                    .organization(Organization.AIDA)
+                    .level("Level 1")
+                    .build();
+
+            FutureReservationUIModel futureReservation = FutureReservationUIModel.builder()
+                    .reservation(reservation)
+                    .lecture(lecture)
+                    .lectureImageUrl("강의 대표 이미지 링크")
+                    .instructorNickname("강사 닉네임")
+                    .remainingDate(10L)
+                    .build();
+
+            futureReservations.add(futureReservation);
+        }
+
+        return futureReservations;
     }
 
     @Test
@@ -431,7 +508,7 @@ class ReservationControllerTest {
                 .andExpect(status().isNoContent())
                 .andDo(document("reservation-create-notification",
                         pathParameters(
-                            parameterWithName("id").description("강의 일정 식별자 값")
+                                parameterWithName("id").description("강의 일정 식별자 값")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("application json 타입"),

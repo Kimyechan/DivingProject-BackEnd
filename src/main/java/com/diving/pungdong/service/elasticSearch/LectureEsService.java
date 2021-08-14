@@ -3,13 +3,11 @@ package com.diving.pungdong.service.elasticSearch;
 import com.diving.pungdong.advice.exception.ResourceNotFoundException;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
-import com.diving.pungdong.domain.lecture.LectureImage;
 import com.diving.pungdong.domain.lecture.elasticSearch.LectureEs;
 import com.diving.pungdong.dto.equipment.create.EquipmentCreateInfo;
 import com.diving.pungdong.dto.equipment.create.EquipmentInfo;
 import com.diving.pungdong.dto.lecture.list.LectureInfo;
 import com.diving.pungdong.dto.lecture.update.LectureUpdateInfo;
-import com.diving.pungdong.dto.lectureImage.delete.LectureImageDeleteInfo;
 import com.diving.pungdong.repo.elasticSearch.LectureEsRepo;
 import com.diving.pungdong.repo.lecture.LectureJpaRepo;
 import com.diving.pungdong.service.LectureMarkService;
@@ -41,7 +39,7 @@ public class LectureEsService {
         lectureService.checkLectureCreator(creator, lectureId);
 
         Lecture lecture = lectureService.findLectureById(lectureId);
-        String lectureImageUrl = lectureService.getMainLectureImage(lecture);
+        String lectureImageUrl = lectureService.findMainLectureImage(lecture);
         List<String> equipmentNames = lectureService.mapToEquipmentNames(lecture);
 
         LectureEs lectureEs = LectureEs.builder()

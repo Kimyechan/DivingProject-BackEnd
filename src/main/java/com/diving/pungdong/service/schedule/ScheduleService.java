@@ -26,10 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -210,5 +212,19 @@ public class ScheduleService {
     public void minusScheduleReservationNumber(Schedule schedule, Integer numberOfPeople) {
         schedule.setCurrentNumber(schedule.getCurrentNumber() - numberOfPeople);
         scheduleJpaRepo.save(schedule);
+    }
+
+    @Transactional(readOnly = true)
+    public LocalDateTime findLastScheduleDateTime (Schedule schedule) {
+        List<ScheduleDateTime> scheduleDateTimes = schedule.getScheduleDateTimes();
+
+        List<LocalDateTime> dateTimes = new ArrayList<>();
+        for (ScheduleDateTime scheduleDateTime : scheduleDateTimes) {
+            LocalDateTime localDateTime = LocalDateTime.of(scheduleDateTime.getDate(), scheduleDateTime.getEndTime());
+            dateTimes.add(localDateTime);
+        }
+        Collections.sort(dateTimes);
+
+        return dateTimes.get(dateTimes.size() - 1);
     }
 }
