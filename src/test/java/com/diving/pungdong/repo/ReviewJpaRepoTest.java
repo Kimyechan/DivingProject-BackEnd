@@ -1,5 +1,6 @@
 package com.diving.pungdong.repo;
 
+import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.review.Review;
 import com.netflix.discovery.converters.Auto;
@@ -80,5 +81,46 @@ class ReviewJpaRepoTest {
         Page<Review> reviews = reviewJpaRepo.findByLecture(lecture, pageable);
 
         assertThat(reviews.getContent().get(0).getWriteDate()).isEqualTo(LocalDate.now().minusDays(1));
+    }
+
+    public Account createMyReviews() {
+        Account account = Account.builder().build();
+        Account savedAccount = em.persist(account);
+
+        Lecture lecture = Lecture.builder().build();
+        em.persist(lecture);
+
+        for (int i = 1; i <= 5; i++) {
+            Review review = Review.builder()
+                    .instructorStar((float) i)
+                    .lectureStar((float) i)
+                    .locationStar((float) i)
+                    .writeDate(LocalDate.now().minusDays(i))
+                    .lecture(lecture)
+                    .writer(account)
+                    .build();
+            em.persist(review);
+        }
+
+        em.flush();
+        em.clear();
+
+        return savedAccount;
+    }
+
+    @Test
+    @DisplayName("나의 강의 리뷰 목록 읽기")
+    public void findByWriter() {
+        //given
+        Account writer = createMyReviews();
+        Pageable pageable = PageRequest.of(0, 5);
+
+        //when
+        Page<Review> reviewPage = reviewJpaRepo.findByWriter(writer, pageable);
+
+        //then
+        for (Review review : reviewPage.getContent()) {
+            assertThat(review.getWriter()).isEqualTo(writer);
+        }
     }
 }

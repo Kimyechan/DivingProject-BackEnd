@@ -6,7 +6,13 @@ import com.diving.pungdong.config.security.UserAccount;
 import com.diving.pungdong.domain.account.Account;
 import com.diving.pungdong.domain.account.Gender;
 import com.diving.pungdong.domain.account.Role;
+import com.diving.pungdong.domain.lecture.Lecture;
 import com.diving.pungdong.domain.review.Review;
+import com.diving.pungdong.domain.review.ReviewImage;
+import com.diving.pungdong.dto.lecture.LectureTitleUI;
+import com.diving.pungdong.dto.review.ReviewModel;
+import com.diving.pungdong.dto.review.image.ReviewImageModel;
+import com.diving.pungdong.dto.review.list.MyReviewUI;
 import com.diving.pungdong.dto.review.ReviewInfo;
 import com.diving.pungdong.dto.review.create.ReviewCreateInfo;
 import com.diving.pungdong.dto.review.image.create.ReviewImageInfo;
@@ -29,6 +35,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -238,6 +245,82 @@ class ReviewControllerTest {
                                         fieldWithPath("_embedded.reviewImageInfoList[].reviewImageId").description("강의 이미지 식별자 값"),
                                         fieldWithPath("_embedded.reviewImageInfoList[].imageUrl").description("강의 이미지 Url"),
                                         fieldWithPath("_links.self.href").description("해당 Api Url")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("나의 리뷰 모아보기")
+    public void readMyReviews() throws Exception {
+        Account account = createAccount(Role.STUDENT);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()), Set.of(Role.STUDENT));
+
+        List<MyReviewUI> myReviews = new ArrayList<>();
+        for (int i = 1; i <= 2; i++) {
+            Lecture lecture = Lecture.builder()
+                    .id((long) i)
+                    .title("강의 제목")
+                    .build();
+
+            Review review = Review.builder()
+                    .id((long) i)
+                    .locationStar(4.5f)
+                    .lectureStar(4.5f)
+                    .instructorStar(4.5f)
+                    .totalStarAvg(4.5f)
+                    .description("잘 가르치시네요")
+                    .writeDate(LocalDate.of(2021, 3, 21))
+                    .build();
+
+            ReviewImage reviewImage = ReviewImage.builder()
+                    .id((long) i)
+                    .url("리뷰 사진 이미지 url")
+                    .build();
+
+            myReviews.add(new MyReviewUI(lecture, review, List.of(reviewImage)));
+        }
+
+        Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "writeDate"));
+        Page<MyReviewUI> myReviewPage = new PageImpl<>(myReviews, pageable, myReviews.size());
+
+        given(reviewService.findMyReviews(any(), any())).willReturn(myReviewPage);
+
+        mockMvc.perform(get("/review/mine")
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .param("page", String.valueOf(pageable.getPageNumber()))
+                .param("size", String.valueOf(pageable.getPageSize()))
+                .param("sort", String.valueOf(pageable.getSort())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(
+                        document(
+                                "review-find-my-list",
+                                requestHeaders(
+                                        headerWithName(org.apache.http.HttpHeaders.AUTHORIZATION).description("access token 값")
+                                ),
+                                requestParameters(
+                                        parameterWithName("page").description("몇 번째 페이지"),
+                                        parameterWithName("size").description("한 페이지 당 크기"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("_embedded.myReviewUIList[].lectureTitleUI.id").description("강의 식별자 값"),
+                                        fieldWithPath("_embedded.myReviewUIList[].lectureTitleUI.title").description("강의 제목"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewModel.id").description("리뷰 식별자 값"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewModel.instructorStar").description("강사 평점"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewModel.lectureStar").description("강의 평점"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewModel.locationStar").description("강의 장소 평점"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewModel.totalStarAvg").description("강의 총 평점"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewModel.description").description("리뷰 내용"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewModel.writeDate").description("리뷰 작성 날짜"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewImageModels[].id.").description("리뷰 이미지 식별자 값"),
+                                        fieldWithPath("_embedded.myReviewUIList[].reviewImageModels[].url.").description("리뷰 이미지 Url"),
+                                        fieldWithPath("_links.self.href").description("해당 Api Url"),
+                                        fieldWithPath("page.size").description("한 페이지 당 사이즈"),
+                                        fieldWithPath("page.totalElements").description("전체 신규 강의 갯수"),
+                                        fieldWithPath("page.totalPages").description("전체 페이지 갯수"),
+                                        fieldWithPath("page.number").description("현재 페이지 번호")
                                 )
                         )
                 );
