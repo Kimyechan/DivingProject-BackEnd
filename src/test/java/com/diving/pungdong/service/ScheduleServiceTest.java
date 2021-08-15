@@ -14,9 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Year;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,5 +149,31 @@ class ScheduleServiceTest {
         scheduleService.minusScheduleReservationNumber(schedule, 3);
 
         assertThat(schedule.getCurrentNumber()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("일정의 마지막 강의 날짜 시간 조회")
+    public void findLastScheduleDateTime() {
+        // given
+        List<ScheduleDateTime> scheduleDateTimes = new ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+            ScheduleDateTime scheduleDateTime = ScheduleDateTime.builder()
+                    .date(LocalDate.of(2021, 3, i))
+                    .startTime(LocalTime.of(13, 0))
+                    .endTime(LocalTime.of(15, 0))
+                    .build();
+
+            scheduleDateTimes.add(scheduleDateTime);
+        }
+
+        Schedule schedule = Schedule.builder()
+                .scheduleDateTimes(scheduleDateTimes)
+                .build();
+
+        // when
+        LocalDateTime lastScheduleDateTime = scheduleService.findLastScheduleDateTime(schedule);
+
+        // then
+        assertThat(lastScheduleDateTime).isEqualTo(LocalDateTime.of(2021 , 3, 3, 15, 0));
     }
 }
