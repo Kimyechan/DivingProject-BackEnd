@@ -11,6 +11,7 @@ import com.diving.pungdong.domain.review.ReviewImage;
 import com.diving.pungdong.domain.schedule.ScheduleDateTime;
 import com.diving.pungdong.dto.review.ReviewInfo;
 import com.diving.pungdong.dto.review.create.ReviewCreateInfo;
+import com.diving.pungdong.dto.review.list.MyReviewUI;
 import com.diving.pungdong.repo.ReviewJpaRepo;
 import com.diving.pungdong.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -123,5 +124,22 @@ public class ReviewService {
                 (lastDateTime.getDate().isEqual(LocalDate.now()) && lastDateTime.getEndTime().isAfter(LocalTime.now()))) {
             throw new BadRequestException("지금은 리뷰를 작성하지 못합니다");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<MyReviewUI> findMyReviews(Account account, Pageable pageable) {
+        Page<Review> reviewPage = reviewJpaRepo.findByWriter(account, pageable);
+
+        List<MyReviewUI> reviewUIList = new ArrayList<>();
+        for (Review review : reviewPage.getContent()) {
+            Lecture lecture = review.getLecture();
+            List<ReviewImage> reviewImages = review.getReviewImages();
+
+            MyReviewUI reviewUI = new MyReviewUI(lecture, review, reviewImages);
+
+            reviewUIList.add(reviewUI);
+        }
+
+        return new PageImpl<>(reviewUIList, pageable, reviewPage.getTotalElements());
     }
 }

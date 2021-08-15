@@ -9,6 +9,7 @@ import com.diving.pungdong.dto.review.ReviewInfo;
 import com.diving.pungdong.dto.review.create.ReviewCreateInfo;
 import com.diving.pungdong.dto.review.create.ReviewCreateResult;
 import com.diving.pungdong.dto.review.image.create.ReviewImageInfo;
+import com.diving.pungdong.dto.review.list.MyReviewUI;
 import com.diving.pungdong.service.ReviewService;
 import com.diving.pungdong.service.review.ReviewImageService;
 import lombok.RequiredArgsConstructor;
@@ -81,5 +82,15 @@ public class ReviewController {
         model.add(selfLink.withSelfRel());
 
         return ResponseEntity.created(selfLink.toUri()).body(model);
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<?> readMyReviews(@CurrentUser Account account,
+                                           Pageable pageable,
+                                           PagedResourcesAssembler<MyReviewUI> assembler) {
+        Page<MyReviewUI> reviewPage = reviewService.findMyReviews(account, pageable);
+
+        PagedModel<EntityModel<MyReviewUI>> model = assembler.toModel(reviewPage);
+        return ResponseEntity.ok().body(model);
     }
 }
