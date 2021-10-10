@@ -69,6 +69,7 @@ public class LectureService {
         return lectureJpaRepo.save(lecture);
     }
 
+    @Transactional
     public void deleteLectureById(Long id) {
         lectureJpaRepo.deleteById(id);
     }
